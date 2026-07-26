@@ -30,6 +30,13 @@ export function menuItemColumns({
             header: "Item",
 
         },
+        {
+
+            accessorKey: "barcode",
+
+            header: "Barcode",
+
+        },
 
         {
 
@@ -38,6 +45,7 @@ export function menuItemColumns({
             header: "Category",
 
         },
+        
 
         {
 
