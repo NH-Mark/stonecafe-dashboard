@@ -1,0 +1,122 @@
+"use client";
+
+import SalesFilters from "./filters/SalesFilters";
+import SalesTrendChart from "./charts/SalesTrendChart";
+import OrderTypeChart from "./charts/OrderTypeChart";
+import LocationSalesChart from "./charts/LocationSalesChart";
+import RecentOrders from "./tables/RecentOrders";
+import SalesStats from "./cards/SalesStats";
+import { useEffect, useState } from "react";
+import { OrderTypeSales, SalesStat, TopItem, TopModifier } from "../sales.types";
+import { getOrderTypes, getSalesDashboard } from "../sales.service";
+import { SalesDashboardFilters } from "../sales.schema";
+import { Location } from "@/types/location";
+import { getLocations } from "@/features/locations/location.service";
+import TopSellingModifiers from "./tables/TopSellingModifiers";
+import { OrderType } from "@/types/order-type";
+import TopSellingItems from "./tables/TopSellingItems";
+
+
+
+export default function SalesDashboard() {
+
+    const [stats, setStats] = useState<SalesStat[]>([]);
+    const [locations, setLocations] = useState<Location[]>([]);
+    const [orderTypes, setOrderTypes] = useState<OrderType[]>([]);
+    const [salesOrderTypes, setSalesOrderTypes] = useState<OrderTypeSales[]>([]);
+    const [topSellingItems, setTopSellingItems] = useState<TopItem[]>([]);
+    const [topSellingModifiers, setTopSellingModifiers] = useState<TopModifier[]>([]);
+
+    const [filters,setFilters] =
+        useState<SalesDashboardFilters>({
+            range:"today",
+            order_type:undefined,
+            location_id:undefined,
+        });
+
+    const [trend,setTrend] = useState([]);
+    useEffect(() => {
+
+        async function load() {
+
+            const response =
+            await getSalesDashboard(filters);
+                setStats(response.data.stats);
+                setTrend(response.data.sales_trend);
+                setSalesOrderTypes(response.data.sales_by_order_type);
+                setTopSellingItems(response.data.top_selling_items);
+                setTopSellingModifiers(response.data.top_selling_modifiers);
+                console.log(response.data.stats);
+
+        }
+        async function loadLocations() {
+            
+            const response =
+            await getLocations();
+            setLocations(response.data.data??response.data);
+        }
+          async function loadOrderTypes() {
+            
+            const response =
+            await getOrderTypes();
+            setOrderTypes(response.data.data??response.data);
+        }
+        load();
+        loadLocations();
+        loadOrderTypes();
+        
+
+    }, [filters])
+
+    return (
+
+        <div className="space-y-6">
+
+
+            <SalesFilters
+                orderTypes={orderTypes}
+                locations={locations}
+                filters={filters}
+                onChange={setFilters}
+            />
+            <SalesStats
+                data={stats}
+            />
+
+
+            <div className="
+            grid
+            gap-6
+            xl:grid-cols-2
+            ">
+
+
+                <SalesTrendChart data={trend}/>
+
+                <OrderTypeChart data={salesOrderTypes}/>
+
+            </div>
+
+
+
+            <div className="
+            grid
+            gap-6
+            xl:grid-cols-2
+            ">
+
+                <TopSellingItems data={topSellingItems}/>
+
+                <TopSellingModifiers data={topSellingModifiers}/>
+            </div>
+
+
+
+            <RecentOrders />
+
+
+        </div>
+
+    );
+
+}
