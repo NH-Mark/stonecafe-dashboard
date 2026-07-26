@@ -17,17 +17,16 @@ export function hasPermission(
 
 }
 
-
-
 export function hasRole(
     user: User | null,
-    role: Role
+    role: string
 ) {
 
     if (!user) {
         return false;
     }
 
-    return user.roles.includes(role);
-
+    return user.roles.some(
+        (userRole) => userRole.name === role
+    );
 }

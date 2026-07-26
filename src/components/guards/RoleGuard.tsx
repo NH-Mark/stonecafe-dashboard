@@ -34,15 +34,9 @@ export default function RoleGuard({
 
     if (
         !hasRole(user, role)
-    ) {
-
+    ){
         return null;
-
     }
 
-
-
     return children;
-
-
 }
