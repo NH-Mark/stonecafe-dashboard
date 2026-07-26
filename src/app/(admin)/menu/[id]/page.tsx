@@ -13,6 +13,7 @@ import { getModifierGroups } from "@/features/modifiers/modifier.service";
 import { getMenuItemTags } from "@/features/menu-item-tag/menu-item-tag.service";
 import { getFoodSymbols } from "@/features/food-symbol/food-symbol.service";
 import { MenuItem } from "@/types/menu-item";
+import { applyApiErrors } from "@/lib/form-errors";
 
 
 export default function EditMenuItemPage() {
@@ -54,7 +55,7 @@ export default function EditMenuItemPage() {
             setModifierGroups(groupRes.data.data);
             setTags(tagRes.data.data);
             setFoodSymbols(foodRes.data.data);
-             setMenuItem(itemRes.data.data);
+            setMenuItem(itemRes.data.data);
 
         } finally {
             setLoading(false);
@@ -67,14 +68,25 @@ export default function EditMenuItemPage() {
     }, []);
 
 
-    async function handleSubmit(values: any) {
+    async function handleSubmit(values: any,form:any) {
+        try {
+            await updateMenuItem(id, values);
 
-        await updateMenuItem(id, values);
+            toast.success("Menu item updated successfully.");
 
-        toast.success("Menu item updated successfully.");
+            router.push("/menu");
+            router.refresh();
+        } catch (error) {
 
-        router.push("/menu");
-        router.refresh();
+            applyApiErrors(
+                form,
+                error
+            );
+            toast.error(
+                (error as any)?.message ?? "Failed to create staff."
+            );
+
+        }
     }
 
 

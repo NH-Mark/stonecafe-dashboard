@@ -41,7 +41,7 @@ export const adminMenu: AdminMenuItem[] = [
                 permission: "menu.view",
             },
             {
-                title: "Menu Setup",
+                title: "Items",
                 href: "/menu",
                 icon: BookOpen,
                 permission: "menu.view",

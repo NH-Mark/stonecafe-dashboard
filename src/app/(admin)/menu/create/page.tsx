@@ -12,6 +12,7 @@ import { getCategories } from "@/features/menu/category.service";
 import { getModifierGroups } from "@/features/modifiers/modifier.service";
 import { getMenuItemTags } from "@/features/menu-item-tag/menu-item-tag.service";
 import { getFoodSymbols } from "@/features/food-symbol/food-symbol.service";
+import { applyApiErrors } from "@/lib/form-errors";
 
 export default function NewMenuItemPage() {
 
@@ -55,28 +56,42 @@ export default function NewMenuItemPage() {
         load();
     }, []);
 
-    async function handleSubmit(values: any) {
+    async function handleSubmit(values: any,form:any) {
+        try {
+            await createMenuItem(values);
 
-        await createMenuItem(values);
+            toast.success("Menu item created successfully.");
 
-        toast.success("Menu item created successfully.");
+            router.push("/menu");
+            router.refresh();
+        
+        } catch (error) {
 
-        router.push("/menu"); 
-        router.refresh();
+        applyApiErrors(
+            form,
+            error
+        );
+        toast.error(
+            (error as any)?.message ?? "Failed to create staff."
+        );
+
     }
 
-    if (loading) {
-        return <PageLoader />;
-    }
 
-    return (
-        <MenuItemForm
-            mode="create"
-            categories={categories}
-            allModifierGroups={modifierGroups}
-            allTags={tags}
-            foodSymbols={foodSymbols}
-            onSubmit={handleSubmit}
-        />
-    );
+}
+
+if (loading) {
+    return <PageLoader />;
+}
+
+return (
+    <MenuItemForm
+        mode="create"
+        categories={categories}
+        allModifierGroups={modifierGroups}
+        allTags={tags}
+        foodSymbols={foodSymbols}
+        onSubmit={handleSubmit}
+    />
+);
 }

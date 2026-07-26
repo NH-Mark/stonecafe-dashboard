@@ -1,6 +1,6 @@
 "use client";
 
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -39,7 +39,12 @@ interface Props {
     allTags: MenuItemTag[];
     foodSymbols: FoodSymbol[];
     onSubmit: (
-        values: MenuItemFormValues
+        values: MenuItemFormValues,
+        form: UseFormReturn<
+            z.input<typeof menuItemSchema>,
+            unknown,
+            z.output<typeof menuItemSchema>
+        >
     ) => Promise<any>;
 }
 
@@ -314,7 +319,7 @@ export default function MenuItemForm({
             <form
                 onSubmit={form.handleSubmit(
                     async (values) => {
-                        await onSubmit(values);
+                        await onSubmit(values, form);
                     },
                     (errors) => {
                         console.log("ERRORS", errors);
