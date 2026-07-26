@@ -1,5 +1,4 @@
 import StaffTable from "@/features/staff/components/StaffTable";
-import StaffTabs from "@/features/staff/components/StaffTabs";
 import StaffManagement from "@/features/staff/StaffManagement";
 
 
