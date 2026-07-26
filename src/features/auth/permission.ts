@@ -1,3 +1,4 @@
+import { Role } from "@/types/role";
 import { User } from "@/types/user";
 
 
@@ -20,7 +21,7 @@ export function hasPermission(
 
 export function hasRole(
     user: User | null,
-    role: string
+    role: Role
 ) {
 
     if (!user) {
