@@ -1,16 +1,14 @@
 "use client";
 
 
-import {
-    useAuth
-}
-    from "@/features/auth/AuthProvider";
+
 
 
 import {
     hasPermission
 }
     from "@/features/auth/permission";
+import { useAuth } from "@/features/auth/useAuth";
 
 
 
@@ -39,10 +37,10 @@ export default function PermissionGuard({
 
     if (
         !hasPermission(
-            user,
+            user?.permissions,
             permission
         )
-    ) {
+    ){
 
         return null;
 

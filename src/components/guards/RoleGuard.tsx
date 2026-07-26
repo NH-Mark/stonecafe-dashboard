@@ -1,16 +1,14 @@
 "use client";
 
 
-import {
-    useAuth
-}
-    from "@/features/auth/AuthProvider";
+
 
 
 import {
     hasRole
 }
     from "@/features/auth/permission";
+import { useAuth } from "@/features/auth/useAuth";
 
 
 
