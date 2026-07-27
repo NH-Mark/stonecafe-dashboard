@@ -74,9 +74,7 @@ export const adminMenu: AdminMenuItem[] = [
                 href: "/sales/reports",
                 icon: BarChart3,
                 permission: "sales.reports.view",
-
                 children: [
-
                     {
                         title: "Daily Sales",
                         href: "/sales/reports/daily",
@@ -90,7 +88,6 @@ export const adminMenu: AdminMenuItem[] = [
                         icon: Package,
                         permission: "",
                     },
-
                     {
                         title: "Payment Report",
                         href: "/sales/reports/payments",

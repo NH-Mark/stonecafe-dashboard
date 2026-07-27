@@ -10,6 +10,7 @@ import {
     TrendingUp
 } from "lucide-react";
 import { TopModifier } from "../../sales.types";
+import TopSellingModifiersDialog from "../dialogs/TopSellingModifiersDialog";
 
 
 
@@ -92,8 +93,6 @@ export default function TopSellingModifiers({
                             >
                                 Top Selling Modifiers
                             </h3>
-
-
                             <p
                                 className="
                                 text-xs
@@ -102,36 +101,16 @@ export default function TopSellingModifiers({
                             >
                                 Best performing add-ons
                             </p>
-
-
                         </div>
-
-
                     </div>
-
-
-                    <TrendingUp
-                        className="
-                        h-5
-                        w-5
-                        text-[#a5765a]
-                        "
-                    />
-
+                            <TopSellingModifiersDialog data={data} />
                 </div>
-
-
-
-
-                {/* List */}
 
                 <div
                     className="
                     space-y-3
                     "
                 >
-
-
                     {
                         data.length === 0 && (
 
@@ -148,16 +127,13 @@ export default function TopSellingModifiers({
 
                         )
                     }
-
-
-
                     {
                         data.map((item,index)=>(
 
 
                             <div
 
-                                key={item.name}
+                               key={`${item.menu_item}-${item.name}`}
 
                                 className="
                                 flex

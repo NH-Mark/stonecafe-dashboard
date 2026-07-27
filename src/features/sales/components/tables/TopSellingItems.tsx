@@ -10,20 +10,24 @@ import {
     TrendingUp
 } from "lucide-react";
 import { TopItem } from "../../sales.types";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import TopSellingItemsDialog from "../dialogs/TopSellingItemsDialog";
 
 
 type Props = {
     data: TopItem[];
 };
 
-
 export default function TopSellingItems({
     data
 }: Props) {
-
-
     return (
-
         <Card
             className="
             rounded-xl
@@ -107,13 +111,7 @@ export default function TopSellingItems({
                     </div>
 
 
-                    <TrendingUp
-                        className="
-                        h-5
-                        w-5
-                        text-[#a5765a]
-                        "
-                    />
+                    <TopSellingItemsDialog data={data} />
 
                 </div>
 

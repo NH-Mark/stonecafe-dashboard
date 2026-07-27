@@ -75,17 +75,24 @@ export type OrderTypeSales = {
 
 
 export type TopItem = {
-
-    name:string;
-
-    qty:number;
-
-    sales:number;
-
+    name: string;
+    qty: number;
+    sales: number;
+    cogs: number;
+    profitability: {
+        percentage: number;
+        amount: number;
+    };
 };
 
 export type TopModifier = {
     name: string;
     qty: number;
     sales: number;
+    menu_item:string;
+};
+
+export type HourlyBreakdown = {
+    date: string;
+    hours: number[];
 };

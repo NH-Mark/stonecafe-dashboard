@@ -19,16 +19,18 @@ export default function AdminSidebar() {
     );
     
     return (
-       <aside
-            className="
-            hidden
-            w-64
-            lg:flex
-            lg:flex-col
-            bg-[#40332a]
-            text-white
-            "
-        >
+      <aside
+    className="
+        w-64
+        min-h-screen
+        flex
+        flex-col
+        bg-[#40332a]
+        text-white
+        shrink-0
+    "
+
+    >
 
             <div className="flex h-20 items-center gap-3 border-b px-5">
 

@@ -83,7 +83,8 @@ export default function OrderTypeChart({
 
                     <CardTitle
                         className="
-                        text-base
+                        text-sm
+                        font-semibold
                         text-[#40332a]
                         "
                     >
