@@ -1,6 +1,5 @@
 import LocationManagement from "@/features/locations/components/LocationManagement";
-import StaffTable from "@/features/staff/components/StaffTable";
-import StaffManagement from "@/features/staff/StaffManagement";
+
 
 
 

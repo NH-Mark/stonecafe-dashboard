@@ -93,10 +93,9 @@ export function DataTable<TData, TValue>({
                             setSearch(e.target.value);
                             table.setPageIndex(0);
                         }}
-                        className="max-w-sm"
+                        className="max-w-sm bg-white"
                     />
                 )}
-
                 {(columnFilters.length > 0 || search) && (
                     <Button
                         variant="outline"
@@ -107,7 +106,7 @@ export function DataTable<TData, TValue>({
                 )}
             </div>
 
-            <div className="rounded-md border">
+            <div className="rounded-md border bg-white">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (

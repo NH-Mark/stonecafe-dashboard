@@ -25,12 +25,12 @@ export default function SidebarItem({
     const pathname =
         usePathname();
 
-
+    // const active =
+    //     pathname === href ||
+    //     pathname.startsWith(`${href}/`);
     const active =
         pathname === href ||
-        pathname.startsWith(`${href}/`);
-
-
+        (href !== "/sales" && pathname.startsWith(`${href}/`));
 
     return (
 

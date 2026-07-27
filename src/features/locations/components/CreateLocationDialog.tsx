@@ -55,8 +55,6 @@ interface Props {
     onSuccess: () => Promise<void>;
 }
 
-
-
 export default function CreateLocationDialog({
     onSuccess
 }: Props) {

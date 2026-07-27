@@ -68,34 +68,33 @@ export const adminMenu: AdminMenuItem[] = [
                 icon: ShoppingCart,
                 permission: "sales.orders.view",
             },
+            // {
+            //     title: "Reports",
+            //     href: "/sales/reports",
+            //     icon: BarChart3,
+            //     permission: "sales.reports.view",
+            //     children: [
+            //         {
+            //             title: "Daily Sales",
+            //             href: "/sales/reports/daily",
+            //             icon: CalendarDays,
+            //             permission: "",
+            //         },
 
-            {
-                title: "Reports",
-                href: "/sales/reports",
-                icon: BarChart3,
-                permission: "sales.reports.view",
-                children: [
-                    {
-                        title: "Daily Sales",
-                        href: "/sales/reports/daily",
-                        icon: CalendarDays,
-                        permission: "",
-                    },
-
-                    {
-                        title: "Product Sales",
-                        href: "/sales/reports/products",
-                        icon: Package,
-                        permission: "",
-                    },
-                    {
-                        title: "Payment Report",
-                        href: "/sales/reports/payments",
-                        icon: CreditCard,
-                        permission: "",
-                    },
-                ],
-            },
+            //         {
+            //             title: "Product Sales",
+            //             href: "/sales/reports/products",
+            //             icon: Package,
+            //             permission: "",
+            //         },
+            //         {
+            //             title: "Payment Report",
+            //             href: "/sales/reports/payments",
+            //             icon: CreditCard,
+            //             permission: "",
+            //         },
+            //     ],
+            // },
             {
                 title: "Customers",
                 href: "/sales/customers",

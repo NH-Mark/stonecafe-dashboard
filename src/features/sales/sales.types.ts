@@ -17,28 +17,7 @@ export interface SalesSummary {
 
 
 
-export interface Order {
 
-
-    id: number;
-
-
-    order_no: string;
-
-
-    type: string;
-
-
-    source: string;
-
-
-    total: number;
-
-
-    status: string;
-
-
-}
 
 export interface SalesStat {
 
