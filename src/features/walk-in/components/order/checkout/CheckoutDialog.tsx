@@ -294,9 +294,9 @@ export function CheckoutDialog({
                 response
             );
 
-            await printReceipt(
-                response.data
-            );
+            // await printReceipt(
+            //     response.data
+            // );
 
             toast.success('Order Placed Successfully');
             clear();

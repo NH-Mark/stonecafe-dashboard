@@ -347,7 +347,9 @@ export const useOrderStore =
 
         clear: () => set({
 
-            cart: []
+            cart: [],
+            orderNote: "",
+            orderDiscount: null,
 
         })
 
