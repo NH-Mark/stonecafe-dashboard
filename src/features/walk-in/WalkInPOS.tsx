@@ -8,6 +8,9 @@ import { OrderCart } from "./components/OrderCart";
 import { getCategories } from "../menu/category.service";
 import { ModifierDialog } from "./components/modifier-dialog/ModifierDialog";
 import { Button } from "@/components/ui/button";
+import { useOrderStore } from "./store/useOrderStore";
+import { getLineTotal } from "./utils/cart-price";
+import { List, ShoppingCart } from "lucide-react";
 
 
 export function WalkInPOS() {
@@ -24,6 +27,25 @@ export function WalkInPOS() {
 
     const [showCart, setShowCart] =
         useState(false);
+
+
+    const cart = useOrderStore(
+        state => state.cart
+    );
+
+
+    const orderItemCount = cart.reduce(
+        (total, item) =>
+            total + item.quantity,
+        0
+    );
+
+
+    const orderTotal = cart.reduce(
+        (total, item) =>
+            total + getLineTotal(item),
+        0
+    );
 
 
 
@@ -50,7 +72,7 @@ export function WalkInPOS() {
         <div
             className="
                 flex
-                h-screen
+                min-h-dvh
                 flex-col
                 bg-slate-100
             "
@@ -63,11 +85,12 @@ export function WalkInPOS() {
 
             <main
                 className="
-                    flex-1
-                    min-h-0
-                    overflow-hidden
-                    p-3
-                "
+        flex-1
+        min-h-0
+        overflow-hidden
+        p-3
+        pb-20
+    "
             >
 
 
@@ -148,33 +171,90 @@ export function WalkInPOS() {
 
             <div
                 className="
+                    fixed
+                    bottom-0
+                    left-0
+                    right-0
+                    z-40
+
                     flex
                     gap-3
+
                     border-t
-                    bg-white
+                    bg-white/95
                     p-3
+                    shadow-lg
+                    backdrop-blur
 
                     lg:hidden
                 "
             >
 
                 <Button
-                    className="flex-1"
-                    onClick={() =>
-                        setShowCategories(true)
-                    }
+                    variant="outline"
+                    className="
+        h-12
+        flex-1
+        rounded-2xl
+        text-base
+        font-semibold
+    "
+                    onClick={() => setShowCategories(true)}
                 >
+                    <List className="mr-2 h-5 w-5" />
+
                     Categories
                 </Button>
 
 
                 <Button
-                    className="flex-1"
-                    onClick={() =>
-                        setShowCart(true)
-                    }
+                    className="
+        h-12
+        flex-1
+        rounded-2xl
+        text-base
+        font-semibold
+        shadow-md
+    "
+                    onClick={() => setShowCart(true)}
                 >
-                    Order
+
+                    <ShoppingCart
+                        className="
+            mr-2
+            h-5
+            w-5
+        "
+                    />
+
+
+                    <span>
+                        Order
+                    </span>
+
+                    {
+                        orderItemCount > 0 && (
+                            ` (${orderItemCount})`
+                        )
+                    }
+
+
+                    {
+                        orderItemCount > 0 && (
+
+                            <span
+                                className="
+                    ml-auto
+                    text-sm
+                    opacity-90
+                "
+                            >
+                                {orderTotal.toFixed(2)} QAR
+                            </span>
+
+                        )
+                    }
+
                 </Button>
 
             </div>
@@ -191,17 +271,21 @@ export function WalkInPOS() {
                             fixed
                             inset-0
                             z-50
-                            bg-black/30
+                            bg-black/40
+                            backdrop-blur-sm
                         "
+                        onClick={() => setShowCategories(false)}
                     >
 
                         <div
                             className="
                                 h-full
-                                w-72
+                                w-80
                                 bg-white
                                 p-3
+                                shadow-xl
                             "
+                            onClick={(e) => e.stopPropagation()}
                         >
 
                             <CategorySidebar
@@ -228,11 +312,13 @@ export function WalkInPOS() {
 
                     <div
                         className="
-                            fixed
-                            inset-0
-                            z-50
-                            bg-black/30
-                        "
+                                    fixed
+                                    inset-0
+                                    z-50
+                                    bg-black/40
+                                    backdrop-blur-sm
+                                "
+                        onClick={() => setShowCart(false)}
                     >
 
                         <div
@@ -243,7 +329,9 @@ export function WalkInPOS() {
                                 max-w-md
                                 bg-white
                                 p-3
+                                shadow-xl
                             "
+                            onClick={(e) => e.stopPropagation()}
                         >
 
                             <OrderCart />
