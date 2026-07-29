@@ -50,7 +50,7 @@ export function WalkInPOS() {
                             overflow-hidden
                         "
 >
-                        <aside className="col-span-2">
+                        <aside className="col-span-2 min-h-0">
                             <CategorySidebar
                                 categories={categories}
                                 selectedCategory={selectedCategory}
