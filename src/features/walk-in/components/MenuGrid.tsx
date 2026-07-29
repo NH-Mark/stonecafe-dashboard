@@ -68,7 +68,28 @@ export function MenuGrid({ categoryId }: {
 
     return (
 
-        <div className="flex h-full min-h-0 flex-col rounded-3xl bg-white shadow-sm">
+        <div
+    className="
+        flex
+        h-full
+        min-h-0
+        flex-col
+        overflow-hidden
+        rounded-3xl
+        bg-white
+        shadow-sm
+    "
+>
+    <div
+        className="
+            flex-1
+            min-h-0
+            overflow-y-auto
+            p-4
+        "
+    >
+        {/* cards */}
+    
 
 
             <div className="border-b p-5">
@@ -141,6 +162,7 @@ export function MenuGrid({ categoryId }: {
 
 
         </div>
+</div>
 
     );
 

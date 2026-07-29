@@ -72,7 +72,7 @@ export function WalkInPOS() {
         <div
             className="
                 flex
-                min-h-dvh
+                h-dvh
                 flex-col
                 bg-slate-100
             "
@@ -85,12 +85,11 @@ export function WalkInPOS() {
 
             <main
                 className="
-        flex-1
-        min-h-0
-        overflow-hidden
-        p-3
-        pb-20
-    "
+                    flex-1
+                    min-h-0
+                    overflow-hidden
+                    p-3
+                "
             >
 
 
@@ -99,9 +98,9 @@ export function WalkInPOS() {
                         grid
                         h-full
                         min-h-0
-
-                        lg:grid-cols-12
+                        overflow-hidden
                         gap-3
+                        lg:grid-cols-12
                     "
                 >
 
@@ -110,12 +109,13 @@ export function WalkInPOS() {
                     {/* Desktop Categories */}
 
                     <aside
-                        className="
-                            hidden
-                            lg:block
-                            lg:col-span-2
-                        "
-                    >
+                            className="
+                                hidden
+                                min-h-0
+                                lg:block
+                                lg:col-span-2
+                            "
+                        >
 
                         <CategorySidebar
                             categories={categories}
@@ -130,19 +130,16 @@ export function WalkInPOS() {
                     {/* Menu */}
 
                     <section
-                        className="
-                            min-h-0
-
-                            lg:col-span-7
-                        "
+                    className="
+                        min-h-0
+                        overflow-hidden
+                        lg:col-span-7"
+                    
                     >
-
                         <MenuGrid
                             categoryId={selectedCategory}
                         />
-
                     </section>
-
 
 
                     {/* Desktop Cart */}
@@ -150,6 +147,7 @@ export function WalkInPOS() {
                     <aside
                         className="
                             hidden
+                            min-h-0
                             lg:block
                             lg:col-span-3
                         "

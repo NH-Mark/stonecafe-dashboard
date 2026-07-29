@@ -31,7 +31,7 @@ export function CategorySidebar({
                 h-full
                 min-h-0
                 flex-col
-                overflow-hidden
+                overflow-y-auto
                 rounded-3xl
                 bg-white
                 shadow-sm
