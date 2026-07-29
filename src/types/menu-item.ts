@@ -1,6 +1,7 @@
 import { Category } from "./category";
 import { FoodSymbol } from "./food-symbol";
 import { MenuItemTag } from "./menu-item-tag";
+import { Modifier } from "./modifier";
 import { ModifierGroup } from "./modifier-group";
 
 export interface MenuItem {
@@ -28,24 +29,26 @@ export interface MenuItem {
     image?: string | null;
 
 
-    modifier_groups?: {
-        id:number;
+    // modifier_groups?: {
+    //     id:number;
+    //     name:string;
 
-        pivot?: {
-            selection_type:"single"|"multiple";
-            required:boolean;
-            min_selection:number;
-            max_selection:number;
-        }
+    //     pivot?: {
+    //         selection_type:"single"|"multiple";
+    //         required:boolean;
+    //         min_selection:number;
+    //         max_selection:number;
+    //     }
 
-        selection_type:"single"|"multiple";
-        required:boolean;
-        min_selection:number;
-        max_selection:number;
-        modifiers_count:number;
+    //     selection_type:"single"|"multiple";
+    //     required:boolean;
+    //     min_selection:number;
+    //     max_selection:number;
+    //     modifiers_count:number;
+    //     modifiers:Modifier[];
 
-    }[];
-
+    // }[];
+    modifier_groups?:ModifierGroup[];
     
     food_symbols: FoodSymbol[];
 
