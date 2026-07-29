@@ -45,11 +45,15 @@ export function WalkInPOS() {
                             grid
                             h-full
                             min-h-0
-                            grid-cols-12
                             gap-4
-                            overflow-hidden
+
+                            grid-cols-1
+
+                            md:grid-cols-7
+
+                            lg:grid-cols-12
                         "
->
+                    >
                         <aside className="col-span-2 min-h-0">
                             <CategorySidebar
                                 categories={categories}
@@ -57,12 +61,12 @@ export function WalkInPOS() {
                                 onSelectCategory={setSelectedCategory}
                             />
                         </aside>
-                        <section className="col-span-7 min-h-0">
+                        <section className="min-h-0 md:col-span-4 lg:col-span-7">
                             <MenuGrid
                                 categoryId={selectedCategory}
                             />
                         </section>
-                        <aside className="col-span-3 min-h-0">
+                        <aside className="min-h-0 md:col-span-3 lg:col-span-3">
                             <OrderCart />
                         </aside>
                     </div>
