@@ -35,6 +35,27 @@ return [
         header:"Modifier",
         enableColumnFilter:true
     },
+     {
+        accessorKey:"name_ar",
+
+        header:"Arabic Name",
+
+        cell:({row})=>(
+
+            <span>
+
+                {
+                    row.original?.name_ar
+                    ??
+                    "-"
+                }
+
+            </span>
+
+        ),
+        enableColumnFilter:false
+
+    },
 
 
     {
@@ -58,6 +79,7 @@ return [
         enableColumnFilter:false
 
     },
+     
 
 
     {

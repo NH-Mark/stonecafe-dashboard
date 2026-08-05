@@ -32,6 +32,13 @@ export function menuItemColumns({
         },
         {
 
+            accessorKey: "name_ar",
+            header: "Arabic Name",
+
+        },
+
+        {
+
             accessorKey: "barcode",
 
             header: "Barcode",
