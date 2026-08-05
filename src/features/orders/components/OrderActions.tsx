@@ -13,8 +13,9 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { CreditCard, Eye, MoreHorizontal, Package } from "lucide-react";
-import ChangePaymentStatusDialog from "./ChangePaymentStatusDialog";
+import ChangePaymentStatusDialog from "./ReceivePaymentDialog";
 import OrderStatusDialog from "./OrderStatusDialog";
+import ReceivePaymentDialog from "./ReceivePaymentDialog";
 
 interface Props {
     order: Order;
@@ -53,13 +54,15 @@ export default function OrderActions({
                         <Package className="mr-2 h-4 w-4" />
                         Change Order Status
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                        onClick={() => setChangePaymentOpen(true)}
-                        className="whitespace-nowrap"
-                    >
-                        <CreditCard className="mr-2 h-4 w-4 shrink-0" />
-                        <span>Change Payment Status</span>
-                    </DropdownMenuItem>
+                   {["unpaid", "partial"].includes(order.payment_status) && (
+                        <DropdownMenuItem
+                            onClick={() => setChangePaymentOpen(true)}
+                            className="whitespace-nowrap"
+                        >
+                            <CreditCard className="mr-2 h-4 w-4 shrink-0" />
+                            Receive Payment
+                        </DropdownMenuItem>
+                    )}
                     </DropdownMenuContent>
             </DropdownMenu>
 
@@ -68,7 +71,7 @@ export default function OrderActions({
                 onOpenChange={setViewOpen}
                 order={order}
             />
-            <ChangePaymentStatusDialog
+            <ReceivePaymentDialog
                 open={changePaymentOpen}
                 onOpenChange={setChangePaymentOpen}
                 order={order}

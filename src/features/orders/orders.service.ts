@@ -5,13 +5,18 @@ export async function getOrders() {
   return api.get("/api/orders");
 }
 
-export async function updatePaymentStatus(
-    id: number,
-    payment_status: string
+export async function createPayment(
+    orderId: number,
+    data: {
+        payment_method_id: number;
+        amount: number;
+        reference?: string;
+    }
 ) {
-    return api.patch(`/api/orders/${id}/payment-status`, {
-        payment_status,
-    });
+    return api.post(
+        `/api/orders/${orderId}/payments`,
+        data
+    );
 }
 
 export async function updateOrderStatus(
