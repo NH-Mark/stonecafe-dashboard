@@ -22,7 +22,11 @@ export default function OrdersTable({
             data={orders}
             searchKey="order_no"
             placeholder="Search Order..."
+            rowClassName={(order) =>
+                order.payment_status === "unpaid"
+                    ? "bg-red-50 hover:bg-red-100"
+                    : ""
+            }
         />
     );
-
 }

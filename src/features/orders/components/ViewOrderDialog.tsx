@@ -204,7 +204,6 @@ export default function ViewOrderDialog({
                                 <span>
                                     Total
                                 </span>
-
                                 <span>
                                     QAR {Number(order.total).toFixed(2)}
                                 </span>

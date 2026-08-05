@@ -32,6 +32,7 @@ interface DataTableProps<TData, TValue> {
     data: TData[];
     searchKey?: string;
     placeholder?: string;
+    rowClassName?: (row: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
@@ -39,6 +40,7 @@ export function DataTable<TData, TValue>({
     data,
     searchKey,
     placeholder = "Search...",
+    rowClassName,
 }: DataTableProps<TData, TValue>) {
     const [search, setSearch] = useState("");
 
@@ -140,7 +142,10 @@ export function DataTable<TData, TValue>({
                     <TableBody>
                         {table.getRowModel().rows.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id}>
+                                <TableRow
+                                    key={row.id}
+                                    className={rowClassName?.(row.original)}
+                                >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {flexRender(

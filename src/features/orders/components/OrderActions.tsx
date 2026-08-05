@@ -12,7 +12,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Button } from "@/components/ui/button";
-import { Eye, MoreHorizontal } from "lucide-react";
+import { CreditCard, Eye, MoreHorizontal, Package } from "lucide-react";
+import ChangePaymentStatusDialog from "./ChangePaymentStatusDialog";
+import OrderStatusDialog from "./OrderStatusDialog";
 
 interface Props {
     order: Order;
@@ -24,6 +26,8 @@ export default function OrderActions({
     onSuccess,
 }: Props) {
     const [viewOpen, setViewOpen] = useState(false);
+    const [changePaymentOpen, setChangePaymentOpen] = useState(false);
+    const [orderStatusOpen, setOrderStatusOpen] = useState(false);
 
     return (
         <>
@@ -35,18 +39,46 @@ export default function OrderActions({
                 }>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent
+                    align="end"
+                    className="w-56"
+                >
                     <DropdownMenuItem onClick={() => setViewOpen(true)}>
                         <Eye className="mr-2 h-4 w-4" />
-                        View Details
+                        View
                     </DropdownMenuItem>
-                </DropdownMenuContent>
+                      <DropdownMenuItem
+                        onClick={() => setOrderStatusOpen(true)}
+                    >
+                        <Package className="mr-2 h-4 w-4" />
+                        Change Order Status
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => setChangePaymentOpen(true)}
+                        className="whitespace-nowrap"
+                    >
+                        <CreditCard className="mr-2 h-4 w-4 shrink-0" />
+                        <span>Change Payment Status</span>
+                    </DropdownMenuItem>
+                    </DropdownMenuContent>
             </DropdownMenu>
 
             <ViewOrderDialog
                 open={viewOpen}
                 onOpenChange={setViewOpen}
                 order={order}
+            />
+            <ChangePaymentStatusDialog
+                open={changePaymentOpen}
+                onOpenChange={setChangePaymentOpen}
+                order={order}
+                onSuccess={onSuccess}
+            />
+            <OrderStatusDialog
+                open={orderStatusOpen}
+                onOpenChange={setOrderStatusOpen}
+                order={order}
+                onSuccess={onSuccess}
             />
         </>
     );
