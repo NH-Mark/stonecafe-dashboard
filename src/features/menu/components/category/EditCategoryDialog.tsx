@@ -256,7 +256,7 @@ export default function EditCategoryDialog({
                                     Arabic Name
                                 </Label>
                                 <Input
-
+                                    dir="rtl"
                                     {...form.register("name_ar")}
                                 />
                                 {
@@ -355,6 +355,7 @@ export default function EditCategoryDialog({
                                 <Label>Arabic Description</Label>
 
                                 <textarea
+                                                                    dir="rtl"
                                     rows={3}
                                     className="w-full rounded-md border p-3"
                                     placeholder="Optional description..."
