@@ -74,7 +74,7 @@ interface Props {
     category: Category;
 
     open: boolean;
-    categories:Category[];
+    categories: Category[];
     onOpenChange: (open: boolean) => void;
 
     onSuccess: () => Promise<void>;
@@ -96,7 +96,9 @@ export default function EditCategoryDialog({
         defaultValues: {
 
             name: "",
+            name_ar: "",
             description: "",
+            description_ar: "",
             image: "",
             parent_id: null,
             active: true
@@ -113,8 +115,10 @@ export default function EditCategoryDialog({
         form.reset({
 
             name: category.name,
+            name_ar: category.name_ar,
 
             description: category.description ?? "",
+            description_ar: category.description_ar ?? "",
 
             image: category.image ?? "",
 
@@ -189,7 +193,7 @@ export default function EditCategoryDialog({
             <DialogContent className="sm:max-w-lg">
 
 
-                 <DialogHeader>
+                <DialogHeader>
 
                     <DialogTitle>
 
@@ -223,66 +227,91 @@ export default function EditCategoryDialog({
 
                     >
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>
-                                Name
-                            </Label>
-                            <Input
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>
+                                    Name
+                                </Label>
+                                <Input
 
-                                {...form.register("name")}
-                            />
-                              {
-                                form.formState.errors.name && (
+                                    {...form.register("name")}
+                                />
+                                {
+                                    form.formState.errors.name && (
 
-                                    <p className="text-sm text-destructive">
+                                        <p className="text-sm text-destructive">
 
-                                        {
-                                            form.formState.errors.name.message
-                                        }
+                                            {
+                                                form.formState.errors.name.message
+                                            }
 
-                                    </p>
+                                        </p>
 
-                                )
+                                    )
 
-                            }
+                                }
+                            </div>
+                            <div className="space-y-2">
+                                <Label>
+                                    Arabic Name
+                                </Label>
+                                <Input
+
+                                    {...form.register("name_ar")}
+                                />
+                                {
+                                    form.formState.errors.name_ar && (
+
+                                        <p className="text-sm text-destructive">
+
+                                            {
+                                                form.formState.errors.name_ar.message
+                                            }
+
+                                        </p>
+
+                                    )
+
+                                }
+                            </div>
+
                         </div>
                         <div className="space-y-2">
-                                <Label>Parent Category</Label>
+                            <Label>Parent Category</Label>
 
-                                <select
-                                            className="w-full rounded-md border p-2"
-                                            value={form.watch("parent_id") ?? ""}
-                                            onChange={(e) =>
-                                                form.setValue(
-                                                    "parent_id",
-                                                    e.target.value === ""
-                                                        ? null
-                                                        : Number(e.target.value),
-                                                    {
-                                                        shouldValidate: true
-                                                    }
-                                                )
-                                            }
+                            <select
+                                className="w-full rounded-md border p-2"
+                                value={form.watch("parent_id") ?? ""}
+                                onChange={(e) =>
+                                    form.setValue(
+                                        "parent_id",
+                                        e.target.value === ""
+                                            ? null
+                                            : Number(e.target.value),
+                                        {
+                                            shouldValidate: true
+                                        }
+                                    )
+                                }
+                            >
+                                <option value="">
+                                    None
+                                </option>
+
+                                {categories
+                                    .filter(c => c.id !== category.id)
+                                    .map(category => (
+                                        <option
+                                            key={category.id}
+                                            value={category.id}
                                         >
-                                            <option value="">
-                                                None
-                                            </option>
+                                            {category.name}
+                                        </option>
+                                    ))
+                                }
 
-                                            {categories
-                                                .filter(c => c.id !== category.id)
-                                                .map(category => (
-                                                    <option
-                                                        key={category.id}
-                                                        value={category.id}
-                                                    >
-                                                        {category.name}
-                                                    </option>
-                                                ))
-                                            }
-
-                                        </select>
-                                  {
+                            </select>
+                            {
                                 form.formState.errors.parent_id && (
 
                                     <p className="text-sm text-destructive">
@@ -296,33 +325,58 @@ export default function EditCategoryDialog({
                                 )
 
                             }
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Description</Label>
+
+                                <textarea
+                                    rows={3}
+                                    className="w-full rounded-md border p-3"
+                                    placeholder="Optional description..."
+                                    {...form.register("description")}
+                                />
+                                {
+                                    form.formState.errors.description && (
+
+                                        <p className="text-sm text-destructive">
+
+                                            {
+                                                form.formState.errors.description.message
+                                            }
+
+                                        </p>
+
+                                    )
+
+                                }
                             </div>
-                    </div>
-                        
-                    <div className="space-y-2">
-                            <Label>Description</Label>
+                            <div className="space-y-2">
+                                <Label>Arabic Description</Label>
 
-                            <textarea
-                                rows={3}
-                                className="w-full rounded-md border p-3"
-                                placeholder="Optional description..."
-                                {...form.register("description")}
-                            />
-                              {
-                                form.formState.errors.description && (
+                                <textarea
+                                    rows={3}
+                                    className="w-full rounded-md border p-3"
+                                    placeholder="Optional description..."
+                                    {...form.register("description_ar")}
+                                />
+                                {
+                                    form.formState.errors.description_ar && (
 
-                                    <p className="text-sm text-destructive">
+                                        <p className="text-sm text-destructive">
 
-                                        {
-                                            form.formState.errors.description.message
-                                        }
+                                            {
+                                                form.formState.errors.description_ar.message
+                                            }
 
-                                    </p>
+                                        </p>
 
-                                )
+                                    )
 
-                            }
-                    </div>
+                                }
+                            </div>
+                        </div>
+
 
 
 
@@ -339,13 +393,13 @@ export default function EditCategoryDialog({
                                     category.image
                                 }
 
-                                onChange={(path)=>{
+                                onChange={(path) => {
 
                                     form.setValue(
                                         "image",
                                         path,
                                         {
-                                            shouldValidate:true
+                                            shouldValidate: true
                                         }
                                     );
 

@@ -46,7 +46,9 @@ export default function CreateCategoryDialog({
         resolver: zodResolver(categorySchema),
         defaultValues: {
             name: "",
+            name_ar: "",
             description: "",
+            description_ar: "",
             image: "",
             parent_id: null,
             active: true,
@@ -125,76 +127,102 @@ export default function CreateCategoryDialog({
 
                                 }
                             </div>
-
                             <div className="space-y-2">
-
                                 <Label>
-                                    Parent Category
+                                    Arabic Name
                                 </Label>
 
-                                <select
-                                    className="w-full rounded-md border p-2"
-                                    {...form.register("parent_id", {
-                                        setValueAs: (value) =>
-                                            value === ""
-                                                ? null
-                                                : Number(value),
-                                    })}
-                                >
+                                <Input
+                                    dir="rtl"
+                                    {...form.register("name_ar")}
+                                    placeholder="برجر"
+                                />
+                            </div>
 
-                                    <option value="">
-                                        No Parent Category
+
+
+                        </div>
+                        <div className="space-y-2">
+
+                            <Label>
+                                Parent Category
+                            </Label>
+
+                            <select
+                                className="w-full rounded-md border p-2"
+                                {...form.register("parent_id", {
+                                    setValueAs: (value) =>
+                                        value === ""
+                                            ? null
+                                            : Number(value),
+                                })}
+                            >
+
+                                <option value="">
+                                    No Parent Category
+                                </option>
+
+
+                                {categories.map((category) => (
+
+                                    <option
+                                        key={category.id}
+                                        value={category.id}
+                                    >
+                                        {category.name}
                                     </option>
 
+                                ))}
 
-                                    {categories.map((category) => (
-
-                                        <option
-                                            key={category.id}
-                                            value={category.id}
-                                        >
-                                            {category.name}
-                                        </option>
-
-                                    ))}
-
-                                </select>
+                            </select>
 
 
-                                {form.formState.errors.parent_id && (
+                            {form.formState.errors.parent_id && (
 
-                                    <p className="text-sm text-destructive">
-                                        {form.formState.errors.parent_id.message}
-                                    </p>
+                                <p className="text-sm text-destructive">
+                                    {form.formState.errors.parent_id.message}
+                                </p>
 
-                                )}
-
-                            </div>
+                            )}
 
                         </div>
 
-                        <div className="space-y-2">
-                            <Label>Description</Label>
+                        <div className="grid grid-cols-2 gap-4">
 
-                            <textarea
-                                rows={3}
-                                className="w-full rounded-md border p-3"
-                                placeholder="Optional description..."
-                                {...form.register("description")}
-                            />
-                            {
-                                form.formState.errors.description && (
+                            {/* English Description */}
+                            <div className="space-y-2">
 
-                                    <p className="text-sm text-destructive">
+                                <Label>
+                                    Description
+                                </Label>
 
-                                        {
-                                            form.formState.errors.description.message
-                                        }
+                                <textarea
+                                    rows={3}
+                                    className="w-full rounded-md border p-3"
+                                    placeholder="Optional description..."
+                                    {...form.register("description")}
+                                />
 
-                                    </p>
-                                )
+                            </div>
 
-                            }
+
+                            {/* Arabic Description */}
+                            <div className="space-y-2">
+
+                                <Label>
+                                    Arabic Description
+                                </Label>
+
+                                <textarea
+                                    dir="rtl"
+                                    rows={3}
+                                    className="w-full rounded-md border p-3"
+                                    placeholder="وصف اختياري..."
+                                    {...form.register("description_ar")}
+                                />
+
+                            </div>
+
                         </div>
                         <div className="space-y-2">
                             <ImageUploader

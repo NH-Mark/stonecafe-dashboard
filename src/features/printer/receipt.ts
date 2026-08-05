@@ -75,9 +75,7 @@ export async function printReceipt(order:any) {
 
 
     if(order.table){
-
         receipt += `Table    : ${order.table}\n`;
-
     }
 
 

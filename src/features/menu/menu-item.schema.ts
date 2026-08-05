@@ -24,7 +24,15 @@ export const menuItemSchema = z.object({
         .nullable()
         .optional(),
 
+    name_ar: z
+        .string()
+        .nullable()
+        .optional(),
 
+    description_ar: z
+        .string()
+        .nullable()
+        .optional(),
     sku: z
         .string()
         .nullable()

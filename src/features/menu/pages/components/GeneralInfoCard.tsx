@@ -61,6 +61,20 @@ export default function GeneralInfoCard({
                     </p>
 
                 </div>
+                <div className="space-y-2">
+
+                    <Label>Arabic Name</Label>
+
+                    <Input
+                        dir="rtl"
+                        {...register("name_ar")}
+                    />
+
+                    <p className="text-sm text-destructive">
+                        {errors.name_ar?.message}
+                    </p>
+
+                </div>
 
                 <div className="space-y-2">
 
@@ -107,7 +121,7 @@ export default function GeneralInfoCard({
 
                 </div>
 
-                <div className="space-y-2">
+                <div className="md:col-span-2 space-y-2">
 
                     <Label>Barcode</Label>
 
@@ -120,7 +134,7 @@ export default function GeneralInfoCard({
 
                 </div>
 
-                <div className="md:col-span-2 space-y-2">
+                <div className="space-y-2">
 
                     <Label>Description</Label>
 
@@ -131,6 +145,21 @@ export default function GeneralInfoCard({
                     />
                     <p className="text-sm text-destructive">
                         {errors.description?.message}
+                    </p>
+
+                </div>
+                <div className="space-y-2">
+
+                    <Label>Arabic Description</Label>
+
+                    <textarea
+                        dir="rtl"
+                        rows={4}
+                        className="w-full rounded-md border p-3"
+                        {...register("description_ar")}
+                    />
+                    <p className="text-sm text-destructive">
+                        {errors.description_ar?.message}
                     </p>
 
                 </div>

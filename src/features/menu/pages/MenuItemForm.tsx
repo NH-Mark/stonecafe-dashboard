@@ -156,11 +156,13 @@ export default function MenuItemForm({
         form.reset({
 
             name: menuItem.name ?? "",
+            name_ar: menuItem.name_ar ?? "",
 
             description:
                 menuItem.description ?? "",
 
-
+            description_ar:
+                menuItem.description_ar ?? "",
             menu_category_id:
                 menuItem.menu_category_id ?? null,
 

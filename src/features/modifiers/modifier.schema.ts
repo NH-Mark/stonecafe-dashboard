@@ -9,6 +9,11 @@ export const modifierSchema = z.object({
     name: z.string()
         .min(2, "Modifier name is required"),
 
+    name_ar: z
+        .string()
+        .nullable()
+        .optional(),
+
     price: z.coerce
         .number()
         .min(0),

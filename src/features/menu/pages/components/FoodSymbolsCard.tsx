@@ -8,6 +8,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { FoodSymbol } from "@/types/food-symbol";
+import { imageUrl } from "@/utils/image";
 
 import {
     Check
@@ -171,7 +172,7 @@ export default function FoodSymbolsCard({
 
                                                 <img
 
-                                                    src={symbol.icon}
+                                                    src={imageUrl(symbol.icon)}
 
                                                     className="
                                                     h-8

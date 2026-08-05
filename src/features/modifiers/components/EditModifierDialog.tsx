@@ -125,6 +125,8 @@ export default function EditModifierDialog({
 
             name:
                 modifier.name,
+            name_ar:
+                modifier.name_ar,
 
             price:
                 Number(modifier.price),
@@ -291,6 +293,28 @@ export default function EditModifierDialog({
                             {form.formState.errors.name && (
                                 <p className="text-sm text-destructive">
                                     {form.formState.errors.name.message}
+                                </p>
+                            )}
+                        </div>
+                         <div className="space-y-2">
+
+                            <Label>
+                                Name Arabic
+                            </Label>
+
+
+                            <Input
+                                dir="rtl"
+                                placeholder=""
+
+                                {...form.register(
+                                    "name_ar"
+                                )}
+
+                            />
+                            {form.formState.errors.name_ar && (
+                                <p className="text-sm text-destructive">
+                                    {form.formState.errors.name_ar.message}
                                 </p>
                             )}
                         </div>

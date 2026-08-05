@@ -37,6 +37,7 @@ export default function CreateModifierGroupDialog({
         resolver: zodResolver(modifierGroupSchema),
         defaultValues: {
             name: "",
+            name_ar: "",
             required: true,
             min_selection: null,
             max_selection: null,
@@ -103,6 +104,20 @@ export default function CreateModifierGroupDialog({
                             {form.formState.errors.name && (
                                 <p className="text-sm text-destructive">
                                     {form.formState.errors.name.message}
+                                </p>
+                            )}
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Group Name Arabic</Label>
+
+                            <Input
+                                dir="rtl"
+                                {...form.register("name_ar")}
+                            />
+
+                            {form.formState.errors.name_ar && (
+                                <p className="text-sm text-destructive">
+                                    {form.formState.errors.name_ar.message}
                                 </p>
                             )}
                         </div>

@@ -6,6 +6,8 @@ export interface Category {
     image: string;
 
     description?: string;
+    name_ar?:string;
+    description_ar?:string;
 
     sort_order: number;
     parent_id: number;

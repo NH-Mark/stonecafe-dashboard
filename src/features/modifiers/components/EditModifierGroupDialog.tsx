@@ -89,6 +89,7 @@ export default function EditModifierGroupDialog({
 
         defaultValues: {
             name: "",
+            name_ar: "",
             selection_type: "single",
             required: false,
             min_selection: 0,
@@ -105,6 +106,7 @@ export default function EditModifierGroupDialog({
         form.reset({
 
             name: group.name,
+            name_ar: group.name_ar,
 
             selection_type:
                 group.selection_type,
@@ -214,6 +216,21 @@ export default function EditModifierGroupDialog({
                             {form.formState.errors.name && (
                                 <p className="text-sm text-destructive">
                                     {form.formState.errors.name.message}
+                                </p>
+                            )}
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Group Name Arabic</Label>
+
+                            <Input
+                                dir="rtl"
+                                placeholder=""
+                                {...form.register("name_ar")}
+                            />
+
+                            {form.formState.errors.name_ar && (
+                                <p className="text-sm text-destructive">
+                                    {form.formState.errors.name_ar.message}
                                 </p>
                             )}
                         </div>

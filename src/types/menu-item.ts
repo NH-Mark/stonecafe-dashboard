@@ -14,9 +14,13 @@ export interface MenuItem {
 
     name: string;
 
+    name_ar: string | null;
+
     code: string;
 
     description?: string | null;
+    
+    description_ar?: string | null;
 
     price: number;
 

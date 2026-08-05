@@ -13,6 +13,17 @@ export const categorySchema = z.object({
         .nullable()
         .optional(),
 
+    description_ar: z
+        .string()
+        .nullable()
+        .optional(),
+
+    name_ar: z
+        .string()
+        .nullable()
+        .optional(),
+
+
 
     image: z
         .string()

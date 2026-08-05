@@ -7,6 +7,7 @@ export interface Modifier {
     modifier_group_id: number;
 
     name: string;
+    name_ar: string;
 
     price: number;
 

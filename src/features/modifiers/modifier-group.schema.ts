@@ -5,6 +5,11 @@ export const modifierGroupSchema = z.object({
     name: z.string()
           .min(2, "Name is required"),
 
+    name_ar: z
+        .string()
+        .nullable()
+        .optional(),
+
     selection_type: z.enum([
         "single",
         "multiple"

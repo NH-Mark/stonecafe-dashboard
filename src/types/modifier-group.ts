@@ -4,6 +4,7 @@ export interface ModifierGroup {
     id: number;
 
     name: string;
+    name_ar: string;
 
     required: boolean;
     selection_type: "single" | "multiple";

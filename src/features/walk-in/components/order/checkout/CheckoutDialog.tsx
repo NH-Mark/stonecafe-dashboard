@@ -35,6 +35,8 @@ import { getPaymentMethods } from "@/features/payment-method/payment-method.serv
 import { OrderType } from "@/types/order-type";
 import { getOrderTypes } from "@/features/sales/sales.service";
 import { toast } from "sonner";
+// import { printReceipt } from "@/features/printer/receipt";
+
 
 export function CheckoutDialog({
 
