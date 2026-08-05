@@ -35,8 +35,20 @@ export function OrderColumns({
     },
     {
       accessorKey: "payment_status",
-      header: "Payment",
+      header: "Payment Status",
     },
+    {
+      id: "payment_method",
+      header: "Payment Method",
+      cell: ({ row }) => {
+        console.log("ORDER DATA:", row.original);
+
+        return row.original.payments
+          ?.map((p) => p.method)
+          .join(", ") || "-";
+      },
+    },
+   
     {
       accessorKey: "ordered_at",
       header: "Ordered At",

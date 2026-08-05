@@ -78,37 +78,22 @@ export default function ViewOrderDialog({
                             title="Customer"
                             value={order.customer || "Walk-in"}
                         />
-
-
-                        <InfoCard
-                            title="Table"
-                            value={order.table || "-"}
-                        />
-
-
                         <InfoCard
                             title="Type"
                             value={order.type}
                         />
-
-
                         <InfoCard
                             title="Source"
                             value={order.source}
                         />
-
-
                         <InfoCard
                             title="Cashier"
                             value={order.cashier || "-"}
                         />
-
-
                         <InfoCard
                             title="Location"
                             value={order.location || "-"}
                         />
-
 
                         <InfoCard
                             title="Total"
@@ -212,22 +197,7 @@ export default function ViewOrderDialog({
                                 label="Discount"
                                 value={order.discount_amount}
                             />
-
-
-                            <SummaryRow
-                                label="Tax"
-                                value={order.tax_amount}
-                            />
-
-
-                            <SummaryRow
-                                label="Service Charge"
-                                value={order.service_charge}
-                            />
-
-
                             <Separator />
-
 
                             <div className="flex justify-between text-lg font-bold">
 
