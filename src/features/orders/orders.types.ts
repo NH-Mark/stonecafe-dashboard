@@ -32,6 +32,7 @@ export interface Order {
 
     status: string;
     payment_status: string;
+    kitchen_status:string;
 
     subtotal: number;
     discount_amount: number;

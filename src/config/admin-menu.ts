@@ -19,6 +19,7 @@ import {
     RotateCcw,
     BadgePercent,
     BadgeDollarSign,
+    ChefHat,
 } from "lucide-react";
 
 export const adminMenu: AdminMenuItem[] = [
@@ -151,6 +152,12 @@ export const adminMenu: AdminMenuItem[] = [
         title: "Walk In POS",
         href: "/walk-in",
         icon: Package,
+        permission: "menu.view",
+    },
+    {
+        title: "Kitchen Display",
+        href: "/kitchen-display",
+        icon: ChefHat,
         permission: "menu.view",
     },
     // {
