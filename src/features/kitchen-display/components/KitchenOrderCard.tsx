@@ -54,11 +54,11 @@ export function KitchenOrderCard({
 
                     <h3
                         className="
-            truncate
-            text-xl
-            font-extrabold
-            tracking-wide
-            text-[#40332a]
+                whitespace-nowrap
+                text-lg
+                font-extrabold
+                tracking-wide
+                text-[#40332a]
             "
                     >
                         {order.order_no}
@@ -85,21 +85,7 @@ export function KitchenOrderCard({
                     }
 
 
-                    {
-                        order.table && (
-
-                            <p
-                                className="
-                    mt-1
-                    text-sm
-                    text-[#40332a]
-                    "
-                            >
-                                Table {order.table}
-                            </p>
-
-                        )
-                    }
+                    
 
 
                 </div>
