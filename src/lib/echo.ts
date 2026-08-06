@@ -48,11 +48,12 @@ export function getEcho() {
         ),
 
 
-        forceTLS: false,
+        forceTLS: true,
 
 
         enabledTransports: [
-            "ws"
+            "ws",
+            "wss"
         ],
 
     });
