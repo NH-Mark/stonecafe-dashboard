@@ -1,4 +1,4 @@
-import { Clock, ChefHat } from "lucide-react";
+import { Clock } from "lucide-react";
 
 import { KitchenOrderItem } from "./KitchenOrderItem";
 import { KitchenOrder } from "../kitchen.types";
@@ -21,23 +21,22 @@ export function KitchenOrderCard({
 
         <div
             className="
+            overflow-hidden
             rounded-2xl
             border
             border-[#d9d9d8]
             bg-white
             shadow-sm
-            overflow-hidden
             "
         >
 
 
             {/* Header */}
 
+            {/* Header */}
+
             <div
                 className="
-    flex
-    items-start
-    justify-between
     border-b
     border-[#d9d9d8]
     bg-[#f3f3f3]
@@ -45,82 +44,102 @@ export function KitchenOrderCard({
     "
             >
 
-
                 <div
                     className="
-        min-w-0
+        flex
+        flex-col
+        gap-4
+
+        lg:flex-row
+        lg:items-start
+        lg:justify-between
         "
                 >
 
-                    <h3
+                    {/* Order Info */}
+
+                    <div
                         className="
+            flex
+            flex-col
+            "
+                    >
+
+                        <h3
+                            className="
                 whitespace-nowrap
                 text-lg
                 font-extrabold
                 tracking-wide
                 text-[#40332a]
+                "
+                        >
+                            {order.order_no}
+                        </h3>
+
+
+
+                        {
+                            order.customer?.name && (
+
+                                <p
+                                    className="
+                        mt-1
+                        text-base
+                        font-medium
+                        text-[#a5765f]
+                        "
+                                >
+                                    {order.customer.name}
+                                </p>
+
+                            )
+                        }
+
+
+
+                    </div>
+
+
+
+
+
+                    {/* Timer */}
+
+                    <div
+                        className="
+            flex
+            h-10
+            w-full
+            items-center
+            justify-center
+            gap-2
+            rounded-xl
+            bg-[#ddcfbe]
+            px-4
+            text-base
+            font-bold
+            text-[#40332a]
+
+            lg:w-auto
+            lg:min-w-[150px]
             "
                     >
-                        {order.order_no}
-                    </h3>
+
+                        <Clock
+                            size={20}
+                            className="shrink-0"
+                        />
+
+                        <span>
+                            {formatOrderTime(order.ordered_at)}
+                        </span>
 
 
-
-                    {
-                        order.customer?.name && (
-
-                            <p
-                                className="
-                    mt-1
-                    truncate
-                    text-sm
-                    font-medium
-                    text-[#a5765f]
-                    "
-                            >
-                                {order.customer.name}
-                            </p>
-
-                        )
-                    }
-
-
-                    
+                    </div>
 
 
                 </div>
-
-
-
-
-
-                <div
-                    className="
-        ml-3
-        flex
-        shrink-0
-        items-center
-        gap-2
-        rounded-xl
-        bg-[#ddcfbe]
-        px-4
-        py-3
-        text-sm
-        font-bold
-        text-[#40332a]
-        "
-                >
-
-                    <Clock
-                        size={18}
-                    />
-
-
-                    {formatOrderTime(order.ordered_at)}
-
-
-                </div>
-
 
             </div>
 
@@ -129,7 +148,6 @@ export function KitchenOrderCard({
 
 
             {/* Items */}
-
 
             <div
                 className="
@@ -156,6 +174,9 @@ export function KitchenOrderCard({
 
 
 
+
+                {/* Order Notes */}
+
                 {
                     order.notes && (
 
@@ -171,11 +192,20 @@ export function KitchenOrderCard({
                             "
                         >
 
-                            <strong>
-                                Order Note:
-                            </strong>
+                            <p
+                                className="
+                                font-bold
+                                "
+                            >
+                                Order Note
+                            </p>
 
-                            <p>
+
+                            <p
+                                className="
+                                mt-1
+                                "
+                            >
                                 {order.notes}
                             </p>
 
@@ -184,8 +214,6 @@ export function KitchenOrderCard({
 
                     )
                 }
-
-
 
 
                 <KitchenStatusButton
