@@ -35,96 +35,103 @@ export function KitchenOrderCard({
 
             <div
                 className="
-                flex
-                justify-between
-                items-start
-                border-b
-                border-[#d9d9d8]
-                bg-[#f3f3f3]
-                p-4
-                "
+    flex
+    items-start
+    justify-between
+    border-b
+    border-[#d9d9d8]
+    bg-[#f3f3f3]
+    p-4
+    "
             >
 
 
-                <div>
+                <div
+                    className="
+        min-w-0
+        "
+                >
 
-                    <div
+                    <h3
                         className="
-                        flex
-                        items-center
-                        gap-2
-                        "
+            truncate
+            text-xl
+            font-extrabold
+            tracking-wide
+            text-[#40332a]
+            "
                     >
-
-                        <h3
-                            className="
-                            font-bold
-                            text-lg
-                            text-[#40332a]
-                            "
-                        >
-                            {order.order_no}
-                        </h3>
+                        {order.order_no}
+                    </h3>
 
 
-                        <span
-                            className="
-                            rounded-full
-                            bg-[#40332a]
-                            px-2
-                            py-1
-                            text-[10px]
-                            text-white
-                            "
-                        >
-                            NEW
-                        </span>
+
+                    {
+                        order.customer?.name && (
+
+                            <p
+                                className="
+                    mt-1
+                    truncate
+                    text-sm
+                    font-medium
+                    text-[#a5765f]
+                    "
+                            >
+                                {order.customer.name}
+                            </p>
+
+                        )
+                    }
 
 
-                    </div>
+                    {
+                        order.table && (
 
+                            <p
+                                className="
+                    mt-1
+                    text-sm
+                    text-[#40332a]
+                    "
+                            >
+                                Table {order.table}
+                            </p>
 
-                    <div
-                        className="
-                        mt-1
-                        flex
-                        gap-2
-                        text-xs
-                        text-[#a5765]
-                        "
-                    >
+                        )
+                    }
 
-                       {
-                            order.customer?.name && (
-                                <span>
-                                    • {order.customer.name}
-                                </span>
-                            )
-                        }
-                    </div>
 
                 </div>
 
 
 
+
+
                 <div
                     className="
-                    flex
-                    items-center
-                    gap-1
-                    rounded-lg
-                    bg-[#ddcfbe]
-                    px-3
-                    py-2
-                    text-xs
-                    font-medium
-                    text-[#40332a]
-                    "
+        ml-3
+        flex
+        shrink-0
+        items-center
+        gap-2
+        rounded-xl
+        bg-[#ddcfbe]
+        px-4
+        py-3
+        text-sm
+        font-bold
+        text-[#40332a]
+        "
                 >
 
-                    <Clock size={14}/>
+                    <Clock
+                        size={18}
+                    />
 
-                        {formatOrderTime(order.ordered_at)}
+
+                    {formatOrderTime(order.ordered_at)}
+
 
                 </div>
 
@@ -195,9 +202,9 @@ export function KitchenOrderCard({
 
 
 
-                    <KitchenStatusButton
-                            order={order}
-                        />
+                <KitchenStatusButton
+                    order={order}
+                />
 
 
             </div>
