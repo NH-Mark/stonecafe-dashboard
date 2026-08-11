@@ -214,7 +214,7 @@ export function TablePaymentDialog({
                     String(order.id);
 
                 const orderNo =
-                    order.orderNo ??
+                    order.order_no ??
                     null;
 
                 const localOrder =
