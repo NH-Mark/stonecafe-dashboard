@@ -7,24 +7,24 @@ import { MenuItemFormValues } from "./menu-item.schema";
 //
 
 export interface GetMenuItemsParams {
-page?: number;
-per_page?: number;
-search?: string;
-category_id?: number | null;
+    page?: number;
+    per_page?: number;
+    search?: string;
+    category_id?: number | null;
 }
 
 export function getMenuItems(
-params: GetMenuItemsParams = {}
+    params: GetMenuItemsParams = {}
 ) {
-return api.get("/api/menu-items", {
-params: {
-page: params.page,
-per_page: params.per_page,
-search: params.search || undefined,
-category_id:
-params.category_id ?? undefined,
-},
-});
+    return api.get("/api/menu-items", {
+        params: {
+            page: params.page,
+            per_page: params.per_page,
+            search: params.search || undefined,
+            category_id:
+                params.category_id ?? undefined,
+        },
+    });
 }
 
 
