@@ -203,8 +203,8 @@ export function Header({
             state =>
                 activeOrderId
                     ? state.orders[
-                          activeOrderId
-                      ]
+                    activeOrderId
+                    ]
                     : undefined
         );
 
@@ -267,7 +267,7 @@ export function Header({
                         completedIds.add(
                             String(
                                 order.id ??
-                                    ""
+                                ""
                             )
                         );
                     }
@@ -316,7 +316,7 @@ export function Header({
 
                     const localOrder =
                         orders[
-                            orderId
+                        orderId
                         ];
 
                     /*
@@ -328,9 +328,9 @@ export function Header({
 
                     if (
                         localOrder?.status ===
-                            "completed" ||
+                        "completed" ||
                         localOrder?.status ===
-                            "cancelled"
+                        "cancelled"
                     ) {
                         return false;
                     }
@@ -435,7 +435,7 @@ export function Header({
                     const localOrderId =
                         String(
                             localOrder.id ??
-                                ""
+                            ""
                         );
 
                     if (
@@ -968,11 +968,10 @@ export function Header({
                                 }
                             >
                                 <RefreshCw
-                                    className={`h-4 w-4 ${
-                                        refreshing
+                                    className={`h-4 w-4 ${refreshing
                                             ? "animate-spin"
                                             : ""
-                                    }`}
+                                        }`}
                                 />
                             </Button>
                         )}
@@ -1137,11 +1136,10 @@ export function Header({
                                 }
                             >
                                 <RefreshCw
-                                    className={`h-4 w-4 ${
-                                        refreshing
+                                    className={`h-4 w-4 ${refreshing
                                             ? "animate-spin"
                                             : ""
-                                    }`}
+                                        }`}
                                 />
                             </Button>
                         )}
@@ -1152,36 +1150,40 @@ export function Header({
                 {/* TABLET / IPAD FOOTER                                      */}
                 {/* ========================================================= */}
 
+                {/* ========================================================= */}
+                {/* TABLET / IPAD FOOTER                                      */}
+                {/* ========================================================= */}
+
                 <div
                     className="
-                        fixed
-                        bottom-0
-                        left-0
-                        right-0
-                        z-50
+        fixed
+        bottom-0
+        left-0
+        right-0
+        z-50
 
-                        hidden
-                        border-t
-                        bg-white
-                        px-3
-                        pb-[env(safe-area-inset-bottom)]
-                        pt-2
-                        shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
+        hidden
+        border-t
+        bg-white
+        px-3
+        pb-[env(safe-area-inset-bottom)]
+        pt-2
+        shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
 
-                        md:flex
-                        lg:hidden
-                    "
+        md:flex
+        lg:hidden
+    "
                 >
                     <div
                         className="
-                            mx-auto
-                            flex
-                            w-full
-                            max-w-3xl
-                            items-center
-                            justify-around
-                            gap-2
-                        "
+            mx-auto
+            flex
+            w-full
+            max-w-3xl
+            items-center
+            justify-around
+            gap-2
+        "
                     >
                         {/* CATEGORIES */}
 
@@ -1189,24 +1191,17 @@ export function Header({
                             type="button"
                             variant="ghost"
                             className="
-                                flex
-                                h-14
-                                flex-1
-                                flex-col
-                                gap-1
-                                rounded-xl
-                                text-xs
-                            "
-                            onClick={
-                                handleOpenCategories
-                            }
+                flex
+                h-14
+                flex-1
+                flex-col
+                gap-1
+                rounded-xl
+                text-xs
+            "
+                            onClick={handleOpenCategories}
                         >
-                            <List
-                                className="
-                                    h-5
-                                    w-5
-                                "
-                            />
+                            <List className="h-5 w-5" />
 
                             <span>
                                 Categories
@@ -1219,48 +1214,37 @@ export function Header({
                             type="button"
                             variant="ghost"
                             className="
-                                flex
-                                h-14
-                                flex-1
-                                flex-col
-                                gap-1
-                                rounded-xl
-                                text-xs
-                            "
-                            onClick={
-                                handleOpenOrder
-                            }
+                flex
+                h-14
+                flex-1
+                flex-col
+                gap-1
+                rounded-xl
+                text-xs
+            "
+                            onClick={handleOpenOrder}
                         >
-                            <div
-                                className="
-                                    relative
-                                "
-                            >
-                                <ShoppingCart
-                                    className="
-                                        h-5
-                                        w-5
-                                    "
-                                />
+                            <div className="relative">
+                                <ShoppingCart className="h-5 w-5" />
 
                                 {activeOrderId && (
                                     <span
                                         className="
-                                            absolute
-                                            -right-2
-                                            -top-2
-                                            flex
-                                            h-4
-                                            min-w-4
-                                            items-center
-                                            justify-center
-                                            rounded-full
-                                            bg-primary
-                                            px-1
-                                            text-[9px]
-                                            font-bold
-                                            text-primary-foreground
-                                        "
+                            absolute
+                            -right-2
+                            -top-2
+                            flex
+                            h-4
+                            min-w-4
+                            items-center
+                            justify-center
+                            rounded-full
+                            bg-primary
+                            px-1
+                            text-[9px]
+                            font-bold
+                            text-primary-foreground
+                        "
                                     >
                                         •
                                     </span>
@@ -1278,31 +1262,52 @@ export function Header({
                             type="button"
                             variant="ghost"
                             className="
-                                flex
-                                h-14
-                                flex-1
-                                flex-col
-                                gap-1
-                                rounded-xl
-                                text-xs
-                            "
-                            onClick={
-                                handleNewOrder
-                            }
+                flex
+                h-14
+                flex-1
+                flex-col
+                gap-1
+                rounded-xl
+                text-xs
+            "
+                            onClick={handleNewOrder}
                         >
-                            <Plus
-                                className="
-                                    h-5
-                                    w-5
-                                "
-                            />
+                            <Plus className="h-5 w-5" />
 
                             <span>
                                 New
                             </span>
                         </Button>
+
+                        {/* DASHBOARD */}
+
+                        {!sessionMode && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="
+                    flex
+                    h-14
+                    flex-1
+                    flex-col
+                    gap-1
+                    rounded-xl
+                    text-xs
+                "
+                                onClick={() =>
+                                    router.push("/dashboard")
+                                }
+                            >
+                                <LayoutDashboard className="h-5 w-5" />
+
+                                <span>
+                                    Dashboard
+                                </span>
+                            </Button>
+                        )}
                     </div>
                 </div>
+
 
                 {/* ========================================================= */}
                 {/* TABLE PAYMENT                                             */}
