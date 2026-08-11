@@ -35,6 +35,7 @@ export default function SalesDashboard() {
             location_id: undefined,
         });
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
     const [trend, setTrend] = useState([]);
     useEffect(() => {
@@ -55,6 +56,15 @@ export default function SalesDashboard() {
                 setLoading(false);
             }
         }
+
+         if (
+                filters.range === "custom" &&
+                (!filters.start_date ||
+                    !filters.end_date)
+            ) {
+                return;
+            }
+
         async function loadLocations() {
 
             const response =
@@ -73,11 +83,6 @@ export default function SalesDashboard() {
 
 
     }, [filters])
-    if(loading){
-            return (
-                <PageLoader/>
-            );
-        }
 
     return (
 
@@ -90,6 +95,11 @@ export default function SalesDashboard() {
                 filters={filters}
                 onChange={setFilters}
             />
+            {loading && (
+                <div>
+                    <PageLoader />
+                </div>
+            )}
             <SalesStats
                 data={stats}
             />
