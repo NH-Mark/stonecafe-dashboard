@@ -121,11 +121,11 @@ export function DiscountDialog({
 
         if (type === "order") {
 
-              applyOrderDiscount({
+            applyOrderDiscount({
 
                 ...discount,
 
-                value:Number(discount.value)
+                value: Number(discount.value)
 
             });
 
@@ -179,7 +179,9 @@ export function DiscountDialog({
 
             <DialogContent
                 className="
-                    max-w-2xl
+                    !max-w-2xl
+                    max-h-[90vh]
+                    overflow-hidden
                     rounded-3xl
                     p-6
                 "
@@ -323,178 +325,123 @@ export function DiscountDialog({
 
 
                 {
-                    !loading &&
-
-                    <div
-                        className="
-                            grid
-                            grid-cols-2
-                            gap-4
-                            mt-4
+                    !loading && (
+                        <div
+                            className="
+                mt-4
+                max-h-[50vh]
+                overflow-y-auto
+                pr-2
+                overscroll-contain
+            "
+                        >
+                            <div
+                                className="
+                    grid
+                    grid-cols-2
+                    gap-4
+                    md:grid-cols-3
+                    lg:grid-cols-4
+                "
+                            >
+                                {discounts.map(discount => (
+                                    <button
+                                        key={discount.id}
+                                        onClick={() =>
+                                            selectDiscount(discount)
+                                        }
+                                        className="
+                            group
+                            relative
+                            flex
+                            h-44
+                            flex-col
+                            items-center
+                            justify-center
+                            rounded-3xl
+                            border
+                            bg-white
+                            p-5
+                            transition-all
+                            duration-200
+                            hover:-translate-y-1
+                            hover:border-primary
+                            hover:bg-primary/5
+                            hover:shadow-xl
+                            active:scale-95
                         "
-                    >
-
-
-                        {
-                            discounts.map(discount => (
-
-                                <button
-                                    key={discount.id}
-                                    onClick={() => selectDiscount(discount)}
-                                    className="
-            group
-            relative
-            flex
-            h-44
-            flex-col
-            items-center
-            justify-center
-            rounded-3xl
-            border
-            bg-white
-            p-5
-            transition-all
-            duration-200
-            hover:-translate-y-1
-            hover:border-primary
-            hover:bg-primary/5
-            hover:shadow-xl
-            active:scale-95
-        "
-                                >
-
-                                    {/* Discount icon */}
-
-                                    <div
-                                        className="
-                mb-3
-                flex
-                h-9
-                w-9
-                items-center
-                justify-center
-                rounded-2xl
-                bg-primary/10
-                text-primary
-                transition
-                group-hover:bg-primary
-                group-hover:text-primary-foreground
-            "
                                     >
+                                        <div
+                                            className="
+                                mb-3
+                                flex
+                                h-9
+                                w-9
+                                items-center
+                                justify-center
+                                rounded-2xl
+                                bg-primary/10
+                                text-primary
+                                transition
+                                group-hover:bg-primary
+                                group-hover:text-primary-foreground
+                            "
+                                        >
+                                            {discount.type === "percentage" ? (
+                                                <Percent className="h-4 w-4" />
+                                            ) : (
+                                                <BadgeDollarSign className="h-4 w-4" />
+                                            )}
+                                        </div>
 
-                                        {
-                                            discount.type === "percentage"
+                                        <div
+                                            className="
+                                rounded-full
+                                bg-green-100
+                                px-3
+                                py-1
+                                text-xs
+                                font-bold
+                                text-green-700
+                            "
+                                        >
+                                            {discount.type === "percentage"
+                                                ? `${discount.value}%`
+                                                : `${discount.value} QAR`}
+                                        </div>
 
-                                                ?
+                                        <h3
+                                            className="
+                                mt-3
+                                max-w-full
+                                truncate
+                                text-center
+                                text-sm
+                                font-semibold
+                                text-slate-900
+                            "
+                                        >
+                                            {discount.name}
+                                        </h3>
 
-                                                <Percent
-                                                    className="
-                        h-4
-                        w-4
-                    "
-                                                />
-
-                                                :
-
-                                                <BadgeDollarSign
-                                                    className="
-                        h-4
-                        w-4
-                    "
-                                                />
-
-                                        }
-
-                                    </div>
-
-
-
-                                    {/* Discount value */}
-
-                                    <div
-                                        className="
-                rounded-full
-                bg-green-100
-                px-3
-                py-1
-                text-xs
-                font-bold
-                text-green-700
-            "
-                                    >
-
-                                        {
-                                            discount.type === "percentage"
-
-                                                ?
-
-                                                `${discount.value}%`
-
-                                                :
-
-                                                `${discount.value} QAR`
-
-                                        }
-
-                                    </div>
-
-
-
-
-                                    {/* Name */}
-
-                                    <h3
-                                        className="
-                mt-3
-                max-w-full
-                truncate
-                text-center
-                text-base
-                font-semibold
-                text-slate-900
-            "
-                                    >
-
-                                        {discount.name}
-
-                                    </h3>
-
-
-
-
-                                    <p
-                                        className="
-                mt-1
-                text-xs
-                text-muted-foreground
-            "
-                                    >
-
-                                        {
-                                            discount.type === "percentage"
-
-                                                ?
-
-                                                "Percentage"
-
-                                                :
-
-                                                "Fixed amount"
-
-                                        }
-
-                                    </p>
-
-
-                                </button>
-
-                            ))
-                        }
-
-
-                    </div>
-
+                                        <p
+                                            className="
+                                mt-1
+                                text-xs
+                                text-muted-foreground
+                            "
+                                        >
+                                            {discount.type === "percentage"
+                                                ? "Percentage"
+                                                : "Fixed amount"}
+                                        </p>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )
                 }
+
 
 
 
