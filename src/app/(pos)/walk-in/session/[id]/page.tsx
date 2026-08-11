@@ -14,6 +14,7 @@ import {
 } from "next/navigation";
 
 import {
+    getActiveMenuCategories,
     getCategories,
 } from "@/features/menu/category.service";
 
@@ -730,7 +731,7 @@ export default function DiningSessionPage() {
             async () => {
                 try {
                     const response =
-                        await getCategories();
+                        await getActiveMenuCategories();
 
                     setCategories(
                         response
