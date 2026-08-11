@@ -27,7 +27,6 @@ export function MenuGrid({ categoryId }: {
     async function loadMenuItems() {
 
         try {
-
             setLoading(true);
             const response = categoryId
                 ? await listMenuItems(categoryId)

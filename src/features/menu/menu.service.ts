@@ -30,10 +30,9 @@ export function getMenuItems(
 export function listMenuItems(
     categoryId?: number
 ) {
-    return api.get("/api/menu-items", {
+    return api.get("/api/menu-items-list", {
         params: {
             category_id: categoryId ?? undefined,
-            active: 1,
         },
     });
 }
