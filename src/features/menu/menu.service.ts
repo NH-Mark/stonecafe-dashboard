@@ -27,6 +27,15 @@ export function getMenuItems(
     });
 }
 
+export function listMenuItems(
+    categoryId?: number
+) {
+    return api.get("/api/menu-items", {
+        params: {
+            category_id: categoryId ?? undefined,
+        },
+    });
+}
 
 export function getMenuItem(id: number) {
     return api.get(`/api/menu-items/${id}`);

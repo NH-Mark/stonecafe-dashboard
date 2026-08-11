@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { MenuItemCard } from "./MenuItemCard";
-import { getMenuItems } from "@/features/menu/menu.service";
+import { getMenuItems, listMenuItems } from "@/features/menu/menu.service";
 import PageLoader from "@/components/common/PageLoader";
 import { useMenuSearch } from "../store/useMenuSearch";
 
@@ -32,8 +32,8 @@ export function MenuGrid({ categoryId }: {
 
 
             const response = categoryId
-                ? await getMenuItems(categoryId)
-                : await getMenuItems();
+                ? await listMenuItems(categoryId)
+                : await listMenuItems();
 
 
             setItems(response.data.data);
