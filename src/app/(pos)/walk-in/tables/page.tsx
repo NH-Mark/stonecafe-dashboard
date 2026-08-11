@@ -13,6 +13,7 @@ import {
     CheckCircle2,
     Clock3,
     CreditCard,
+    Home,
     RefreshCw,
 } from "lucide-react";
 
@@ -27,6 +28,7 @@ import {
 } from "@/features/walk-in/components/tables/tables.service";
 import { SessionHeader } from "@/features/walk-in/components/session/SessionHeader";
 import { POSNav } from "@/features/walk-in/components/POSNav";
+import { useRouter } from "next/navigation";
 
 /*
 |--------------------------------------------------------------------------
@@ -91,6 +93,8 @@ const FILTERS: {
 */
 
 export default function TablesPage() {
+
+    const router = useRouter();
     const [
         filter,
         setFilter,
@@ -244,52 +248,62 @@ export default function TablesPage() {
             {/* HEADER */}
             {/* ========================================================= */}
 
-
-            {/* ========================================================= */}
-            {/* HEADER */}
-            {/* ========================================================= */}
-
             <header
-                className="
+    className="
         shrink-0
         border-b
         bg-white
     "
-                style={{
-                    borderColor: "#e5e2dd",
-                }}
-            >
-                <div
-                    className="
-            mx-auto
+    style={{
+        borderColor: "#e5e2dd",
+    }}
+>
+    <div
+        className="
             flex
             w-full
-            max-w-[1800px]
             items-center
-            justify-between
-            gap-4
-            px-4
+            gap-3
+            px-2
             py-3
-            sm:px-5
-            lg:px-7
+            sm:px-3
             lg:py-3.5
-            xl:px-8
         "
-                >
-                    {/* ------------------------------------------------- */}
-                    {/* Left: Page identity */}
-                    {/* ------------------------------------------------- */}
+    >
+        {/* HOME — LEFT EDGE */}
+        <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => router.push("/dashboard")}
+            aria-label="Go to dashboard"
+            title="Dashboard"
+            className="
+                h-10
+                w-10
+                shrink-0
+                rounded-xl
+                border-[#ded9d3]
+                bg-white
+                text-[#40332a]
+                shadow-none
+                hover:bg-[#faf9f7]
+            "
+        >
+            <Home className="h-5 w-5" />
+        </Button>
 
-                    <div
-                        className="
+        {/* TABLE IDENTITY */}
+        <div
+            className="
                 flex
                 min-w-0
                 items-center
                 gap-3
             "
-                    >
-                        <div
-                            className="
+        >
+            {/* <div
+                className="
                     flex
                     h-10
                     w-10
@@ -300,26 +314,14 @@ export default function TablesPage() {
                     bg-[#40332a]
                     shadow-sm
                 "
-                        >
-                            <Armchair
-                                className="
-                        h-5
-                        w-5
-                        text-white
-                    "
-                            />
-                        </div>
+            >
+                <Armchair className="h-5 w-5 text-white" />
+            </div> */}
 
-                        <div className="min-w-0">
-                            <div
-                                className="
-                        flex
-                        items-center
-                        gap-2
-                    "
-                            >
-                                <h1
-                                    className="
+            <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                    <h1
+                        className="
                             truncate
                             text-lg
                             font-bold
@@ -327,13 +329,12 @@ export default function TablesPage() {
                             text-[#2f2924]
                             sm:text-xl
                         "
-                                >
-                                    Dining Tables
-                                </h1>
+                    >
+                        Dining Tables
+                    </h1>
 
-                                {/* Table count */}
-                                <span
-                                    className="
+                    <span
+                        className="
                             hidden
                             rounded-full
                             bg-[#f5f1ed]
@@ -344,127 +345,25 @@ export default function TablesPage() {
                             text-[#6b5849]
                             sm:inline-flex
                         "
-                                >
-                                    {tables.length} tables
-                                </span>
-                            </div>
+                    >
+                        {tables.length} tables
+                    </span>
+                </div>
 
-                            <p
-                                className="
+                <p
+                    className="
                         hidden
                         text-xs
                         text-[#81786f]
                         sm:block
                     "
-                            >
-                                Monitor tables and manage active orders
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* ------------------------------------------------- */}
-                    {/* Right: Status + refresh */}
-                    {/* ------------------------------------------------- */}
-
-                    <div
-                        className="
-                flex
-                shrink-0
-                items-center
-                gap-2
-            "
-                    >
-                        {/* Quick status */}
-                        <div
-                            className="
-                    hidden
-                    items-center
-                    gap-2
-                    rounded-xl
-                    border
-                    bg-[#faf9f7]
-                    px-3
-                    py-2
-                    md:flex
-                "
-                            style={{
-                                borderColor: "#e3ded8",
-                            }}
-                        >
-                            <span
-                                className="
-                        h-2
-                        w-2
-                        rounded-full
-                        bg-emerald-500
-                    "
-                            />
-
-                            <span
-                                className="
-                        text-xs
-                        font-medium
-                        text-[#625950]
-                    "
-                            >
-                                {statistics.available} available
-                            </span>
-
-                            <span
-                                className="
-                        h-3.5
-                        w-px
-                        bg-[#ded9d3]
-                    "
-                            />
-
-                            <span
-                                className="
-                        text-xs
-                        font-medium
-                        text-[#625950]
-                    "
-                            >
-                                {statistics.occupied} occupied
-                            </span>
-                        </div>
-
-                        {/* Refresh */}
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => loadTables(true)}
-                            disabled={refreshing}
-                            className="
-                    h-10
-                    rounded-xl
-                    border-[#ded9d3]
-                    bg-white
-                    px-3
-                    text-[#40332a]
-                    shadow-none
-                    hover:bg-[#faf9f7]
-                "
-                        >
-                            <RefreshCw
-                                className={`
-                        h-4
-                        w-4
-                        sm:mr-2
-                        ${refreshing
-                                        ? "animate-spin"
-                                        : ""
-                                    }
-                    `}
-                            />
-
-                            <span className="hidden sm:inline">
-                                Refresh
-                            </span>
-                        </Button>
-                    </div>
-                </div>
-            </header>
+                >
+                    Monitor tables and manage active orders
+                </p>
+            </div>
+        </div>
+    </div>
+</header>
 
             <POSNav />
 

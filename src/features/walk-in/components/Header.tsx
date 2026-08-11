@@ -10,6 +10,8 @@ import {
     RefreshCw,
     List,
     ShoppingCart,
+    ArrowRightLeft,
+    Home,
 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -47,6 +49,7 @@ import {
 } from "./payment/TablePaymentDialog";
 
 import { toast } from "sonner";
+import { TransferTableDialog } from "./session/TransferTableDialog";
 
 interface HeaderProps {
     /*
@@ -149,6 +152,11 @@ export function Header({
     | Dialog state
     |--------------------------------------------------------------------------
     */
+
+    const [
+        transferTableOpen,
+        setTransferTableOpen,
+    ] = useState(false);
 
     const [
         noteOpen,
@@ -669,200 +677,185 @@ export function Header({
                 {/* MAIN HEADER                                                */}
                 {/* ========================================================= */}
 
-                <div
-                    className="
-                        flex
-                        flex-col
-                        gap-3
-                        p-3
+            <div
+    className="
+        flex
+        w-full
+        flex-col
+        gap-3
+        px-2
+        py-3
 
-                        lg:flex-row
-                        lg:h-16
-                        lg:items-center
-                        lg:px-6
-                    "
-                >
-                    {/* ===================================================== */}
-                    {/* LEFT                                                    */}
-                    {/* ===================================================== */}
+        sm:px-3
 
-                    <div
-                        className="
-                            flex
-                            shrink-0
-                            items-center
-                            gap-3
-                        "
-                    >
-                        {sessionMode && (
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                className="
-                                    h-9
-                                    w-9
-                                    rounded-xl
-                                "
-                                onClick={
-                                    handleBack
-                                }
-                            >
-                                <ArrowLeft
-                                    className="
-                                        h-4
-                                        w-4
-                                    "
-                                />
-                            </Button>
-                        )}
+        md:h-16
+        md:flex-row
+        md:items-center
+        md:gap-3
+        md:px-4
+        md:py-3
 
-                        <div>
-                            <h1
-                                className="
-                                    text-lg
-                                    font-bold
-                                    lg:text-xl
-                                "
-                            >
-                                <span className="hidden sm:inline">
-                                    Walk-In POS
-                                </span>
+        lg:px-6
+    "
+>
+    {/* HOME */}
+    {!sessionMode && (
+        <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => router.push("/dashboard")}
+            aria-label="Go to dashboard"
+            title="Dashboard"
+            className="
+                h-10
+                w-10
+                shrink-0
+                rounded-xl
+                border-[#ded9d3]
+                bg-white
+                text-[#40332a]
+                shadow-none
+                hover:bg-[#faf9f7]
+            "
+        >
+            <Home className="h-5 w-5" />
+        </Button>
+    )}
 
-                                <span className="sm:hidden">
-                                    POS
-                                </span>
-                            </h1>
+    {/* LEFT / TITLE */}
+    <div
+        className="
+            flex
+            min-w-0
+            shrink-0
+            items-center
+            gap-3
+        "
+    >
+        {sessionMode && (
+            <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="
+                    h-9
+                    w-9
+                    shrink-0
+                    rounded-xl
+                "
+                onClick={handleBack}
+            >
+                <ArrowLeft className="h-4 w-4" />
+            </Button>
+        )}
 
-                            <p
-                                className="
-                                    text-xs
-                                    text-muted-foreground
-                                    lg:text-sm
-                                "
-                            >
-                                {sessionMode
-                                    ? sessionName
-                                    : "New Order"}
-                            </p>
-                        </div>
-                    </div>
+        <div className="min-w-0">
+            <h1
+                className="
+                    truncate
+                    text-lg
+                    font-bold
+                    text-[#2f2924]
+                    lg:text-xl
+                "
+            >
+                <span className="hidden sm:inline">
+                    Walk-In POS
+                </span>
 
-                    {/* ===================================================== */}
-                    {/* SESSION INFO                                            */}
-                    {/* ===================================================== */}
+                <span className="sm:hidden">
+                    POS
+                </span>
+            </h1>
 
-                    {sessionMode && (
-                        <div
-                            className="
-                                hidden
-                                items-center
-                                gap-4
-                                lg:flex
-                            "
-                        >
-                            <div
-                                className="
-                                    h-8
-                                    w-px
-                                    bg-border
-                                "
-                            />
+            <p
+                className="
+                    truncate
+                    text-xs
+                    text-[#81786f]
+                    lg:text-sm
+                "
+            >
+                {sessionMode
+                    ? sessionName
+                    : "New Order"}
+            </p>
+        </div>
+    </div>
 
-                            <div>
-                                <p
-                                    className="
-                                        text-[10px]
-                                        uppercase
-                                        tracking-wide
-                                        text-muted-foreground
-                                    "
-                                >
-                                    Session
-                                </p>
+    {/* SESSION INFO */}
+    {sessionMode && (
+        <div
+            className="
+                hidden
+                shrink-0
+                items-center
+                gap-4
+                lg:flex
+            "
+        >
+            <div className="h-8 w-px bg-[#e5e2dd]" />
 
-                                <p
-                                    className="
-                                        text-sm
-                                        font-semibold
-                                    "
-                                >
-                                    #{session?.id}
-                                </p>
-                            </div>
+            <div>
+                <p className="text-[10px] uppercase tracking-wide text-[#81786f]">
+                    Session
+                </p>
 
-                            <div>
-                                <p
-                                    className="
-                                        text-[10px]
-                                        uppercase
-                                        tracking-wide
-                                        text-muted-foreground
-                                    "
-                                >
-                                    Total
-                                </p>
+                <p className="text-sm font-semibold text-[#40332a]">
+                    #{session?.id}
+                </p>
+            </div>
 
-                                <p
-                                    className="
-                                        text-sm
-                                        font-bold
-                                    "
-                                >
-                                    {Number(
-                                        sessionTotal
-                                    ).toFixed(
-                                        2
-                                    )}{" "}
-                                    QAR
-                                </p>
-                            </div>
-                        </div>
-                    )}
+            <div>
+                <p className="text-[10px] uppercase tracking-wide text-[#81786f]">
+                    Total
+                </p>
 
-                    {/* ===================================================== */}
-                    {/* SEARCH                                                  */}
-                    {/* ===================================================== */}
+                <p className="text-sm font-bold text-[#40332a]">
+                    {Number(sessionTotal).toFixed(2)} QAR
+                </p>
+            </div>
+        </div>
+    )}
 
-                    <div
-                        className="
-                            relative
-                            w-full
+    {/* SEARCH */}
+    <div
+        className="
+            relative
+            w-full
+            min-w-0
 
-                            lg:mx-auto
-                            lg:max-w-xl
-                        "
-                    >
-                        <Search
-                            className="
-                                absolute
-                                left-3
-                                top-3
-                                h-4
-                                w-4
-                                text-muted-foreground
-                            "
-                        />
+            md:flex-1
+            md:max-w-xl
+            lg:mx-auto
+        "
+    >
+        <Search
+            className="
+                absolute
+                left-3
+                top-3
+                h-4
+                w-4
+                text-muted-foreground
+            "
+        />
 
-                        <Input
-                            value={
-                                search
-                            }
-                            onChange={event =>
-                                setSearch(
-                                    event
-                                        .target
-                                        .value
-                                )
-                            }
-                            placeholder="Search menu..."
-                            className="
-                                h-11
-                                rounded-xl
-                                pl-9
-                            "
-                        />
-                    </div>
+        <Input
+            value={search}
+            onChange={event =>
+                setSearch(event.target.value)
+            }
+            placeholder="Search menu..."
+            className="
+                h-11
+                w-full
+                rounded-xl
+                pl-9
+            "
+        />
+    </div>
 
                     {/* ===================================================== */}
                     {/* DESKTOP / HEADER ACTIONS                               */}
@@ -949,6 +942,35 @@ export function Header({
                                 Pay Table
                             </Button>
                         )}
+                        {/* TRANSFER TABLE */}
+
+                        {sessionMode && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="
+                                        rounded-lg
+                                    "
+                                disabled={
+                                    !session
+                                }
+                                onClick={() =>
+                                    setTransferTableOpen(
+                                        true
+                                    )
+                                }
+                            >
+                                <ArrowRightLeft
+                                    className="
+                                            mr-2
+                                            h-4
+                                            w-4
+                                        "
+                                />
+
+                                Transfer Table
+                            </Button>
+                        )}
 
                         {/* REFRESH */}
 
@@ -969,8 +991,8 @@ export function Header({
                             >
                                 <RefreshCw
                                     className={`h-4 w-4 ${refreshing
-                                            ? "animate-spin"
-                                            : ""
+                                        ? "animate-spin"
+                                        : ""
                                         }`}
                                 />
                             </Button>
@@ -1115,6 +1137,35 @@ export function Header({
                                 </span>
                             </Button>
                         )}
+                        {/* Transfer table */}
+
+                        {sessionMode && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="
+                                    h-10
+                                    w-10
+                                    rounded-xl
+                                "
+                                disabled={
+                                    !session
+                                }
+                                onClick={() =>
+                                    setTransferTableOpen(
+                                        true
+                                    )
+                                }
+                            >
+                                <ArrowRightLeft
+                                    className="
+                                        h-4
+                                        w-4
+                                    "
+                                />
+                            </Button>
+                        )}
 
                         {/* Refresh */}
 
@@ -1137,8 +1188,8 @@ export function Header({
                             >
                                 <RefreshCw
                                     className={`h-4 w-4 ${refreshing
-                                            ? "animate-spin"
-                                            : ""
+                                        ? "animate-spin"
+                                        : ""
                                         }`}
                                 />
                             </Button>
@@ -1350,6 +1401,45 @@ export function Header({
                             }
                         />
                     )}
+
+                {/* ========================================================= */}
+                {/* TRANSFER TABLE                                            */}
+                {/* ========================================================= */}
+
+                {sessionMode && (
+                    <TransferTableDialog
+                        open={
+                            transferTableOpen
+                        }
+                        onClose={() =>
+                            setTransferTableOpen(
+                                false
+                            )
+                        }
+                        currentTableId={
+                            session?.table?.id
+                        }
+                        currentTableName={
+                            session?.table?.name
+                        }
+                        sessionId={
+                            session?.id
+                        }
+                        onTransferred={
+                            table => {
+                                toast.success(
+                                    `Table transferred to ${table.name}.`
+                                );
+
+                                setTransferTableOpen(
+                                    false
+                                );
+
+                                onRefresh?.();
+                            }
+                        }
+                    />
+                )}
 
                 {/* ========================================================= */}
                 {/* ORDER NOTE / DISCOUNT                                      */}

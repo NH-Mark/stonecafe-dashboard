@@ -1,3 +1,14 @@
+export interface OrderItemModifier {
+    modifier: string;
+    quantity: number;
+    price: number;
+}
+
+export interface OrderItemDiscount {
+    id: number;
+    name: string;
+    amount: number;
+}
 
 export interface OrderItem {
     id: number;
@@ -6,6 +17,9 @@ export interface OrderItem {
     unit_price: number;
     total_price: number;
     notes?: string;
+
+    modifiers: OrderItemModifier[];
+    discounts: OrderItemDiscount[];
 }
 
 export interface Payment {
@@ -16,7 +30,6 @@ export interface Payment {
     received_by?: string;
     paid_at?: string;
 }
-
 
 export interface Order {
     id: number;
@@ -32,7 +45,7 @@ export interface Order {
 
     status: string;
     payment_status: string;
-    kitchen_status:string;
+    kitchen_status: string;
 
     subtotal: number;
     discount_amount: number;
@@ -44,5 +57,12 @@ export interface Order {
     ordered_at: string;
 
     items: OrderItem[];
-    payments:Payment[];
+    payments: Payment[];
+
+    discounts?: OrderDiscount[];
+}
+
+export interface OrderDiscount {
+    name: string;
+    amount: number;
 }

@@ -75,3 +75,30 @@ export async function getDiningSession(
 
     return response.data.data;
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| Transfer dining session to another table
+|--------------------------------------------------------------------------
+*/
+
+interface TransferDiningSessionResponse {
+    data: DiningSession;
+    message?: string;
+}
+
+export async function transferDiningSessionTable(
+    sessionId: number,
+    tableId: number
+): Promise<DiningSession> {
+    const response =
+        await api.patch<TransferDiningSessionResponse>(
+            `/api/pos/dining-sessions/${sessionId}/transfer-table`,
+            {
+                table_id: tableId,
+            }
+        );
+
+    return response.data.data;
+}

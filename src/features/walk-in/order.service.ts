@@ -30,11 +30,18 @@ export async function addItemsToOrder(
     );
 }
 
+
+export interface CreateTablePaymentItem {
+    payment_method_id: number;
+    amount: number;
+    reference?: string;
+}
+
 export interface CreateTablePaymentPayload {
     sessionId: number;
     orderIds: number[];
     amount: number;
-    paymentMethodId: number;
+    payments: CreateTablePaymentItem[];
 }
 
 export async function createTablePayment(

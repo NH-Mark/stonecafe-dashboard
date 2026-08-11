@@ -442,9 +442,6 @@ export function DiscountDialog({
                     )
                 }
 
-
-
-
                 <DialogFooter>
 
                     <Button

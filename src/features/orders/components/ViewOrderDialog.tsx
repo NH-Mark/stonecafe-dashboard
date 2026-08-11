@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -18,7 +19,6 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
-
 import { Order } from "../orders.types";
 import { Separator } from "@base-ui/react";
 
@@ -33,27 +33,31 @@ export default function ViewOrderDialog({
     onOpenChange,
     order,
 }: Props) {
+    const orderDiscount = Number(order.discount_amount || 0);
+
+    const finalTotal = Number(order.total || 0);
+
+    const originalTotal =
+        finalTotal + orderDiscount;
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent
-                className="sm:max-w-lg lg:max-w-6xl"
-            >
-                {/* Header */}
-                <DialogHeader>
-                    <div className="flex items-center justify-between">
+            <DialogContent className="sm:max-w-lg lg:max-w-6xl max-h-[90vh] overflow-y-auto p-0">
 
+                {/* Header */}
+                <DialogHeader className="border-b px-6 py-5">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <DialogTitle className="text-xl">
+                            <DialogTitle className="text-xl font-semibold">
                                 Order #{order.order_no}
                             </DialogTitle>
 
-                            <p className="text-sm text-muted-foreground mt-1">
+                            <p className="mt-1 text-sm text-muted-foreground">
                                 {new Date(order.ordered_at).toLocaleString()}
                             </p>
                         </div>
 
-
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                             <Badge>
                                 {order.status}
                             </Badge>
@@ -61,255 +65,393 @@ export default function ViewOrderDialog({
                             <Badge variant="secondary">
                                 {order.payment_status}
                             </Badge>
-                        </div>
 
+                            {order.kitchen_status && (
+                                <Badge variant="outline">
+                                    {order.kitchen_status}
+                                </Badge>
+                            )}
+                        </div>
                     </div>
                 </DialogHeader>
 
+                <div className="space-y-6 px-6 py-6">
 
-                <div className="space-y-6">
+                    {/* Order Information */}
+                    <div>
+                        <h3 className="mb-3 text-sm font-semibold">
+                            Order Information
+                        </h3>
 
+                        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+                            <InfoCard
+                                title="Customer"
+                                value={order.customer || "Walk-in"}
+                            />
 
-                    {/* Summary Cards */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <InfoCard
+                                title="Type"
+                                value={order.type || "-"}
+                            />
 
+                            <InfoCard
+                                title="Source"
+                                value={order.source || "-"}
+                            />
 
-                        <InfoCard
-                            title="Customer"
-                            value={order.customer || "Walk-in"}
-                        />
-                        <InfoCard
-                            title="Type"
-                            value={order.type}
-                        />
-                        <InfoCard
-                            title="Source"
-                            value={order.source}
-                        />
-                        <InfoCard
-                            title="Cashier"
-                            value={order.cashier || "-"}
-                        />
-                        <InfoCard
-                            title="Location"
-                            value={order.location || "-"}
-                        />
+                            <InfoCard
+                                title="Cashier"
+                                value={order.cashier || "-"}
+                            />
 
-                        <InfoCard
-                            title="Total"
-                            value={`QAR ${Number(order.total).toFixed(2)}`}
-                            highlight
-                        />
+                            <InfoCard
+                                title="Location"
+                                value={order.location || "-"}
+                            />
 
-
+                            <InfoCard
+                                title="Table"
+                                value={order.table || "-"}
+                            />
+                        </div>
                     </div>
 
-
-
                     {/* Items */}
-                    <div className="rounded-xl border bg-white">
+                    <div className="overflow-hidden rounded-xl border bg-background">
 
-                        <div className="px-5 py-4 border-b">
-                            <h3 className="font-semibold">
-                                Order Items
-                            </h3>
+                        <div className="flex items-center justify-between border-b bg-muted/20 px-5 py-4">
+                            <div>
+                                <h3 className="font-semibold">
+                                    Order Items
+                                </h3>
+
+                                <p className="mt-0.5 text-xs text-muted-foreground">
+                                    {order.items.length}{" "}
+                                    {order.items.length === 1
+                                        ? "item"
+                                        : "items"}
+                                </p>
+                            </div>
                         </div>
 
-
                         <Table>
-
                             <TableHeader>
-                                <TableRow>
-                                    <TableHead>Item</TableHead>
-                                    <TableHead className="text-center">
+                                <TableRow className="bg-muted/10">
+                                    <TableHead className="min-w-[320px]">
+                                        Item
+                                    </TableHead>
+
+                                    <TableHead className="w-20 text-center">
                                         Qty
                                     </TableHead>
-                                    <TableHead className="text-right">
-                                        Price
+
+                                    <TableHead className="w-36 text-right">
+                                        Unit Price
                                     </TableHead>
-                                    <TableHead className="text-right">
+
+                                    <TableHead className="w-40 text-right">
                                         Total
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
 
-
                             <TableBody>
+                                {order.items.map((item) => {
+                                    const itemDiscountTotal =
+                                        item.discounts?.reduce(
+                                            (sum, discount) =>
+                                                sum + Number(discount.amount || 0),
+                                            0
+                                        ) || 0;
 
-                                {order.items.map((item) => (
+                                    // Unit price NEVER changes because of discounts.
+                                    const unitPrice = Number(item.unit_price || 0);
 
-                                    <TableRow key={item.id}>
+                                    // total_price is the original line total before
+                                    // applying the item discount.
+                                    const originalItemTotal = Number(
+                                        item.total_price || 0
+                                    );
 
-                                        <TableCell>
+                                    // Discount is applied ONLY to the total.
+                                    const finalItemTotal = Math.max(
+                                        0,
+                                        originalItemTotal - itemDiscountTotal
+                                    );
+
+                                    const hasItemDiscount =
+                                        itemDiscountTotal > 0;
+
+                                    return (
+                                        <TableRow
+                                            key={item.id}
+                                            className="align-top"
+                                        >
+                                            {/* Item */}
+                                            <TableCell className="py-3">
+                                                <div className="space-y-1.5">
+
+                                                    {/* Item name + notes */}
+                                                    <div>
+                                                        <p className="font-medium leading-5">
+                                                            {item.menu_item}
+                                                        </p>
+
+                                                        {item.notes && (
+                                                            <p className="mt-0.5 text-xs leading-4 text-muted-foreground">
+                                                                {item.notes}
+                                                            </p>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Modifiers */}
+                                                    {item.modifiers?.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {item.modifiers.map((modifier, index) => (
+                                                                <Badge
+                                                                    key={`${modifier.modifier}-${index}`}
+                                                                    variant="secondary"
+                                                                    className="h-6 px-2 text-xs font-normal"
+                                                                >
+                                                                    {modifier.modifier}
+
+                                                                    {modifier.quantity > 1 && (
+                                                                        <span className="ml-1">
+                                                                            ×{modifier.quantity}
+                                                                        </span>
+                                                                    )}
+
+                                                                    {Number(modifier.price) > 0 && (
+                                                                        <span className="ml-1 text-muted-foreground">
+                                                                            + QAR{" "}
+                                                                            {Number(modifier.price).toFixed(2)}
+                                                                        </span>
+                                                                    )}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    )}
+
+
+                                                    {hasItemDiscount && (
+                                                        <div className="space-y-0.5 text-xs text-green-600">
+                                                            {item.discounts.map((discount) => (
+                                                                <div
+                                                                    key={discount.id}
+                                                                    className="flex items-center gap-2"
+                                                                >
+                                                                    <span>{discount.name}</span>
+                                                                    <span className="font-medium">
+                                                                        − QAR {Number(discount.amount).toFixed(2)}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+
+
+                                                </div>
+                                            </TableCell>
+
+
+                                            {/* Quantity */}
+                                            <TableCell className="py-4 text-center">
+                                                <span className="font-medium">
+                                                    {item.quantity}
+                                                </span>
+                                            </TableCell>
+
+                                            {/* Unit Price */}
+                                            <TableCell className="py-4 text-right">
+                                                <span className="font-medium">
+                                                    QAR {unitPrice.toFixed(2)}
+                                                </span>
+                                            </TableCell>
+
+                                            {/* Total */}
+                                            <TableCell className="py-4 text-right">
+                                                {hasItemDiscount ? (
+                                                    <div className="flex flex-col items-end gap-0.5">
+
+                                                        {/* Original total */}
+                                                        <span className="text-xs text-muted-foreground line-through">
+                                                            QAR{" "}
+                                                            {originalItemTotal.toFixed(2)}
+                                                        </span>
+
+                                                        {/* Discounted total */}
+                                                        <span className="font-semibold text-green-700">
+                                                            QAR{" "}
+                                                            {finalItemTotal.toFixed(2)}
+                                                        </span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="font-semibold">
+                                                        QAR{" "}
+                                                        {originalItemTotal.toFixed(2)}
+                                                    </span>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+
+                            </TableBody>
+                        </Table>
+                    </div>
+
+                    {/* Bottom Section */}
+                    <div className="grid gap-6 lg:grid-cols-2">
+
+                        {/* Payments */}
+                        <div className="rounded-xl border">
+                            <div className="border-b px-5 py-4">
+                                <h3 className="font-semibold">
+                                    Payments
+                                </h3>
+                            </div>
+
+                            <div className="divide-y px-5">
+                                {order.payments.length > 0 ? (
+                                    order.payments.map((payment) => (
+                                        <div
+                                            key={payment.id}
+                                            className="flex items-center justify-between py-4"
+                                        >
                                             <div>
                                                 <p className="font-medium">
-                                                    {item.menu_item}
+                                                    {payment.method}
                                                 </p>
 
-                                                {item.notes && (
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {item.notes}
+                                                {payment.reference && (
+                                                    <p className="mt-1 text-xs text-muted-foreground">
+                                                        Ref:{" "}
+                                                        {payment.reference}
                                                     </p>
                                                 )}
 
+                                                {payment.paid_at && (
+                                                    <p className="mt-1 text-xs text-muted-foreground">
+                                                        {new Date(
+                                                            payment.paid_at
+                                                        ).toLocaleString()}
+                                                    </p>
+                                                )}
                                             </div>
-                                        </TableCell>
 
-
-                                        <TableCell className="text-center">
-                                            {item.quantity}
-                                        </TableCell>
-
-
-                                        <TableCell className="text-right">
-                                            QAR {Number(item.unit_price).toFixed(2)}
-                                        </TableCell>
-
-
-                                        <TableCell className="text-right font-semibold">
-                                            QAR {Number(item.total_price).toFixed(2)}
-                                        </TableCell>
-                                    </TableRow>
-
-                                ))}
-
-
-                            </TableBody>
-
-                        </Table>
-
-                    </div>
-
-
-
-                    {/* Payment Summary */}
-                    <div className="flex justify-end">
-
-                        <div className="w-full md:w-96 rounded-xl border bg-muted/20 p-5 space-y-3">
-
-
-                            <SummaryRow
-                                label="Subtotal"
-                                value={order.subtotal}
-                            />
-
-                            <SummaryRow
-                                label="Discount"
-                                value={order.discount_amount}
-                            />
-                            <Separator />
-
-                            <div className="flex justify-between text-lg font-bold">
-
-                                <span>
-                                    Total
-                                </span>
-                                <span>
-                                    QAR {Number(order.total).toFixed(2)}
-                                </span>
-
+                                            <p className="font-semibold">
+                                                QAR{" "}
+                                                {Number(
+                                                    payment.amount
+                                                ).toFixed(2)}
+                                            </p>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="py-6 text-sm text-muted-foreground">
+                                        No payments recorded.
+                                    </p>
+                                )}
                             </div>
-
-
                         </div>
 
-                    </div>
+                        {/* Order Summary */}
+                        <div className="rounded-xl border bg-muted/10 p-5">
 
-                    <div className="rounded-xl border p-5">
-
-                        <h3 className="font-semibold mb-3">
-                            Payments
-                        </h3>
-
-
-                        {order.payments.map((payment) => (
-
-                            <div
-                                key={payment.id}
-                                className="flex justify-between py-2"
-                            >
-
-                                <div>
-                                    <p className="font-medium">
-                                        {payment.method}
-                                    </p>
-
-                                    {payment.reference && (
-                                        <p className="text-xs text-muted-foreground">
-                                            Ref: {payment.reference}
-                                        </p>
-                                    )}
-                                </div>
-
-
-                                <p className="font-semibold">
-                                    QAR {Number(payment.amount).toFixed(2)}
-                                </p>
-
+                            <div className="mb-4">
+                                <h3 className="font-semibold">
+                                    Order Summary
+                                </h3>
                             </div>
 
-                        ))}
+                            <div className="space-y-3">
+                                <SummaryRow
+                                    label="Subtotal"
+                                    value={order.subtotal}
+                                />
 
+                                {/* Order Discount */}
+                                {orderDiscount > 0 && (
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-muted-foreground">
+                                            Discount
+                                        </span>
+
+                                        <span className="font-medium text-green-600">
+                                            − QAR {orderDiscount.toFixed(2)}
+                                        </span>
+                                    </div>
+                                )}
+
+                                <Separator />
+
+                                {/* Total */}
+                                <div className="flex items-end justify-between pt-1">
+                                    <div>
+                                        <p className="text-sm font-medium">
+                                            Total
+                                        </p>
+
+                                        {orderDiscount > 0 && (
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                After discount
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="text-right">
+                                        {orderDiscount > 0 && (
+                                            <p className="text-sm text-muted-foreground line-through">
+                                                QAR {originalTotal.toFixed(2)}
+                                            </p>
+                                        )}
+
+                                        <p className="text-2xl font-bold tracking-tight">
+                                            QAR {finalTotal.toFixed(2)}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Notes */}
                     {order.notes && (
-
-                        <div className="rounded-xl border bg-yellow-50 p-4">
-
-                            <p className="font-semibold mb-1">
-                                Notes
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                            <p className="mb-1 text-sm font-semibold text-amber-900">
+                                Order Notes
                             </p>
 
-                            <p className="text-sm">
+                            <p className="text-sm text-amber-800">
                                 {order.notes}
                             </p>
-
                         </div>
-
                     )}
-
-
                 </div>
-
             </DialogContent>
         </Dialog>
     );
 }
 
-
-
 function InfoCard({
     title,
     value,
-    highlight = false,
 }: {
     title: string;
     value: string;
-    highlight?: boolean;
 }) {
-
     return (
-        <div
-            className={`
-        rounded-xl border p-4
-        ${highlight ? "bg-[#40332a] text-white" : "bg-muted/20"}
-      `}
-        >
-
-            <p className="text-xs opacity-70">
+        <div className="rounded-lg border bg-muted/10 px-3 py-3">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 {title}
             </p>
 
-            <p className="font-semibold mt-1 truncate">
+            <p className="mt-1 truncate text-sm font-semibold">
                 {value}
             </p>
-
         </div>
     );
 }
-
-
 
 function SummaryRow({
     label,
@@ -318,18 +460,15 @@ function SummaryRow({
     label: string;
     value: number;
 }) {
-
     return (
-        <div className="flex justify-between text-sm">
-
+        <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">
                 {label}
             </span>
 
-            <span>
-                QAR {Number(value).toFixed(2)}
+            <span className="font-medium">
+                QAR {Number(value || 0).toFixed(2)}
             </span>
-
         </div>
     );
 }
