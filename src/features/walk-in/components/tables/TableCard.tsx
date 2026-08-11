@@ -101,11 +101,6 @@ export function TableCard({
                 focus:ring-[#40332a]/20
                 sm:min-h-[185px]
                 sm:p-5
-                ${
-                    available
-                        ? "bg-green-100"
-                        : "bg-white"
-                }
             `}
             style={{
                 borderColor:
