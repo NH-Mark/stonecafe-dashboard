@@ -74,7 +74,7 @@ export function DataTable<TData, TValue>({
     serverPagination = false,
 
     pageIndex = 1,
-    pageSize = 10,
+    pageSize = 20,
     pageCount = 1,
 
     total,
