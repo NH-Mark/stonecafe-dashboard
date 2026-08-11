@@ -35,11 +35,28 @@ export function deleteModifierGroup(id:number) {
 // Modifiers
 //
 
-export function getModifiers() {
-
-    return api.get("/api/modifiers");
-
+export interface GetModifiersParams {
+page?: number;
+per_page?: number;
+search?: string;
+modifier_group_id?: number;
 }
+
+export function getModifiers(
+params: GetModifiersParams = {}
+) {
+return api.get("/api/modifiers", {
+params: {
+page: params.page,
+per_page: params.per_page,
+search: params.search || undefined,
+modifier_group_id:
+params.modifier_group_id ??
+undefined,
+},
+});
+}
+
 
 export function createModifier(data:any) {
 

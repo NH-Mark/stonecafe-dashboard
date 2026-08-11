@@ -121,7 +121,7 @@ export function CategorySidebar({
                         </div>
 
 
-                        <span className="font-medium">
+                        <span className="font-medium text-sm">
                             All Items
                         </span>
 
@@ -231,7 +231,7 @@ export function CategorySidebar({
 
                                     <div className="text-left">
 
-                                        <p className="font-medium">
+                                        <p className="font-medium text-sm">
                                             {item.name}
                                         </p>
 

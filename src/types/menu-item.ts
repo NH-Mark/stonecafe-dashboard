@@ -1,4 +1,5 @@
 import { Category } from "./category";
+import { Discount } from "./discount";
 import { FoodSymbol } from "./food-symbol";
 import { MenuItemTag } from "./menu-item-tag";
 import { Modifier } from "./modifier";
@@ -61,4 +62,6 @@ export interface MenuItem {
 
 
     active: boolean;
+
+    discount:Discount;
 }

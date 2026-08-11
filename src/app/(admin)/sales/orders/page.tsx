@@ -33,7 +33,6 @@ export default function OrdersPage() {
     return (
         
         <OrdersTable
-            orders={orders}
             onSuccess={loadOrders}
         />
     );

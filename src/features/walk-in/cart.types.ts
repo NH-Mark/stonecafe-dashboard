@@ -39,8 +39,8 @@ export interface CartItem {
 
     note:string;
 
-
     discount?:Discount | null;
+    saved?: boolean;
 
 }
 export interface CartDiscount {

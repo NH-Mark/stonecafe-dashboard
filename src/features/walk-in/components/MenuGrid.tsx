@@ -17,9 +17,6 @@ export function MenuGrid({ categoryId }: {
             state=>state.search
         );
 
-    
-
-
     useEffect(() => {
 
         loadMenuItems();
@@ -63,6 +60,9 @@ export function MenuGrid({ categoryId }: {
                     search.toLowerCase()
                 )
         );
+          console.log("filteredItems");
+
+    console.log(filteredItems);
 
 
 

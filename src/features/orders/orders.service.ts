@@ -1,8 +1,27 @@
 import api from "@/lib/axios";
 
 
-export async function getOrders() {
-  return api.get("/api/orders");
+export interface GetOrdersParams {
+    page?: number;
+    per_page?: number;
+    search?: string;
+}
+
+export async function getOrders(params: GetOrdersParams = {}) {
+    return api.get("/api/orders", {
+        params,
+    });
+}
+
+interface TablePaymentResponse {
+    message: string;
+    sessionId: number;
+    sessionStatus: "open" | "billing" | "closed" | "cancelled";
+    sessionClosed: boolean;
+    orderIds: number[];
+    paymentMethodId: number;
+    amount: number;
+    payments: unknown[];
 }
 
 export async function createPayment(
@@ -23,7 +42,7 @@ export async function updateOrderStatus(
     id: number,
     status: string
 ) {
-    return api.patch(`/api/orders/${id}/order-status`, {
+    return api.post(`/api/orders/${id}/order-status`, {
         status,
     });
 }

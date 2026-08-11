@@ -139,7 +139,7 @@ export function ModifierDialog() {
 
                 const ids =
                     selected[group.id] ?? [];
-
+                console.log(group.name);
 
                 return group.modifiers
                     .filter(

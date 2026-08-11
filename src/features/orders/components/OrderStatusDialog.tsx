@@ -43,10 +43,6 @@ const statuses = [
         label: "Confirmed",
     },
     {
-        value: "preparing",
-        label: "Preparing",
-    },
-    {
         value: "completed",
         label: "Completed",
     },
