@@ -7,7 +7,7 @@ import { Header } from "./components/Header";
 import { MenuGrid } from "./components/MenuGrid";
 import { OrderCart } from "./components/OrderCart";
 
-import { getCategories } from "../menu/category.service";
+import { getActiveMenuCategories, getCategories } from "../menu/category.service";
 
 import { ModifierDialog } from "./components/modifier-dialog/ModifierDialog";
 
@@ -191,7 +191,7 @@ export function WalkInPOS() {
     async function loadCategories() {
         try {
             const response =
-                await getCategories();
+                await getActiveMenuCategories();
 
             setCategories(
                 response.data.data

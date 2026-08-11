@@ -33,6 +33,7 @@ export function listMenuItems(
     return api.get("/api/menu-items", {
         params: {
             category_id: categoryId ?? undefined,
+            active: 1,
         },
     });
 }

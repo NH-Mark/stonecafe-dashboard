@@ -9,6 +9,14 @@ export function getCategories() {
     return api.get("/api/categories");
 }
 
+export function getActiveMenuCategories() {
+    return api.get("/api/menu-categories", {
+        params: {
+            active: 1,
+        },
+    });
+}
+
 export function createCategory(data: CategoryFormValues) {
     return api.post("/api/categories", data);
 }

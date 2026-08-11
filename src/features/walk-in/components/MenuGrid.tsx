@@ -29,15 +29,10 @@ export function MenuGrid({ categoryId }: {
         try {
 
             setLoading(true);
-
-
             const response = categoryId
                 ? await listMenuItems(categoryId)
                 : await listMenuItems();
-
-
             setItems(response.data.data);
-
 
         } catch(error) {
 
