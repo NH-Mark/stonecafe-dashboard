@@ -1,11 +1,27 @@
 import api from "@/lib/axios";
 
 
-export function getStaff(){
-
-    return api.get("/api/users");
-
+export interface GetStaffParams {
+page?: number;
+per_page?: number;
+search?: string;
+role_id?: number | null;
 }
+
+export function getStaff(
+params: GetStaffParams = {}
+) {
+return api.get("/api/users", {
+params: {
+page: params.page,
+per_page: params.per_page,
+search: params.search || undefined,
+role_id:
+params.role_id ?? undefined,
+},
+});
+}
+
 export async function createStaff(
     data:{
         name:string;

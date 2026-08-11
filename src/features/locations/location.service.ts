@@ -6,13 +6,24 @@ import {
 
 
 
-export async function getLocations(){
-
-    return api.get(
-        "/api/locations"
-    );
-
+export interface GetLocationsParams {
+page?: number;
+per_page?: number;
+search?: string;
 }
+
+export function getLocations(
+params: GetLocationsParams = {}
+) {
+return api.get("/api/locations", {
+params: {
+page: params.page,
+per_page: params.per_page,
+search: params.search || undefined,
+},
+});
+}
+
 
 
 
