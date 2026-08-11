@@ -176,15 +176,15 @@ export default function ReceivePaymentDialog({
             setLoading(true);
 
 
-            await createPayment(
-                order.id,
-                {
-                    amount: paymentAmount,
-                    payment_method_id:
-                        Number(paymentMethod),
-                    reference,
-                }
-            );
+            // await createPayment(
+            //     order.id,
+            //     {
+            //         amount: paymentAmount,
+            //         payment_method_id:
+            //             Number(paymentMethod),
+            //         reference,
+            //     }
+            // );
 
 
             toast.success(
