@@ -214,7 +214,6 @@ export function TablePaymentDialog({
                     String(order.id);
 
                 const orderNo =
-                    order.order_no ??
                     order.orderNo ??
                     null;
 

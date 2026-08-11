@@ -4,7 +4,7 @@ import { RestaurantTable } from "./components/tables/tables.service";
 
 export interface DiningSessionOrder {
     id: number;
-
+    orderNo:string;
     status:
         | "draft"
         | "pending"
