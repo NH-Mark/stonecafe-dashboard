@@ -1143,6 +1143,26 @@ export function Header({
                                 />
                             </Button>
                         )}
+                        {!sessionMode && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() =>
+                                    router.push(
+                                        "/dashboard"
+                                    )
+                                }
+                            >
+                                <LayoutDashboard
+                                    className="
+                                        mr-2
+                                        h-4
+                                        w-4
+                                    "
+                                />
+
+                            </Button>
+                        )}
                     </div>
                 </div>
 
@@ -1300,9 +1320,6 @@ export function Header({
                             >
                                 <LayoutDashboard className="h-5 w-5" />
 
-                                <span>
-                                    Dashboard
-                                </span>
                             </Button>
                         )}
                     </div>
