@@ -77,7 +77,6 @@ export default function LocationManagement(){
 
             <LocationTable
 
-                locations={locations}
 
                 onSuccess={loadLocations}
 
