@@ -207,6 +207,7 @@ return (
 
         {/* Table */}
         <DataTable
+            serverPagination={true}
             columns={menuItemColumns({
                 categories,
                 onSuccess: handleSuccess,

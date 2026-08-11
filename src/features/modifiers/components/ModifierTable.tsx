@@ -175,6 +175,7 @@ async function handleSuccess() {
 
 return (
     <DataTable
+        serverPagination={true}
         columns={modifierColumns({
             groups,
             onSuccess: handleSuccess,

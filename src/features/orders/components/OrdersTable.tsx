@@ -130,6 +130,7 @@ async function handleSuccess() {
 
 return (
     <DataTable
+        serverPagination={true}
         columns={OrderColumns({
             onSuccess: handleSuccess,
         })}

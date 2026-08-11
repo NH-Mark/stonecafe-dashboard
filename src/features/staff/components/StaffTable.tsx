@@ -190,6 +190,7 @@ async function handleSuccess() {
 
 return (
     <DataTable
+        serverPagination={true}
         columns={staffColumns({
             onSuccess: handleSuccess,
             roles,

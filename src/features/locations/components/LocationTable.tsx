@@ -175,6 +175,7 @@ async function handleSuccess() {
 
 return (
     <DataTable
+        serverPagination={true}
         columns={LocationColumns({
             onSuccess: handleSuccess,
         })}
