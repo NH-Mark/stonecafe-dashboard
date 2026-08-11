@@ -147,7 +147,7 @@ export default function TopSellingItems({
 
 
                     {
-                        data.map((item,index)=>(
+                        data.slice(0, 5).map((item, index) => (
 
 
                             <div
