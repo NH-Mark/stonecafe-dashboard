@@ -65,12 +65,7 @@ export default function ViewOrderDialog({
                             <Badge variant="secondary">
                                 {order.payment_status}
                             </Badge>
-
-                            {order.kitchen_status && (
-                                <Badge variant="outline">
-                                    {order.kitchen_status}
-                                </Badge>
-                            )}
+                          
                         </div>
                     </div>
                 </DialogHeader>
@@ -231,8 +226,7 @@ export default function ViewOrderDialog({
                                                             ))}
                                                         </div>
                                                     )}
-
-
+                                                    
                                                     {hasItemDiscount && (
                                                         <div className="space-y-0.5 text-xs text-green-600">
                                                             {item.discounts.map((discount) => (
