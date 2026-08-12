@@ -135,10 +135,16 @@ export const adminMenu: AdminMenuItem[] = [
         icon: Settings,
         children: [
             {
-                title: "Discount",
+                title: "Discounts",
                 href: "/discounts",
                 icon: BadgePercent,
                 permission: "discounts.view",
+            },
+            {
+                title: "Payment Methods",
+                href: "/payment-methods",
+                icon: CreditCard,
+                permission: "payment-methods.view",
             },
             {
                 title: "Staff",
