@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -33,12 +32,34 @@ export default function ViewOrderDialog({
     onOpenChange,
     order,
 }: Props) {
-    const orderDiscount = Number(order.discount_amount || 0);
-
     const finalTotal = Number(order.total || 0);
 
-    const originalTotal =
-        finalTotal + orderDiscount;
+    // Total of all item-level discounts
+    const itemDiscountTotal = order.items.reduce((total, item) => {
+        return (
+            total +
+            (item.discounts?.reduce(
+                (sum, discount) =>
+                    sum + Number(discount.amount || 0),
+                0
+            ) || 0)
+        );
+    }, 0);
+
+    // Total of all order-level discounts
+    const orderDiscountTotal =
+        order.discounts?.reduce(
+            (sum, discount) =>
+                sum + Number(discount.amount || 0),
+            0
+        ) || 0;
+
+    // One total discount amount
+    const totalDiscount =
+        itemDiscountTotal + orderDiscountTotal;
+
+    // Original total before all discounts
+    const originalTotal = finalTotal + totalDiscount;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -65,7 +86,6 @@ export default function ViewOrderDialog({
                             <Badge variant="secondary">
                                 {order.payment_status}
                             </Badge>
-                          
                         </div>
                     </div>
                 </DialogHeader>
@@ -155,23 +175,28 @@ export default function ViewOrderDialog({
                                     const itemDiscountTotal =
                                         item.discounts?.reduce(
                                             (sum, discount) =>
-                                                sum + Number(discount.amount || 0),
+                                                sum +
+                                                Number(
+                                                    discount.amount || 0
+                                                ),
                                             0
                                         ) || 0;
 
                                     // Unit price NEVER changes because of discounts.
-                                    const unitPrice = Number(item.unit_price || 0);
+                                    const unitPrice = Number(
+                                        item.unit_price || 0
+                                    );
 
-                                    // total_price is the original line total before
-                                    // applying the item discount.
+                                    // Original line total before discounts.
                                     const originalItemTotal = Number(
                                         item.total_price || 0
                                     );
 
-                                    // Discount is applied ONLY to the total.
+                                    // Apply item discount only to the line total.
                                     const finalItemTotal = Math.max(
                                         0,
-                                        originalItemTotal - itemDiscountTotal
+                                        originalItemTotal -
+                                            itemDiscountTotal
                                     );
 
                                     const hasItemDiscount =
@@ -202,51 +227,83 @@ export default function ViewOrderDialog({
                                                     {/* Modifiers */}
                                                     {item.modifiers?.length > 0 && (
                                                         <div className="flex flex-wrap gap-1">
-                                                            {item.modifiers.map((modifier, index) => (
-                                                                <Badge
-                                                                    key={`${modifier.modifier}-${index}`}
-                                                                    variant="secondary"
-                                                                    className="h-6 px-2 text-xs font-normal"
-                                                                >
-                                                                    {modifier.modifier}
+                                                            {item.modifiers.map(
+                                                                (
+                                                                    modifier,
+                                                                    index
+                                                                ) => (
+                                                                    <Badge
+                                                                        key={`${modifier.modifier}-${index}`}
+                                                                        variant="secondary"
+                                                                        className="h-6 px-2 text-xs font-normal"
+                                                                    >
+                                                                        {
+                                                                            modifier.modifier
+                                                                        }
 
-                                                                    {modifier.quantity > 1 && (
-                                                                        <span className="ml-1">
-                                                                            ×{modifier.quantity}
-                                                                        </span>
-                                                                    )}
+                                                                        {modifier.quantity >
+                                                                            1 && (
+                                                                            <span className="ml-1">
+                                                                                ×
+                                                                                {
+                                                                                    modifier.quantity
+                                                                                }
+                                                                            </span>
+                                                                        )}
 
-                                                                    {Number(modifier.price) > 0 && (
-                                                                        <span className="ml-1 text-muted-foreground">
-                                                                            + QAR{" "}
-                                                                            {Number(modifier.price).toFixed(2)}
-                                                                        </span>
-                                                                    )}
-                                                                </Badge>
-                                                            ))}
+                                                                        {Number(
+                                                                            modifier.price
+                                                                        ) >
+                                                                            0 && (
+                                                                            <span className="ml-1 text-muted-foreground">
+                                                                                + QAR{" "}
+                                                                                {Number(
+                                                                                    modifier.price
+                                                                                ).toFixed(
+                                                                                    2
+                                                                                )}
+                                                                            </span>
+                                                                        )}
+                                                                    </Badge>
+                                                                )
+                                                            )}
                                                         </div>
                                                     )}
-                                                    
+
+                                                    {/* Item Discounts */}
                                                     {hasItemDiscount && (
                                                         <div className="space-y-0.5 text-xs text-green-600">
-                                                            {item.discounts.map((discount) => (
-                                                                <div
-                                                                    key={discount.id}
-                                                                    className="flex items-center gap-2"
-                                                                >
-                                                                    <span>{discount.name}</span>
-                                                                    <span className="font-medium">
-                                                                        − QAR {Number(discount.amount).toFixed(2)}
-                                                                    </span>
-                                                                </div>
-                                                            ))}
+                                                            {item.discounts.map(
+                                                                (
+                                                                    discount
+                                                                ) => (
+                                                                    <div
+                                                                        key={
+                                                                            discount.id
+                                                                        }
+                                                                        className="flex items-center gap-2"
+                                                                    >
+                                                                        <span>
+                                                                            {
+                                                                                discount.name
+                                                                            }
+                                                                        </span>
+
+                                                                        <span className="font-medium">
+                                                                            − QAR{" "}
+                                                                            {Number(
+                                                                                discount.amount
+                                                                            ).toFixed(
+                                                                                2
+                                                                            )}
+                                                                        </span>
+                                                                    </div>
+                                                                )
+                                                            )}
                                                         </div>
                                                     )}
-
-
                                                 </div>
                                             </TableCell>
-
 
                                             {/* Quantity */}
                                             <TableCell className="py-4 text-center">
@@ -258,7 +315,8 @@ export default function ViewOrderDialog({
                                             {/* Unit Price */}
                                             <TableCell className="py-4 text-right">
                                                 <span className="font-medium">
-                                                    QAR {unitPrice.toFixed(2)}
+                                                    QAR{" "}
+                                                    {unitPrice.toFixed(2)}
                                                 </span>
                                             </TableCell>
 
@@ -270,26 +328,31 @@ export default function ViewOrderDialog({
                                                         {/* Original total */}
                                                         <span className="text-xs text-muted-foreground line-through">
                                                             QAR{" "}
-                                                            {originalItemTotal.toFixed(2)}
+                                                            {originalItemTotal.toFixed(
+                                                                2
+                                                            )}
                                                         </span>
 
                                                         {/* Discounted total */}
                                                         <span className="font-semibold text-green-700">
                                                             QAR{" "}
-                                                            {finalItemTotal.toFixed(2)}
+                                                            {finalItemTotal.toFixed(
+                                                                2
+                                                            )}
                                                         </span>
                                                     </div>
                                                 ) : (
                                                     <span className="font-semibold">
                                                         QAR{" "}
-                                                        {originalItemTotal.toFixed(2)}
+                                                        {originalItemTotal.toFixed(
+                                                            2
+                                                        )}
                                                     </span>
                                                 )}
                                             </TableCell>
                                         </TableRow>
                                     );
                                 })}
-
                             </TableBody>
                         </Table>
                     </div>
@@ -320,7 +383,9 @@ export default function ViewOrderDialog({
                                                 {payment.reference && (
                                                     <p className="mt-1 text-xs text-muted-foreground">
                                                         Ref:{" "}
-                                                        {payment.reference}
+                                                        {
+                                                            payment.reference
+                                                        }
                                                     </p>
                                                 )}
 
@@ -351,7 +416,6 @@ export default function ViewOrderDialog({
 
                         {/* Order Summary */}
                         <div className="rounded-xl border bg-muted/10 p-5">
-
                             <div className="mb-4">
                                 <h3 className="font-semibold">
                                     Order Summary
@@ -359,22 +423,19 @@ export default function ViewOrderDialog({
                             </div>
 
                             <div className="space-y-3">
+
+                                {/* Subtotal */}
                                 <SummaryRow
                                     label="Subtotal"
                                     value={order.subtotal}
                                 />
 
-                                {/* Order Discount */}
-                                {orderDiscount > 0 && (
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">
-                                            Discount
-                                        </span>
-
-                                        <span className="font-medium text-green-600">
-                                            − QAR {orderDiscount.toFixed(2)}
-                                        </span>
-                                    </div>
+                                {/* ONE combined discount row */}
+                                {totalDiscount > 0 && (
+                                    <DiscountSummaryRow
+                                        label="Discount"
+                                        value={totalDiscount}
+                                    />
                                 )}
 
                                 <Separator />
@@ -385,23 +446,21 @@ export default function ViewOrderDialog({
                                         <p className="text-sm font-medium">
                                             Total
                                         </p>
-
-                                        {orderDiscount > 0 && (
-                                            <p className="mt-1 text-xs text-muted-foreground">
-                                                After discount
-                                            </p>
-                                        )}
                                     </div>
 
                                     <div className="text-right">
-                                        {orderDiscount > 0 && (
+                                        {totalDiscount > 0 && (
                                             <p className="text-sm text-muted-foreground line-through">
-                                                QAR {originalTotal.toFixed(2)}
+                                                QAR{" "}
+                                                {originalTotal.toFixed(
+                                                    2
+                                                )}
                                             </p>
                                         )}
 
                                         <p className="text-2xl font-bold tracking-tight">
-                                            QAR {finalTotal.toFixed(2)}
+                                            QAR{" "}
+                                            {finalTotal.toFixed(2)}
                                         </p>
                                     </div>
                                 </div>
@@ -462,6 +521,26 @@ function SummaryRow({
 
             <span className="font-medium">
                 QAR {Number(value || 0).toFixed(2)}
+            </span>
+        </div>
+    );
+}
+
+function DiscountSummaryRow({
+    label,
+    value,
+}: {
+    label: string;
+    value: number | string;
+}) {
+    return (
+        <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">
+                {label}
+            </span>
+
+            <span className="font-medium text-green-600">
+                − QAR {Number(value || 0).toFixed(2)}
             </span>
         </div>
     );
