@@ -1,39 +1,81 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+
 import OrdersTable from "@/features/orders/components/OrdersTable";
-import { getOrders } from "@/features/orders/orders.service";
-import { Order } from "@/features/orders/orders.types";
+
+import { getOrderTypes } from "@/features/sales/sales.service";
+
+
 import PageLoader from "@/components/common/PageLoader";
+import { OrderType } from "@/types/order-type";
+import { getLocations } from "@/features/locations/location.service";
+import { Location } from "@/types/location";
 
 export default function OrdersPage() {
-    const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const loadOrders = useCallback(async () => {
-        setLoading(true);
-         try {
-            const response = await getOrders();
-            setOrders(response.data.data ?? response.data);
+    const [locations, setLocations] = useState<Location[]>([]);
+    const [orderTypes, setOrderTypes] = useState<OrderType[]>([]);
+
+    async function loadLocations() {
+        try {
+            const response = await getLocations();
+
+            setLocations(
+                response.data.data ?? response.data
+            );
+        } catch (error) {
+            console.error(
+                "Failed to load locations:",
+                error
+            );
+        }
+    }
+
+    async function loadOrderTypes() {
+        try {
+            const response = await getOrderTypes();
+
+            setOrderTypes(
+                response.data.data ?? response.data
+            );
+        } catch (error) {
+            console.error(
+                "Failed to load order types:",
+                error
+            );
+        }
+    }
+
+    async function loadPageData() {
+        try {
+            setLoading(true);
+
+            await Promise.all([
+                loadLocations(),
+                loadOrderTypes(),
+            ]);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }
 
     useEffect(() => {
-        loadOrders();
-    }, [loadOrders]);
+        loadPageData();
+    }, []);
 
-    if(loading){
-        return (
-            <PageLoader/>
-        );
+    if (loading) {
+        return <PageLoader />;
     }
 
     return (
-        
         <OrdersTable
-            onSuccess={loadOrders}
+            locations={locations}
+            orderTypes={orderTypes}
+            onSuccess={async () => {
+                // OrdersTable handles its own reload.
+            }}
         />
     );
 }

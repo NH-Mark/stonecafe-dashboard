@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+    ColumnFiltersState,
+} from "@tanstack/react-table";
 
 import { DataTable } from "@/components/data-table/data-table";
-
 import { staffColumns } from "./StaffColumns";
 
 import { User } from "@/types/user";
@@ -13,54 +15,57 @@ import { Location } from "@/types/location";
 import { getStaff } from "../staff.service";
 
 interface StaffTableProps {
-onSuccess: () => Promise<void>;
+    onSuccess: () => Promise<void>;
 
-roles: Role[];
+    roles: Role[];
 
-locations: Location[];
+    locations: Location[];
 
-selectedRole: number | null;
-
+    selectedRole: number | null;
 }
 
 interface StaffResponse {
-data: User[];
+    data: User[];
 
-links: {
-    first: string | null;
-    last: string | null;
-    prev: string | null;
-    next: string | null;
-};
+    links: {
+        first: string | null;
+        last: string | null;
+        prev: string | null;
+        next: string | null;
+    };
 
-meta: {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    from: number | null;
-    to: number | null;
-};
-
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        from: number | null;
+        to: number | null;
+    };
 }
 
 export default function StaffTable({
-onSuccess,
-roles,
-locations,
-selectedRole,
+    onSuccess,
+    roles,
+    locations,
+    selectedRole,
 }: StaffTableProps) {
-const [users, setUsers] =
-useState<User[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
 
-const [loading, setLoading] =
-    useState(false);
+    const [loading, setLoading] = useState(false);
 
-const [search, setSearch] =
-    useState("");
+    /**
+     * Server-side search.
+     */
+    const [search, setSearch] = useState("");
 
-const [pagination, setPagination] =
-    useState({
+    /**
+     * Server-side column filters.
+     */
+    const [columnFilters, setColumnFilters] =
+        useState<ColumnFiltersState>([]);
+
+    const [pagination, setPagination] = useState({
         current_page: 1,
         last_page: 1,
         per_page: 10,
@@ -69,162 +74,182 @@ const [pagination, setPagination] =
         to: null as number | null,
     });
 
-async function loadStaff(
-    page: number,
-    perPage: number,
-    searchValue = search,
-    roleId = selectedRole
-) {
-    try {
-        setLoading(true);
+    /**
+     * Load staff.
+     */
+    async function loadStaff(
+        page: number,
+        perPage: number,
+        searchValue: string,
+        filters: ColumnFiltersState,
+        roleId: number | null = selectedRole
+    ) {
+        try {
+            setLoading(true);
 
-        const response = await getStaff({
-            page,
-            per_page: perPage,
-            search: searchValue || undefined,
-            role_id: roleId,
-        });
+            const response = await getStaff({
+                page,
+                per_page: perPage,
 
-        const result: StaffResponse =
-            response.data;
+                search:
+                    searchValue || undefined,
 
-        setUsers(result.data);
+                filters:
+                    filters.length
+                        ? filters
+                        : undefined,
 
-        setPagination({
-            current_page:
-                result.meta.current_page,
+                role_id:
+                    roleId ?? undefined,
+            });
 
-            last_page:
-                result.meta.last_page,
+            const result: StaffResponse =
+                response.data;
 
-            per_page:
-                result.meta.per_page,
+            setUsers(result.data);
 
-            total:
-                result.meta.total,
+            setPagination({
+                current_page:
+                    result.meta.current_page,
 
-            from:
-                result.meta.from,
+                last_page:
+                    result.meta.last_page,
 
-            to:
-                result.meta.to,
-        });
-    } catch (error) {
-        console.error(
-            "Failed to load staff:",
-            error
+                per_page:
+                    result.meta.per_page,
+
+                total:
+                    result.meta.total,
+
+                from:
+                    result.meta.from,
+
+                to:
+                    result.meta.to,
+            });
+        } catch (error) {
+            console.error(
+                "Failed to load staff:",
+                error
+            );
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    /**
+     * Initial load + role change.
+     *
+     * When selectedRole changes, reload page 1.
+     */
+    useEffect(() => {
+        loadStaff(
+            1,
+            pagination.per_page,
+            search,
+            columnFilters,
+            selectedRole
         );
-    } finally {
-        setLoading(false);
+    }, [selectedRole]);
+
+    /**
+     * Handle everything from DataTable:
+     *
+     * - search
+     * - column filters
+     * - pagination
+     * - page size
+     */
+    function handleServerStateChange(
+        searchValue: string,
+        filters: ColumnFiltersState,
+        page: number,
+        pageSize: number
+    ) {
+        if (!Number.isFinite(page)) {
+            return;
+        }
+
+        if (!Number.isFinite(pageSize)) {
+            return;
+        }
+
+        if (page < 1) {
+            return;
+        }
+
+        setSearch(searchValue);
+
+        setColumnFilters(filters);
+
+        loadStaff(
+            page,
+            pageSize,
+            searchValue,
+            filters,
+            selectedRole
+        );
     }
-}
 
-/**
- * Initial load + role change.
- */
-useEffect(() => {
-    loadStaff(
-        1,
-        pagination.per_page,
-        search,
-        selectedRole
-    );
-}, [selectedRole]);
+    /**
+     * Refresh after create/update/delete.
+     */
+    async function handleSuccess() {
+        await onSuccess();
 
-/**
- * Pagination.
- */
-function handlePaginationChange(
-    page: number,
-    pageSize: number
-) {
-    if (!Number.isFinite(page)) {
-        return;
+        await loadStaff(
+            pagination.current_page,
+            pagination.per_page,
+            search,
+            columnFilters,
+            selectedRole
+        );
     }
 
-    if (!Number.isFinite(pageSize)) {
-        return;
-    }
+    return (
+        <DataTable
+            serverPagination={true}
 
-    if (page < 1) {
-        return;
-    }
+            columns={staffColumns({
+                onSuccess: handleSuccess,
+                roles,
+                locations,
+            })}
 
-    loadStaff(
-        page,
-        pageSize,
-        search,
-        selectedRole
+            data={users}
+
+            searchKey="name"
+            placeholder="Search staff..."
+
+            pageIndex={
+                pagination.current_page
+            }
+
+            pageSize={
+                pagination.per_page
+            }
+
+            pageCount={
+                pagination.last_page
+            }
+
+            total={
+                pagination.total
+            }
+
+            from={
+                pagination.from
+            }
+
+            to={
+                pagination.to
+            }
+
+            loading={loading}
+
+            onServerStateChange={
+                handleServerStateChange
+            }
+        />
     );
-}
-
-/**
- * Server-side search.
- */
-function handleSearch(
-    value: string
-) {
-    setSearch(value);
-
-    loadStaff(
-        1,
-        pagination.per_page,
-        value,
-        selectedRole
-    );
-}
-
-/**
- * Refresh after create/update/delete.
- */
-async function handleSuccess() {
-    await onSuccess();
-
-    await loadStaff(
-        pagination.current_page,
-        pagination.per_page,
-        search,
-        selectedRole
-    );
-}
-
-return (
-    <DataTable
-        serverPagination={true}
-        columns={staffColumns({
-            onSuccess: handleSuccess,
-            roles,
-            locations,
-        })}
-        data={users}
-        searchKey="name"
-        placeholder="Search staff..."
-        pageIndex={
-            pagination.current_page
-        }
-        pageSize={
-            pagination.per_page
-        }
-        pageCount={
-            pagination.last_page
-        }
-        total={
-            pagination.total
-        }
-        from={
-            pagination.from
-        }
-        to={
-            pagination.to
-        }
-        loading={loading}
-        onPaginationChange={
-            handlePaginationChange
-        }
-        onSearchChange={
-            handleSearch
-        }
-    />
-);
-
 }

@@ -1,16 +1,17 @@
+
 "use client";
 
 import {
     ColumnDef,
+    ColumnFiltersState,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
-    getSortedRowModel,
     getPaginationRowModel,
-    useReactTable,
-    ColumnFiltersState,
-    SortingState,
+    getSortedRowModel,
     PaginationState,
+    SortingState,
+    useReactTable,
 } from "@tanstack/react-table";
 
 import {
@@ -25,7 +26,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { useEffect, useState } from "react";
+import {
+    useEffect,
+    useRef,
+    useState,
+} from "react";
+
 import ColumnFilter from "./ColumnFilter";
 
 interface DataTableProps<TData, TValue> {
@@ -38,10 +44,13 @@ interface DataTableProps<TData, TValue> {
     rowClassName?: (row: TData) => string;
 
     /**
-     * Server-side pagination
+     * Server-side pagination.
      */
     serverPagination?: boolean;
 
+    /**
+     * Laravel pagination values.
+     */
     pageIndex?: number;
     pageSize?: number;
     pageCount?: number;
@@ -52,13 +61,34 @@ interface DataTableProps<TData, TValue> {
 
     loading?: boolean;
 
+    /**
+     * Normal pagination callback.
+     */
     onPaginationChange?: (
         page: number,
         pageSize: number
     ) => void;
 
-    onSearchChange?: (
-        value: string
+    /**
+     * Complete server-side state.
+     *
+     * search:
+     * Global search value.
+     *
+     * filters:
+     * TanStack column filters.
+     *
+     * page:
+     * 1-based page.
+     *
+     * pageSize:
+     * Records per page.
+     */
+    onServerStateChange?: (
+        search: string,
+        filters: ColumnFiltersState,
+        page: number,
+        pageSize: number
     ) => void;
 }
 
@@ -84,27 +114,80 @@ export function DataTable<TData, TValue>({
     loading = false,
 
     onPaginationChange,
-
-    onSearchChange,
+    onServerStateChange,
 }: DataTableProps<TData, TValue>) {
+    /**
+     * Global search.
+     */
     const [search, setSearch] = useState("");
 
+    /**
+     * Column filters.
+     */
     const [columnFilters, setColumnFilters] =
         useState<ColumnFiltersState>([]);
 
+    /**
+     * Sorting.
+     */
     const [sorting, setSorting] =
         useState<SortingState>([]);
 
     /**
-     * Client-side pagination state.
-     *
-     * TanStack uses 0-based pageIndex internally.
+     * Client-side pagination.
      */
     const [clientPagination, setClientPagination] =
         useState<PaginationState>({
             pageIndex: 0,
             pageSize: 10,
         });
+
+    /**
+     * Search debounce timer.
+     */
+    const searchTimerRef =
+        useRef<ReturnType<typeof setTimeout> | null>(
+            null
+        );
+
+    /**
+     * Column filter debounce timer.
+     */
+    const filterTimerRef =
+        useRef<ReturnType<typeof setTimeout> | null>(
+            null
+        );
+
+    /**
+     * Keep the latest search value available
+     * even if a request is currently loading.
+     */
+    const searchRef = useRef(search);
+
+    /**
+     * Keep latest filters available.
+     */
+    const columnFiltersRef =
+        useRef(columnFilters);
+
+    /**
+     * Cleanup timers.
+     */
+    useEffect(() => {
+        return () => {
+            if (searchTimerRef.current) {
+                clearTimeout(
+                    searchTimerRef.current
+                );
+            }
+
+            if (filterTimerRef.current) {
+                clearTimeout(
+                    filterTimerRef.current
+                );
+            }
+        };
+    }, []);
 
     /**
      * Reset client pagination when data changes.
@@ -118,6 +201,9 @@ export function DataTable<TData, TValue>({
         }
     }, [data.length, serverPagination]);
 
+    /**
+     * TanStack table.
+     */
     const table = useReactTable({
         data,
         columns,
@@ -130,81 +216,223 @@ export function DataTable<TData, TValue>({
             ...(serverPagination
                 ? {}
                 : {
-                      pagination: clientPagination,
+                      pagination:
+                          clientPagination,
                   }),
         },
 
+        /**
+         * TanStack global filter.
+         */
         onGlobalFilterChange: setSearch,
 
-        onColumnFiltersChange: setColumnFilters,
+        /**
+         * Column filters.
+         */
+        onColumnFiltersChange: (updater) => {
+            setColumnFilters((previous) => {
+                const next =
+                    typeof updater === "function"
+                        ? updater(previous)
+                        : updater;
 
+                columnFiltersRef.current = next;
+
+                /**
+                 * Server-side filtering.
+                 *
+                 * Debounce this as well so a filter
+                 * doesn't make a request on every
+                 * small change.
+                 */
+                if (serverPagination) {
+                    if (
+                        filterTimerRef.current
+                    ) {
+                        clearTimeout(
+                            filterTimerRef.current
+                        );
+                    }
+
+                    filterTimerRef.current =
+                        setTimeout(() => {
+                            onServerStateChange?.(
+                                searchRef.current,
+                                next,
+                                1,
+                                pageSize
+                            );
+                        }, 300);
+                }
+
+                return next;
+            });
+        },
+
+        /**
+         * Sorting.
+         */
         onSortingChange: setSorting,
 
         /**
-         * Server-side pagination
+         * Server pagination.
          */
-        manualPagination: serverPagination,
+        manualPagination:
+            serverPagination,
 
         pageCount: serverPagination
             ? pageCount
             : undefined,
 
         /**
-         * Client-side pagination
+         * Server filtering.
+         */
+        manualFiltering:
+            serverPagination,
+
+        /**
+         * Client-side functionality.
          */
         ...(serverPagination
             ? {}
             : {
                   onPaginationChange:
                       setClientPagination,
+
                   getPaginationRowModel:
                       getPaginationRowModel(),
+
+                  getFilteredRowModel:
+                      getFilteredRowModel(),
               }),
 
-        getCoreRowModel: getCoreRowModel(),
-
-        getFilteredRowModel:
-            getFilteredRowModel(),
+        getCoreRowModel:
+            getCoreRowModel(),
 
         getSortedRowModel:
             getSortedRowModel(),
-              
     });
 
     /**
-     * Clear filters.
+     * Search input.
+     *
+     * IMPORTANT:
+     *
+     * We DO NOT disable the input while loading.
+     *
+     * Search is debounced by 400ms.
      */
-    function clearFilters() {
-        setSearch("");
-        setColumnFilters([]);
+    function handleSearch(value: string) {
+        /**
+         * Update UI immediately.
+         */
+        setSearch(value);
 
-        if (serverPagination) {
-            onPaginationChange?.(
-                1,
-                pageSize
+        /**
+         * Update ref immediately.
+         */
+        searchRef.current = value;
+
+        /**
+         * Cancel previous timer.
+         */
+        if (searchTimerRef.current) {
+            clearTimeout(
+                searchTimerRef.current
             );
-        } else {
-            table.setPageIndex(0);
         }
+
+        /**
+         * Client-side table.
+         */
+        if (!serverPagination) {
+            table.setPageIndex(0);
+            return;
+        }
+
+        /**
+         * Wait until user stops typing.
+         *
+         * Example:
+         *
+         * "1080"
+         *
+         * Instead of:
+         *
+         * 1 -> request
+         * 10 -> request
+         * 108 -> request
+         * 1080 -> request
+         *
+         * We only send:
+         *
+         * 1080 -> request
+         */
+        searchTimerRef.current =
+            setTimeout(() => {
+                onServerStateChange?.(
+                    value,
+                    columnFiltersRef.current,
+                    1,
+                    pageSize
+                );
+            }, 400);
     }
 
     /**
-     * Search.
-     *
-     * For server-side searching you should eventually
-     * send search to Laravel.
+     * Clear search + filters.
      */
-    function handleSearch(value: string) {
-        setSearch(value);
+    function clearFilters() {
+        /**
+         * Cancel pending search request.
+         */
+        if (searchTimerRef.current) {
+            clearTimeout(
+                searchTimerRef.current
+            );
+        }
 
+        /**
+         * Cancel pending filter request.
+         */
+        if (filterTimerRef.current) {
+            clearTimeout(
+                filterTimerRef.current
+            );
+        }
+
+        /**
+         * Clear local state immediately.
+         */
+        setSearch("");
+        setColumnFilters([]);
+
+        /**
+         * Update refs.
+         */
+        searchRef.current = "";
+        columnFiltersRef.current = [];
+
+        /**
+         * Server-side.
+         *
+         * ONE request only.
+         */
         if (serverPagination) {
-            onPaginationChange?.(
+            onServerStateChange?.(
+                "",
+                [],
                 1,
                 pageSize
             );
-        } else {
-            table.setPageIndex(0);
+
+            return;
         }
+
+        /**
+         * Client-side.
+         */
+        table.setPageIndex(0);
     }
 
     /**
@@ -213,42 +441,79 @@ export function DataTable<TData, TValue>({
     function goToPage(page: number) {
         if (
             page < 1 ||
-            page > pageCount ||
-            loading
+            page > pageCount
         ) {
             return;
         }
 
-        onPaginationChange?.(
-            page,
-            pageSize
-        );
+        /**
+         * Don't block navigation just because
+         * another search request is loading.
+         *
+         * Parent can decide how to handle
+         * concurrent requests.
+         */
+        if (serverPagination) {
+            onServerStateChange?.(
+                searchRef.current,
+                columnFiltersRef.current,
+                page,
+                pageSize
+            );
+        } else {
+            onPaginationChange?.(
+                page,
+                pageSize
+            );
+        }
     }
 
     /**
-     * Server-side page size.
+     * Change page size.
      */
     function changeServerPageSize(
         size: number
     ) {
-        onPaginationChange?.(
-            1,
-            size
-        );
+        if (!Number.isFinite(size)) {
+            return;
+        }
+
+        if (serverPagination) {
+            onServerStateChange?.(
+                searchRef.current,
+                columnFiltersRef.current,
+                1,
+                size
+            );
+        } else {
+            table.setPageSize(size);
+            table.setPageIndex(0);
+        }
     }
 
     /**
-     * Client-side pagination information.
+     * Client-side rows.
      */
     const clientRows =
         table.getFilteredRowModel().rows;
 
+    /**
+     * Client page index.
+     */
     const clientPageIndex =
-        table.getState().pagination?.pageIndex ?? 0;
+        table.getState().pagination
+            ?.pageIndex ?? 0;
 
+    /**
+     * Client page size.
+     */
     const clientPageSize =
-        table.getState().pagination?.pageSize ?? 10;
+        table.getState().pagination
+            ?.pageSize ?? 10;
 
+    /**
+     * Client page count.
+     */
     const clientPageCount =
         Math.max(
             1,
@@ -258,30 +523,45 @@ export function DataTable<TData, TValue>({
             )
         );
 
+    /**
+     * Current page.
+     */
     const currentPage =
         serverPagination
             ? pageIndex
             : clientPageIndex + 1;
 
+    /**
+     * Current page count.
+     */
     const currentPageCount =
         serverPagination
             ? pageCount
             : clientPageCount;
 
+    /**
+     * Total.
+     */
     const currentTotal =
         serverPagination
             ? total ?? 0
             : clientRows.length;
 
+    /**
+     * From.
+     */
     const currentFrom =
         serverPagination
             ? from ?? 0
             : clientRows.length === 0
-            ? 0
-            : clientPageIndex *
-                  clientPageSize +
-              1;
+              ? 0
+              : clientPageIndex *
+                    clientPageSize +
+                1;
 
+    /**
+     * To.
+     */
     const currentTo =
         serverPagination
             ? to ?? 0
@@ -297,29 +577,32 @@ export function DataTable<TData, TValue>({
             <div className="flex items-center gap-3">
                 {searchKey && (
                     <Input
-                        placeholder={placeholder}
+                        placeholder={
+                            placeholder
+                        }
                         value={search}
                         onChange={(e) => {
-                            const value = e.target.value;
-
-                            setSearch(value);
-
-                            onSearchChange?.(value);
-
-                            if (serverPagination) {
-                                onPaginationChange?.(
-                                    1,
-                                    pageSize
-                                );
-                            } else {
-                                table.setPageIndex(0);
-                            }
+                            handleSearch(
+                                e.target.value
+                            );
                         }}
                         className="max-w-sm bg-white"
+
+                        /**
+                         * IMPORTANT:
+                         *
+                         * Do NOT use:
+                         *
+                         * disabled={loading}
+                         *
+                         * Otherwise the user can only
+                         * type one character at a time.
+                         */
                     />
                 )}
 
-                {(columnFilters.length > 0 ||
+                {(columnFilters.length >
+                    0 ||
                     search) && (
                     <Button
                         variant="outline"
@@ -469,7 +752,8 @@ export function DataTable<TData, TValue>({
                         size="sm"
                         disabled={
                             loading ||
-                            currentPage <= 1
+                            currentPage <=
+                                1
                         }
                         onClick={() => {
                             if (
@@ -492,7 +776,8 @@ export function DataTable<TData, TValue>({
                         size="sm"
                         disabled={
                             loading ||
-                            currentPage <= 1
+                            currentPage <=
+                                1
                         }
                         onClick={() => {
                             if (
@@ -584,29 +869,21 @@ export function DataTable<TData, TValue>({
                                         .value
                                 );
 
-                            if (
-                                serverPagination
-                            ) {
-                                changeServerPageSize(
-                                    size
-                                );
-                            } else {
-                                table.setPageSize(
-                                    size
-                                );
-                                table.setPageIndex(
-                                    0
-                                );
-                            }
+                            changeServerPageSize(
+                                size
+                            );
                         }}
                     >
                         {[10, 20, 50, 100].map(
                             (size) => (
                                 <option
                                     key={size}
-                                    value={size}
+                                    value={
+                                        size
+                                    }
                                 >
-                                    {size} / page
+                                    {size} /
+                                    page
                                 </option>
                             )
                         )}

@@ -1,5 +1,6 @@
 import api from "@/lib/axios";
 import { MenuItemFormValues } from "./menu-item.schema";
+import { ColumnFiltersState } from "@tanstack/react-table";
 
 
 //
@@ -10,7 +11,9 @@ export interface GetMenuItemsParams {
     page?: number;
     per_page?: number;
     search?: string;
+    filters?: ColumnFiltersState;
     category_id?: number | null;
+    active?: boolean;
 }
 
 export function getMenuItems(
@@ -21,8 +24,13 @@ export function getMenuItems(
             page: params.page,
             per_page: params.per_page,
             search: params.search || undefined,
+            filters:params.filters || undefined,
             category_id:
                 params.category_id ?? undefined,
+
+            active:
+                params.active ??
+                undefined,
         },
     });
 }

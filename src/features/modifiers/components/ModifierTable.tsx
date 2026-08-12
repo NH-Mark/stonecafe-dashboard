@@ -2,23 +2,18 @@
 
 import { useEffect, useState } from "react";
 
+import {
+    ColumnFiltersState,
+} from "@tanstack/react-table";
+
 import { DataTable } from "@/components/data-table/data-table";
+
+import { Location } from "@/types/location";
+import { OrderType } from "@/types/order-type";
 import { Modifier } from "@/types/modifier";
-
-import { modifierColumns } from "./ModifierColumns";
+import { ModifierGroup } from "@/types/modifier-group";
 import { getModifiers } from "../modifier.service";
-
-interface Props {
-groups: {
-id: number;
-name: string;
-}[];
-
-selectedGroup: number | null;
-
-onSuccess: () => Promise<void>;
-
-}
+import { modifierColumns } from "./ModifierColumns";
 
 interface ModifierResponse {
 data: Modifier[];
@@ -40,175 +35,241 @@ links: {
 
 }
 
+
+interface Props {
+    groups:ModifierGroup[];
+
+    selectedGroup: number | null;
+
+    onSuccess: () => Promise<void>;
+
+}
+
 export default function ModifierTable({
-groups,
-selectedGroup,
-onSuccess,
+    groups,
+    selectedGroup,
+    onSuccess,
 }: Props) {
-const [modifiers, setModifiers] =
-useState<Modifier[]>([]);
+    const [modifiers, setModifiers] =
+        useState<Modifier[]>([]);
 
-const [loading, setLoading] =
-    useState(false);
-
-const [search, setSearch] =
-    useState("");
-
-const [pagination, setPagination] =
-    useState({
-        current_page: 1,
-        last_page: 1,
-        per_page: 10,
-        total: 0,
-        from: null as number | null,
-        to: null as number | null,
-    });
-
-async function loadModifiers(
-    page: number,
-    perPage: number,
-    searchValue = search,
-    groupId = selectedGroup
-) {
-    try {
-        setLoading(true);
-
-        const response = await getModifiers({
-            page,
-            per_page: perPage,
-            search: searchValue || undefined,
-            modifier_group_id:
-                groupId ?? undefined,
+    const [pagination, setPagination] =
+        useState({
+            current_page: 1,
+            last_page: 1,
+            per_page: 10,
+            total: 0,
+            from: null as number | null,
+            to: null as number | null,
         });
 
-        const result: ModifierResponse =
-            response.data;
+    const [loading, setLoading] =
+        useState(false);
 
-        setModifiers(result.data);
+    /**
+     * Search.
+     */
+    const [search, setSearch] =
+        useState("");
 
-        setPagination({
-            current_page:
-                result.meta.current_page,
+    /**
+     * DataTable column filters.
+     */
+    const [columnFilters, setColumnFilters] =
+        useState<ColumnFiltersState>([]);
 
-            last_page:
-                result.meta.last_page,
 
-            per_page:
-                result.meta.per_page,
+    /**
+     * Load orders.
+     */
+    async function loadModifiers(
+        page: number,
+        perPage: number,
+        searchValue: string,
+        tableFilters: ColumnFiltersState,
+        groupId = selectedGroup
+    ) {
+        try {
+            setLoading(true);
 
-            total:
-                result.meta.total,
+            const response =
+                await getModifiers({
+                    page,
+                    per_page: perPage,
 
-            from:
-                result.meta.from,
+                    search:
+                        searchValue || undefined,
 
-            to:
-                result.meta.to,
-        });
-    } catch (error) {
-        console.error(
-            "Failed to load modifiers:",
-            error
-        );
-    } finally {
-        setLoading(false);
+                    filters:
+                        tableFilters.length
+                            ? tableFilters
+                            : undefined,
+                    modifier_group_id:
+                    groupId ?? undefined,
+
+                });
+
+            const result: ModifierResponse =
+                response.data;
+
+            setModifiers(result.data);
+
+            setPagination({
+                current_page:
+                    result.meta.current_page,
+
+                last_page:
+                    result.meta.last_page,
+
+                per_page:
+                    result.meta.per_page,
+
+                total:
+                    result.meta.total,
+
+                from:
+                    result.meta.from,
+
+                to:
+                    result.meta.to,
+            });
+        } catch (error) {
+            console.error(
+                "Failed to load modifiers:",
+                error
+            );
+        } finally {
+            setLoading(false);
+        }
     }
-}
 
-/**
- * Initial load + reload
- * when modifier group changes.
- */
-useEffect(() => {
-    loadModifiers(
-        1,
-        pagination.per_page,
-        search,
-        selectedGroup
+    /**
+     * Initial load.
+     */
+    useEffect(() => {
+        setSearch("");
+        setColumnFilters([]);
+
+        loadModifiers(
+            1,
+            10,
+            "",
+            [],
+            selectedGroup
+        );
+    }, [selectedGroup]);
+
+   
+
+    /**
+     * Handle DataTable server state.
+     *
+     * This handles:
+     *
+     * - search
+     * - column filters
+     * - pagination
+     * - page size
+     */
+    function handleServerStateChange(
+        searchValue: string,
+        tableFilters: ColumnFiltersState,
+        page: number,
+        pageSize: number
+    ) {
+        if (!Number.isFinite(page)) {
+            return;
+        }
+
+        if (!Number.isFinite(pageSize)) {
+            return;
+        }
+
+        if (page < 1) {
+            return;
+        }
+
+        setSearch(searchValue);
+
+        setColumnFilters(tableFilters);
+
+        loadModifiers(
+            page,
+            pageSize,
+            searchValue,
+            tableFilters,
+            selectedGroup
+        );
+    }
+
+    /**
+     * Refresh current page after
+     * an order action.
+     */
+    async function handleSuccess() {
+        await onSuccess();
+
+        await loadModifiers(
+            pagination.current_page,
+            pagination.per_page,
+            search,
+            columnFilters,
+            selectedGroup
+        );
+    }
+
+    return (
+        <div className="space-y-4">
+         
+            {/* ========================================
+                ORDERS TABLE
+            ======================================== */}
+
+            <DataTable
+                serverPagination={true}
+
+                columns={modifierColumns({
+                    groups,
+                    onSuccess: handleSuccess,
+                })}
+
+
+                data={modifiers}
+
+                searchKey="order_no"
+                placeholder="Search Order..."
+
+              
+                pageIndex={
+                    pagination.current_page
+                }
+
+                pageSize={
+                    pagination.per_page
+                }
+
+                pageCount={
+                    pagination.last_page
+                }
+
+                total={
+                    pagination.total
+                }
+
+                from={
+                    pagination.from
+                }
+
+                to={
+                    pagination.to
+                }
+
+                loading={loading}
+
+                onServerStateChange={
+                    handleServerStateChange
+                }
+            />
+        </div>
     );
-}, [selectedGroup]);
-
-/**
- * Pagination
- */
-function handlePaginationChange(
-    page: number,
-    pageSize: number
-) {
-    loadModifiers(
-        page,
-        pageSize,
-        search,
-        selectedGroup
-    );
-}
-
-/**
- * Search
- */
-function handleSearch(
-    value: string
-) {
-    setSearch(value);
-
-    loadModifiers(
-        1,
-        pagination.per_page,
-        value,
-        selectedGroup
-    );
-}
-
-/**
- * Refresh after create/update/delete.
- */
-async function handleSuccess() {
-    await onSuccess();
-
-    await loadModifiers(
-        pagination.current_page,
-        pagination.per_page,
-        search,
-        selectedGroup
-    );
-}
-
-return (
-    <DataTable
-        serverPagination={true}
-        columns={modifierColumns({
-            groups,
-            onSuccess: handleSuccess,
-        })}
-        data={modifiers}
-        searchKey="name"
-        placeholder="Search modifiers..."
-        pageIndex={
-            pagination.current_page
-        }
-        pageSize={
-            pagination.per_page
-        }
-        pageCount={
-            pagination.last_page
-        }
-        total={
-            pagination.total
-        }
-        from={
-            pagination.from
-        }
-        to={
-            pagination.to
-        }
-        loading={loading}
-        onPaginationChange={
-            handlePaginationChange
-        }
-        onSearchChange={
-            handleSearch
-        }
-    />
-);
-
 }

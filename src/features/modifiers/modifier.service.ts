@@ -1,4 +1,5 @@
 import api from "@/lib/axios";
+import { ColumnFiltersState } from "@tanstack/react-table";
 
 //
 // Groups
@@ -39,6 +40,7 @@ export interface GetModifiersParams {
 page?: number;
 per_page?: number;
 search?: string;
+filters?: ColumnFiltersState;
 modifier_group_id?: number;
 }
 
@@ -50,6 +52,7 @@ params: {
 page: params.page,
 per_page: params.per_page,
 search: params.search || undefined,
+filters: params.filters || undefined,
 modifier_group_id:
 params.modifier_group_id ??
 undefined,

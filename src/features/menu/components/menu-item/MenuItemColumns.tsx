@@ -46,11 +46,15 @@ export function menuItemColumns({
         },
 
         {
-
-            accessorKey: "category.name",
-
+            id: "category",
             header: "Category",
 
+            cell: ({ row }) => (
+                <span>
+                    {row.original.category?.name ??
+                        "-"}
+                </span>
+            ),
         },
         
 

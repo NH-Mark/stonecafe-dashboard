@@ -1,38 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+
+import {
+    ColumnFiltersState,
+} from "@tanstack/react-table";
 
 import { DataTable } from "@/components/data-table/data-table";
-import { Button } from "@/components/ui/button";
 
-import { Category } from "@/types/category";
+import { Location } from "@/types/location";
+import { OrderType } from "@/types/order-type";
 import { MenuItem } from "@/types/menu-item";
-
-import { menuItemColumns } from "./MenuItemColumns";
+import { Category } from "@/types/category";
 import { getMenuItems } from "../../menu.service";
+import { menuItemColumns } from "./MenuItemColumns";
 
-interface Props {
-items?: MenuItem[];
-
-categories: Category[];
-
-selectedCategory: number | null;
-
-onSuccess: () => Promise<void>;
-
-}
-
-interface MenuItemsResponse {
+interface ModifierResponse {
 data: MenuItem[];
-
-links: {
-    first: string | null;
-    last: string | null;
-    prev: string | null;
-    next: string | null;
-};
-
 meta: {
     current_page: number;
     last_page: number;
@@ -42,218 +26,252 @@ meta: {
     to: number | null;
 };
 
+links: {
+    first: string | null;
+    last: string | null;
+    prev: string | null;
+    next: string | null;
+};
+
 }
 
-export default function MenuItemsTable({
-categories,
-selectedCategory,
-onSuccess,
+
+interface Props {
+    items?: MenuItem[];
+
+    categories: Category[];
+
+    selectedCategory: number | null;
+
+    onSuccess: () => Promise<void>;
+
+}
+
+export default function ModifierTable({
+    categories,
+    selectedCategory,
+    onSuccess,
 }: Props) {
-const [menuItems, setMenuItems] =
-useState<MenuItem[]>([]);
+    const [menuItems, setMenuItems] =
+    useState<MenuItem[]>([]);
 
-const [pagination, setPagination] =
-    useState({
-        current_page: 1,
-        last_page: 1,
-        per_page: 10,
-        total: 0,
-        from: null as number | null,
-        to: null as number | null,
-    });
-
-const [search, setSearch] =
-    useState("");
-
-const [loading, setLoading] =
-    useState(false);
-
-async function loadMenuItems(
-    page: number,
-    perPage: number,
-    searchValue = search,
-    categoryId = selectedCategory
-) {
-    try {
-        setLoading(true);
-
-        const response = await getMenuItems({
-            page,
-            per_page: perPage,
-            search: searchValue,
-            category_id: categoryId,
+    const [pagination, setPagination] =
+        useState({
+            current_page: 1,
+            last_page: 1,
+            per_page: 10,
+            total: 0,
+            from: null as number | null,
+            to: null as number | null,
         });
 
-        const result: MenuItemsResponse =
-            response.data;
+    const [loading, setLoading] =
+        useState(false);
 
-        setMenuItems(result.data);
+    /**
+     * Search.
+     */
+    const [search, setSearch] =
+        useState("");
 
-        setPagination({
-            current_page:
-                result.meta.current_page,
+    /**
+     * DataTable column filters.
+     */
+    const [columnFilters, setColumnFilters] =
+        useState<ColumnFiltersState>([]);
 
-            last_page:
-                result.meta.last_page,
 
-            per_page:
-                result.meta.per_page,
+    /**
+     * Load orders.
+     */
+    async function loadMenuItems(
+        page: number,
+        perPage: number,
+        searchValue: string,
+        tableFilters: ColumnFiltersState,
+        catgeoryId = selectedCategory
+    ) {
+        try {
+            setLoading(true);
 
-            total:
-                result.meta.total,
+            const response =
+                await getMenuItems({
+                    page,
+                    per_page: perPage,
 
-            from:
-                result.meta.from,
+                    search:
+                        searchValue || undefined,
 
-            to:
-                result.meta.to,
-        });
-    } catch (error) {
-        console.error(
-            "Failed to load menu items:",
-            error
+                    filters:
+                        tableFilters.length
+                            ? tableFilters
+                            : undefined,
+                    category_id:
+                    catgeoryId ?? undefined,
+
+                });
+
+            const result: ModifierResponse =
+                response.data;
+
+            setMenuItems(result.data);
+
+            setPagination({
+                current_page:
+                    result.meta.current_page,
+
+                last_page:
+                    result.meta.last_page,
+
+                per_page:
+                    result.meta.per_page,
+
+                total:
+                    result.meta.total,
+
+                from:
+                    result.meta.from,
+
+                to:
+                    result.meta.to,
+            });
+        } catch (error) {
+            console.error(
+                "Failed to load menu items:",
+                error
+            );
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    /**
+     * Initial load.
+     */
+    useEffect(() => {
+        setSearch("");
+        setColumnFilters([]);
+
+        loadMenuItems(
+            1,
+            10,
+            "",
+            [],
+            selectedCategory
         );
-    } finally {
-        setLoading(false);
+    }, [selectedCategory]);
+
+   
+
+    /**
+     * Handle DataTable server state.
+     *
+     * This handles:
+     *
+     * - search
+     * - column filters
+     * - pagination
+     * - page size
+     */
+    function handleServerStateChange(
+        searchValue: string,
+        tableFilters: ColumnFiltersState,
+        page: number,
+        pageSize: number
+    ) {
+        if (!Number.isFinite(page)) {
+            return;
+        }
+
+        if (!Number.isFinite(pageSize)) {
+            return;
+        }
+
+        if (page < 1) {
+            return;
+        }
+
+        setSearch(searchValue);
+
+        setColumnFilters(tableFilters);
+
+        loadMenuItems(
+            page,
+            pageSize,
+            searchValue,
+            tableFilters,
+            selectedCategory
+        );
     }
-}
 
-/**
- * Initial load
- */
-useEffect(() => {
-    loadMenuItems(
-        1,
-        pagination.per_page,
-        search,
-        selectedCategory
-    );
-}, [selectedCategory]);
+    /**
+     * Refresh current page after
+     * an order action.
+     */
+    async function handleSuccess() {
+        await onSuccess();
 
-/**
- * Pagination
- */
-function handlePaginationChange(
-    page: number,
-    pageSize: number
-) {
-    if (!Number.isFinite(page)) {
-        return;
+        await loadMenuItems(
+            pagination.current_page,
+            pagination.per_page,
+            search,
+            columnFilters,
+            selectedCategory
+        );
     }
 
-    if (!Number.isFinite(pageSize)) {
-        return;
-    }
+    return (
+        <div className="space-y-4">
+         
+            {/* ========================================
+                ORDERS TABLE
+            ======================================== */}
 
-    if (page < 1) {
-        return;
-    }
+            <DataTable
+                serverPagination={true}
 
-    loadMenuItems(
-        page,
-        pageSize,
-        search,
-        selectedCategory
-    );
-}
+                columns={menuItemColumns({
+                    categories,
+                    onSuccess: handleSuccess,
+                })}
 
-/**
- * Server-side search
- */
-function handleSearch(
-    value: string
-) {
-    setSearch(value);
 
-    loadMenuItems(
-        1,
-        pagination.per_page,
-        value,
-        selectedCategory
-    );
-}
+                data={menuItems}
 
-/**
- * Refresh after create/update/delete
- */
-async function handleSuccess() {
-    await onSuccess();
+                searchKey="order_no"
+                placeholder="Search Order..."
 
-    await loadMenuItems(
-        pagination.current_page,
-        pagination.per_page,
-        search,
-        selectedCategory
-    );
-}
+              
+                pageIndex={
+                    pagination.current_page
+                }
 
-return (
-    <div className="space-y-5">
+                pageSize={
+                    pagination.per_page
+                }
 
-        {/* Header */}
-        <div className="flex items-center justify-between">
-            <div>
-                <h2 className="text-xl font-semibold">
-                    Menu Items
-                </h2>
-            </div>
-            
-            <Link href="/menu/create">
-                <Button>
-                    New Menu Item
-                </Button>
-            </Link>
+                pageCount={
+                    pagination.last_page
+                }
+
+                total={
+                    pagination.total
+                }
+
+                from={
+                    pagination.from
+                }
+
+                to={
+                    pagination.to
+                }
+
+                loading={loading}
+
+                onServerStateChange={
+                    handleServerStateChange
+                }
+            />
         </div>
-
-        {/* Table */}
-        <DataTable
-            serverPagination={true}
-            columns={menuItemColumns({
-                categories,
-                onSuccess: handleSuccess,
-            })}
-
-            data={menuItems}
-
-            searchKey="name"
-
-            placeholder="Search menu items..."
-
-            pageIndex={
-                pagination.current_page
-            }
-
-            pageSize={
-                pagination.per_page
-            }
-
-            pageCount={
-                pagination.last_page
-            }
-
-            total={
-                pagination.total
-            }
-
-            from={
-                pagination.from
-            }
-
-            to={
-                pagination.to
-            }
-
-            loading={loading}
-
-            onPaginationChange={
-                handlePaginationChange
-            }
-
-            onSearchChange={
-                handleSearch
-            }
-        />
-    </div>
-);
-
+    );
 }

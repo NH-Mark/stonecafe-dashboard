@@ -1,10 +1,22 @@
 import api from "@/lib/axios";
+import { ColumnFiltersState } from "@tanstack/react-table";
+import { OrdersFiltersState } from "./components/ordersFilters";
 
 
 export interface GetOrdersParams {
     page?: number;
     per_page?: number;
     search?: string;
+    filters?: ColumnFiltersState;
+    range?: OrdersFiltersState["range"];
+
+    start_date?: string;
+
+    end_date?: string;
+
+    location_id?: number;
+
+    order_type?: string;
 }
 
 export async function getOrders(params: GetOrdersParams = {}) {

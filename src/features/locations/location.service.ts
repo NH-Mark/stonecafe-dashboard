@@ -1,27 +1,33 @@
 import api from "@/lib/axios";
+import { ColumnFiltersState } from "@tanstack/react-table";
 
 import {
     LocationFormValues
 } from "./location.schema";
 
 
-
 export interface GetLocationsParams {
-page?: number;
-per_page?: number;
-search?: string;
+    page?: number;
+    per_page?: number;
+    search?: string;
+    filters?: ColumnFiltersState;
 }
 
 export function getLocations(
-params: GetLocationsParams = {}
+    params: GetLocationsParams = {}
 ) {
-return api.get("/api/locations", {
-params: {
-page: params.page,
-per_page: params.per_page,
-search: params.search || undefined,
-},
-});
+    return api.get("/api/locations", {
+        params: {
+            page: params.page,
+            per_page: params.per_page,
+
+            search:
+                params.search || undefined,
+
+            filters:
+                params.filters || undefined,
+        },
+    });
 }
 
 
