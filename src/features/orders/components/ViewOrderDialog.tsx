@@ -65,7 +65,7 @@ export default function ViewOrderDialog({
                             <Badge variant="secondary">
                                 {order.payment_status}
                             </Badge>
-
+                          
                         </div>
                     </div>
                 </DialogHeader>
@@ -226,7 +226,7 @@ export default function ViewOrderDialog({
                                                             ))}
                                                         </div>
                                                     )}
-
+                                                    
                                                     {hasItemDiscount && (
                                                         <div className="space-y-0.5 text-xs text-green-600">
                                                             {item.discounts.map((discount) => (
@@ -351,6 +351,7 @@ export default function ViewOrderDialog({
 
                         {/* Order Summary */}
                         <div className="rounded-xl border bg-muted/10 p-5">
+
                             <div className="mb-4">
                                 <h3 className="font-semibold">
                                     Order Summary
@@ -363,29 +364,18 @@ export default function ViewOrderDialog({
                                     value={order.subtotal}
                                 />
 
-                                {/* Item Discounts */}
-                                {order.items.flatMap(
-                                    (item) =>
-                                        item.discounts?.map((discount) => ({
-                                            ...discount,
-                                            source: "item",
-                                        })) || []
-                                ).map((discount) => (
-                                    <DiscountSummaryRow
-                                        key={`item-${discount.id}`}
-                                        label={discount.name}
-                                        value={discount.amount}
-                                    />
-                                ))}
+                                {/* Order Discount */}
+                                {orderDiscount > 0 && (
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-muted-foreground">
+                                            Discount
+                                        </span>
 
-                                {/* Order Discounts */}
-                                {order.discounts?.map((discount, index) => (
-                                    <DiscountSummaryRow
-                                        key={`order-${discount.name}-${index}`}
-                                        label={discount.name}
-                                        value={discount.amount}
-                                    />
-                                ))}
+                                        <span className="font-medium text-green-600">
+                                            − QAR {orderDiscount.toFixed(2)}
+                                        </span>
+                                    </div>
+                                )}
 
                                 <Separator />
 
@@ -395,6 +385,12 @@ export default function ViewOrderDialog({
                                         <p className="text-sm font-medium">
                                             Total
                                         </p>
+
+                                        {orderDiscount > 0 && (
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                After discount
+                                            </p>
+                                        )}
                                     </div>
 
                                     <div className="text-right">
@@ -466,26 +462,6 @@ function SummaryRow({
 
             <span className="font-medium">
                 QAR {Number(value || 0).toFixed(2)}
-            </span>
-        </div>
-    );
-}
-
-function DiscountSummaryRow({
-    label,
-    value,
-}: {
-    label: string;
-    value: number | string;
-}) {
-    return (
-        <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">
-                {label}
-            </span>
-
-            <span className="font-medium text-green-600">
-                − QAR {Number(value || 0).toFixed(2)}
             </span>
         </div>
     );

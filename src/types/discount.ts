@@ -11,5 +11,6 @@ export interface Discount {
 
 
     value:number;
+    status:boolean;
 
 }

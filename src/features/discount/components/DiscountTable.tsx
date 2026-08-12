@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+    forwardRef,
+    useEffect,
+    useImperativeHandle,
+    useState,
+} from "react";
 
 import {
     ColumnFiltersState,
@@ -8,18 +13,22 @@ import {
 
 import { DataTable } from "@/components/data-table/data-table";
 
-import { Location } from "@/types/location";
+import { Discount } from "@/types/discount";
 
-import { LocationColumns } from "./LocationColumns";
+import { getDiscounts } from "../discount.service";
 
-import { getLocations } from "../location.service";
+import { DiscountColumns } from "./DiscountColumns";
 
-interface LocationTableProps {
-     refreshKey: number;
+interface DiscountTableProps {
+    onSuccess?: () => Promise<void>;
 }
 
-interface LocationsResponse {
-    data: Location[];
+export interface DiscountTableRef {
+    refresh: () => Promise<void>;
+}
+
+interface DiscountResponse {
+    data: Discount[];
 
     links: {
         first: string | null;
@@ -38,24 +47,24 @@ interface LocationsResponse {
     };
 }
 
-export default function LocationTable({
-    refreshKey
-}: LocationTableProps) {
-    const [locations, setLocations] =
-        useState<Location[]>([]);
+const DiscountTable = forwardRef<
+    DiscountTableRef,
+    DiscountTableProps
+>(function DiscountTable(
+    {
+        onSuccess,
+    },
+    ref
+) {
+    const [discounts, setDiscounts] =
+        useState<Discount[]>([]);
 
     const [loading, setLoading] =
         useState(false);
 
-    /**
-     * Server-side search.
-     */
     const [search, setSearch] =
         useState("");
 
-    /**
-     * Server-side column filters.
-     */
     const [columnFilters, setColumnFilters] =
         useState<ColumnFiltersState>([]);
 
@@ -69,10 +78,7 @@ export default function LocationTable({
             to: null as number | null,
         });
 
-    /**
-     * Load locations.
-     */
-    async function loadLocations(
+    async function loadDiscounts(
         page: number,
         perPage: number,
         searchValue: string,
@@ -82,7 +88,7 @@ export default function LocationTable({
             setLoading(true);
 
             const response =
-                await getLocations({
+                await getDiscounts({
                     page,
                     per_page: perPage,
 
@@ -96,10 +102,10 @@ export default function LocationTable({
                             : undefined,
                 });
 
-            const result: LocationsResponse =
+            const result: DiscountResponse =
                 response.data;
 
-            setLocations(result.data);
+            setDiscounts(result.data);
 
             setPagination({
                 current_page:
@@ -122,7 +128,7 @@ export default function LocationTable({
             });
         } catch (error) {
             console.error(
-                "Failed to load locations:",
+                "Failed to load discounts:",
                 error
             );
         } finally {
@@ -131,10 +137,39 @@ export default function LocationTable({
     }
 
     /**
+     * Refresh using the current
+     * table state.
+     */
+    async function refresh() {
+        await loadDiscounts(
+            pagination.current_page,
+            pagination.per_page,
+            search,
+            columnFilters
+        );
+    }
+
+    /**
+     * Expose refresh() to parent.
+     */
+    useImperativeHandle(
+        ref,
+        () => ({
+            refresh,
+        }),
+        [
+            pagination.current_page,
+            pagination.per_page,
+            search,
+            columnFilters,
+        ]
+    );
+
+    /**
      * Initial load.
      */
     useEffect(() => {
-        loadLocations(
+        loadDiscounts(
             1,
             10,
             "",
@@ -142,26 +177,8 @@ export default function LocationTable({
         );
     }, []);
 
-    useEffect(() => {
-        if (refreshKey === 0) {
-            return;
-        }
-
-        loadLocations(
-            pagination.current_page,
-            pagination.per_page,
-            search,
-            columnFilters
-        );
-    }, [refreshKey]);
-
     /**
-     * Handle everything from DataTable:
-     *
-     * - search
-     * - column filters
-     * - pagination
-     * - page size
+     * Handle server-side state.
      */
     function handleServerStateChange(
         searchValue: string,
@@ -185,7 +202,7 @@ export default function LocationTable({
 
         setColumnFilters(filters);
 
-        loadLocations(
+        loadDiscounts(
             page,
             pageSize,
             searchValue,
@@ -194,31 +211,31 @@ export default function LocationTable({
     }
 
     /**
-     * Refresh after create/update/delete.
+     * Called after table actions
+     * such as update/delete.
      */
     async function handleSuccess() {
+        await refresh();
 
-        await loadLocations(
-            pagination.current_page,
-            pagination.per_page,
-            search,
-            columnFilters
-        );
+        if (onSuccess) {
+            await onSuccess();
+        }
     }
 
     return (
         <DataTable
             serverPagination={true}
 
-            columns={LocationColumns({
+            columns={DiscountColumns({
                 onSuccess:
                     handleSuccess,
             })}
 
-            data={locations}
+            data={discounts}
 
             searchKey="name"
-            placeholder="Search Location..."
+
+            placeholder="Search Discount..."
 
             pageIndex={
                 pagination.current_page
@@ -251,4 +268,9 @@ export default function LocationTable({
             }
         />
     );
-}
+});
+
+DiscountTable.displayName =
+    "DiscountTable";
+
+export default DiscountTable;

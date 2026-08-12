@@ -16,92 +16,112 @@ import RoleSidebar from "../roles/components/RoleSidebar";
 import CreateStaffDialog from "./components/CreateStaffDialog";
 
 export default function StaffManagement() {
-const [roles, setRoles] =
-useState<Role[]>([]);
+    const [roles, setRoles] =
+        useState<Role[]>([]);
 
-const [permissions, setPermissions] =
-    useState<Permission[]>([]);
+    const [permissions, setPermissions] =
+        useState<Permission[]>([]);
 
-const [locations, setLocations] =
-    useState<Location[]>([]);
+    const [locations, setLocations] =
+        useState<Location[]>([]);
 
-const [selectedRole, setSelectedRole] =
-    useState<number | null>(null);
+    const [selectedRole, setSelectedRole] =
+        useState<number | null>(null);
 
-async function loadRoles() {
-    const response =
-        await getRoles();
+    /**
+     * Used to tell StaffTable
+     * that it needs to reload.
+     */
+    const [refreshKey, setRefreshKey] =
+        useState(0);
 
-    setRoles(
-        response.data.data ??
-        response.data
-    );
-}
+    async function loadRoles() {
+        const response =
+            await getRoles();
 
-async function loadPermissions() {
-    const response =
-        await getPermissions();
+        setRoles(
+            response.data.data ??
+            response.data
+        );
+    }
 
-    setPermissions(
-        response.data.data ??
-        response.data
-    );
-}
+    async function loadPermissions() {
+        const response =
+            await getPermissions();
 
-async function loadLocations() {
-    const response =
-        await getLocations();
+        setPermissions(
+            response.data.data ??
+            response.data
+        );
+    }
 
-    setLocations(
-        response.data.data ??
-        response.data
-    );
-}
+    async function loadLocations() {
+        const response =
+            await getLocations();
 
-useEffect(() => {
-    loadRoles();
-    loadPermissions();
-    loadLocations();
-}, []);
+        setLocations(
+            response.data.data ??
+            response.data
+        );
+    }
 
-return (
-    <div className="grid grid-cols-12 gap-6">
+    useEffect(() => {
+        loadRoles();
+        loadPermissions();
+        loadLocations();
+    }, []);
 
-        <div className="col-span-3">
-            <RoleSidebar
-                roles={roles}
-                selectedRole={selectedRole}
-                onSelect={setSelectedRole}
-                onRefresh={loadRoles}
-                permissions={permissions}
-            />
-        </div>
+    /**
+     * Called after create/update/delete.
+     */
+    async function handleSuccess() {
+        await loadRoles();
+        await loadLocations();
 
-        <div className="col-span-9">
+        setRefreshKey(
+            (value) => value + 1
+        );
+    }
 
-            <div className="flex justify-between mb-5">
+    return (
+        <div className="grid grid-cols-12 gap-6">
 
-                <h2 className="text-xl font-semibold">
-                    Staff
-                </h2>
+            <div className="col-span-3">
+                <RoleSidebar
+                    roles={roles}
+                    selectedRole={selectedRole}
+                    onSelect={setSelectedRole}
+                    onRefresh={loadRoles}
+                    permissions={permissions}
+                />
+            </div>
 
-                <CreateStaffDialog
+            <div className="col-span-9">
+
+                <div className="flex justify-between mb-5">
+
+                    <h2 className="text-xl font-semibold">
+                        Staff
+                    </h2>
+
+                    <CreateStaffDialog
+                        roles={roles}
+                        locations={locations}
+                        onSuccess={handleSuccess}
+                    />
+
+                </div>
+
+                <StaffTable
+                    selectedRole={selectedRole}
+                    refreshKey={refreshKey}
+                    onSuccess={handleSuccess}
                     roles={roles}
                     locations={locations}
-                    onSuccess={async () => {}}
                 />
 
             </div>
 
-            <StaffTable
-                selectedRole={selectedRole}
-                onSuccess={async () => {}}
-                roles={roles}
-                locations={locations}
-            />
-
         </div>
-    </div>
-);
-
+    );
 }

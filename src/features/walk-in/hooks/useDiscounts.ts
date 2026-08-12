@@ -1,6 +1,6 @@
 "use client";
 
-import { getDiscounts } from "@/features/discount/discount.service";
+import { getDiscounts, listDiscounts } from "@/features/discount/discount.service";
 import { Discount } from "@/types/discount";
 import { useEffect, useState } from "react";
 
@@ -32,7 +32,7 @@ export function useDiscounts(){
 
 
             const response =
-                await getDiscounts();
+                await listDiscounts();
 
 
             setDiscounts(

@@ -135,6 +135,12 @@ export const adminMenu: AdminMenuItem[] = [
         icon: Settings,
         children: [
             {
+                title: "Discount",
+                href: "/discounts",
+                icon: BadgePercent,
+                permission: "discounts.view",
+            },
+            {
                 title: "Staff",
                 href: "/staff",
                 icon: CircleUserRound,

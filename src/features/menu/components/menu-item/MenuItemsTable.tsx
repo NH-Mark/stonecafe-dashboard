@@ -14,6 +14,8 @@ import { MenuItem } from "@/types/menu-item";
 import { Category } from "@/types/category";
 import { getMenuItems } from "../../menu.service";
 import { menuItemColumns } from "./MenuItemColumns";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface ModifierResponse {
 data: MenuItem[];
@@ -222,6 +224,20 @@ export default function ModifierTable({
 
     return (
         <div className="space-y-4">
+
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-xl font-semibold">
+                        Menu Items
+                    </h2>
+                </div>
+                
+
+                <Button render={<Link href="/menu/create">
+                        New Menu Item
+                    </Link>}>
+                </Button>
+            </div>
          
             {/* ========================================
                 ORDERS TABLE

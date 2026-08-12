@@ -22,6 +22,7 @@ interface StaffTableProps {
     locations: Location[];
 
     selectedRole: number | null;
+    refreshKey: number;
 }
 
 interface StaffResponse {
@@ -49,6 +50,7 @@ export default function StaffTable({
     roles,
     locations,
     selectedRole,
+    refreshKey
 }: StaffTableProps) {
     const [users, setUsers] = useState<User[]>([]);
 
@@ -151,6 +153,20 @@ export default function StaffTable({
             selectedRole
         );
     }, [selectedRole]);
+
+    useEffect(() => {
+        if (refreshKey === 0) {
+            return;
+        }
+
+        loadStaff(
+            pagination.current_page,
+            pagination.per_page,
+            search,
+            columnFilters,
+            selectedRole
+        );
+    }, [refreshKey]);
 
     /**
      * Handle everything from DataTable:

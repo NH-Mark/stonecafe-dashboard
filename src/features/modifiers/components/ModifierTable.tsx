@@ -8,50 +8,59 @@ import {
 
 import { DataTable } from "@/components/data-table/data-table";
 
-import { Location } from "@/types/location";
-import { OrderType } from "@/types/order-type";
 import { Modifier } from "@/types/modifier";
 import { ModifierGroup } from "@/types/modifier-group";
+
 import { getModifiers } from "../modifier.service";
 import { modifierColumns } from "./ModifierColumns";
 
 interface ModifierResponse {
-data: Modifier[];
-meta: {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    from: number | null;
-    to: number | null;
-};
+    data: Modifier[];
 
-links: {
-    first: string | null;
-    last: string | null;
-    prev: string | null;
-    next: string | null;
-};
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        from: number | null;
+        to: number | null;
+    };
 
+    links: {
+        first: string | null;
+        last: string | null;
+        prev: string | null;
+        next: string | null;
+    };
 }
 
-
 interface Props {
-    groups:ModifierGroup[];
+    groups: ModifierGroup[];
 
     selectedGroup: number | null;
+    refreshKey:number;
 
     onSuccess: () => Promise<void>;
-
 }
 
 export default function ModifierTable({
     groups,
     selectedGroup,
+    refreshKey,
     onSuccess,
 }: Props) {
+
     const [modifiers, setModifiers] =
         useState<Modifier[]>([]);
+
+    const [loading, setLoading] =
+        useState(false);
+
+    const [search, setSearch] =
+        useState("");
+
+    const [columnFilters, setColumnFilters] =
+        useState<ColumnFiltersState>([]);
 
     const [pagination, setPagination] =
         useState({
@@ -63,51 +72,31 @@ export default function ModifierTable({
             to: null as number | null,
         });
 
-    const [loading, setLoading] =
-        useState(false);
-
-    /**
-     * Search.
-     */
-    const [search, setSearch] =
-        useState("");
-
-    /**
-     * DataTable column filters.
-     */
-    const [columnFilters, setColumnFilters] =
-        useState<ColumnFiltersState>([]);
-
-
-    /**
-     * Load orders.
-     */
     async function loadModifiers(
         page: number,
         perPage: number,
         searchValue: string,
-        tableFilters: ColumnFiltersState,
-        groupId = selectedGroup
+        filters: ColumnFiltersState,
+        groupId: number | null
     ) {
         try {
             setLoading(true);
 
-            const response =
-                await getModifiers({
-                    page,
-                    per_page: perPage,
+            const response = await getModifiers({
+                page,
+                per_page: perPage,
 
-                    search:
-                        searchValue || undefined,
+                search:
+                    searchValue || undefined,
 
-                    filters:
-                        tableFilters.length
-                            ? tableFilters
-                            : undefined,
-                    modifier_group_id:
+                filters:
+                    filters.length
+                        ? filters
+                        : undefined,
+
+                modifier_group_id:
                     groupId ?? undefined,
-
-                });
+            });
 
             const result: ModifierResponse =
                 response.data;
@@ -133,6 +122,7 @@ export default function ModifierTable({
                 to:
                     result.meta.to,
             });
+
         } catch (error) {
             console.error(
                 "Failed to load modifiers:",
@@ -144,36 +134,44 @@ export default function ModifierTable({
     }
 
     /**
-     * Initial load.
+     * Initial load + reload whenever
+     * modifier group changes.
      */
     useEffect(() => {
+
         setSearch("");
         setColumnFilters([]);
 
         loadModifiers(
             1,
-            10,
+            pagination.per_page,
             "",
             [],
             selectedGroup
         );
+
     }, [selectedGroup]);
 
-   
+    useEffect(() => {
+        if (refreshKey === 0) {
+            return;
+        }
+
+        loadModifiers(
+            pagination.current_page,
+            pagination.per_page,
+            search,
+            columnFilters,
+            selectedGroup
+        );
+    }, [refreshKey]);
 
     /**
-     * Handle DataTable server state.
-     *
-     * This handles:
-     *
-     * - search
-     * - column filters
-     * - pagination
-     * - page size
+     * DataTable server state.
      */
     function handleServerStateChange(
         searchValue: string,
-        tableFilters: ColumnFiltersState,
+        filters: ColumnFiltersState,
         page: number,
         pageSize: number
     ) {
@@ -191,39 +189,39 @@ export default function ModifierTable({
 
         setSearch(searchValue);
 
-        setColumnFilters(tableFilters);
+        setColumnFilters(filters);
 
         loadModifiers(
             page,
             pageSize,
             searchValue,
-            tableFilters,
+            filters,
             selectedGroup
         );
     }
 
     /**
-     * Refresh current page after
-     * an order action.
+     * Refresh modifier list after
+     * create/update/delete.
      */
     async function handleSuccess() {
-        await onSuccess();
 
-        await loadModifiers(
-            pagination.current_page,
-            pagination.per_page,
-            search,
-            columnFilters,
-            selectedGroup
-        );
+        // Refresh parent data if needed
+        await onSuccess();
+        
+        // IMPORTANT:
+        // Reload modifiers, not only groups.
+        // await loadModifiers(
+        //     pagination.current_page,
+        //     pagination.per_page,
+        //     search,
+        //     columnFilters,
+        //     selectedGroup
+        // );
     }
 
     return (
         <div className="space-y-4">
-         
-            {/* ========================================
-                ORDERS TABLE
-            ======================================== */}
 
             <DataTable
                 serverPagination={true}
@@ -233,13 +231,11 @@ export default function ModifierTable({
                     onSuccess: handleSuccess,
                 })}
 
-
                 data={modifiers}
 
-                searchKey="order_no"
-                placeholder="Search Order..."
+                searchKey="name"
+                placeholder="Search Modifier..."
 
-              
                 pageIndex={
                     pagination.current_page
                 }
@@ -270,6 +266,7 @@ export default function ModifierTable({
                     handleServerStateChange
                 }
             />
+
         </div>
     );
 }
