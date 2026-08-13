@@ -130,21 +130,39 @@ export const adminMenu: AdminMenuItem[] = [
         ],
     },
     {
+        title: "POS",
+        href: "/walk-in",
+        icon: Package,
+        permission: "menu.view",
+    },
+    {
+        title: "Kitchen Display",
+        href: "/kitchen-display",
+        icon: ChefHat,
+        permission: "menu.view",
+    },
+    {
         title: "Setup",
         href: "/",
         icon: Settings,
         children: [
             {
-                title: "Discounts",
-                href: "/discounts",
-                icon: BadgePercent,
-                permission: "discounts.view",
-            },
-            {
                 title: "Payment Methods",
                 href: "/payment-methods",
                 icon: CreditCard,
                 permission: "payment-methods.view",
+            },
+            {
+                title: "Order Sources",
+                href: "/order-sources",
+                icon: Shapes,
+                permission: "order-sources.view",
+            },
+            {
+                title: "Discounts",
+                href: "/discounts",
+                icon: BadgePercent,
+                permission: "discounts.view",
             },
             {
                 title: "Staff",
@@ -160,18 +178,7 @@ export const adminMenu: AdminMenuItem[] = [
             },
         ],
     },
-    {
-        title: "Walk In POS",
-        href: "/walk-in",
-        icon: Package,
-        permission: "menu.view",
-    },
-    {
-        title: "Kitchen Display",
-        href: "/kitchen-display",
-        icon: ChefHat,
-        permission: "menu.view",
-    },
+   
     // {
     //     title: "Categories",
     //     href: "/categories",

@@ -188,9 +188,18 @@ export default function ViewOrderDialog({
                                     );
 
                                     // Original line total before discounts.
-                                    const originalItemTotal = Number(
-                                        item.total_price || 0
-                                    );
+                                    const modifierTotal =
+    item.modifiers?.reduce(
+        (sum, modifier) =>
+            sum +
+            Number(modifier.price || 0) *
+            Number(modifier.quantity || 1),
+        0
+    ) || 0;
+
+const originalItemTotal =
+    (unitPrice + modifierTotal) *
+    Number(item.quantity || 0);
 
                                     // Apply item discount only to the line total.
                                     const finalItemTotal = Math.max(
@@ -430,7 +439,6 @@ export default function ViewOrderDialog({
                                     value={order.subtotal}
                                 />
 
-                                {/* ONE combined discount row */}
                                 {totalDiscount > 0 && (
                                     <DiscountSummaryRow
                                         label="Discount"
@@ -449,14 +457,14 @@ export default function ViewOrderDialog({
                                     </div>
 
                                     <div className="text-right">
-                                        {totalDiscount > 0 && (
+                                        {/* {totalDiscount > 0 && (
                                             <p className="text-sm text-muted-foreground line-through">
                                                 QAR{" "}
                                                 {originalTotal.toFixed(
                                                     2
                                                 )}
                                             </p>
-                                        )}
+                                        )} */}
 
                                         <p className="text-2xl font-bold tracking-tight">
                                             QAR{" "}

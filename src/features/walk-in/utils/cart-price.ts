@@ -1,46 +1,58 @@
-
 import { CartItem } from "../cart.types";
 
-/*
-|--------------------------------------------------------------------------
-| Base item price
-|--------------------------------------------------------------------------
-|
-| Menu item price + modifiers.
-|
-*/
+/**
+ * Base menu-item price only.
+ *
+ * Does NOT include modifiers.
+ */
 export function getItemPrice(item: CartItem): number {
-    const modifierTotal = item.modifiers.reduce(
-        (sum, mod) => sum + Number(mod.price),
+    return Number(item.menuItem.price);
+}
+
+/**
+ * Total price of all modifiers for one item.
+ *
+ * Does NOT include the menu-item base price.
+ */
+export function getModifierTotal(item: CartItem): number {
+    return item.modifiers.reduce(
+        (sum, modifier) =>
+            sum + Number(modifier.price),
         0
     );
-
-    return Number(item.menuItem.price) + modifierTotal;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Gross line total
-|--------------------------------------------------------------------------
-|
-| IMPORTANT:
-|
-| This is BEFORE discounts.
-|
-*/
-export function getGrossLineTotal(item: CartItem): number {
-    return getItemPrice(item) * item.quantity;
+/**
+ * Gross price for one configured item,
+ * including modifiers, before discount.
+ */
+export function getConfiguredItemPrice(
+    item: CartItem
+): number {
+    return (
+        getItemPrice(item) +
+        getModifierTotal(item)
+    );
 }
 
+/**
+ * Gross line total before discounts.
+ */
+export function getGrossLineTotal(
+    item: CartItem
+): number {
+    return (
+        getConfiguredItemPrice(item) *
+        item.quantity
+    );
+}
 
-/*
-|--------------------------------------------------------------------------
-| Item discount
-|--------------------------------------------------------------------------
-|
-*/
-export function getDiscountAmount(item: CartItem): number {
+/**
+ * Item-level discount.
+ */
+export function getDiscountAmount(
+    item: CartItem
+): number {
     if (!item.discount) {
         return 0;
     }
@@ -49,22 +61,18 @@ export function getDiscountAmount(item: CartItem): number {
     const value = Number(item.discount.value);
 
     if (item.discount.type === "percentage") {
-        return gross * value / 100;
+        return (gross * value) / 100;
     }
 
     return Math.min(value, gross);
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Final line total
-|--------------------------------------------------------------------------
-|
-| Gross - item discount.
-|
-*/
-export function getLineTotal(item: CartItem): number {
+/**
+ * Final line total after item discount.
+ */
+export function getLineTotal(
+    item: CartItem
+): number {
     const gross = getGrossLineTotal(item);
     const discount = getDiscountAmount(item);
 
