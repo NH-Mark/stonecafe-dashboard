@@ -27,7 +27,7 @@ export const adminMenu: AdminMenuItem[] = [
         title: "Dashboard",
         href: "/dashboard",
         icon: LayoutDashboard,
-        permission: null,
+        permission: "sales.view",
     },
 
     {
@@ -56,12 +56,12 @@ export const adminMenu: AdminMenuItem[] = [
 
         children: [
 
-            {
-                title: "Dashboard",
-                href: "/sales",
-                icon: LayoutDashboard,
-                permission: "sales.view",
-            },
+            // {
+            //     title: "Dashboard",
+            //     href: "/sales",
+            //     icon: LayoutDashboard,
+            //     permission: "sales.view",
+            // },
 
             {
                 title: "Orders",
