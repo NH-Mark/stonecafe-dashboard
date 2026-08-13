@@ -24,6 +24,7 @@ import {
 
 import {
     Check,
+    ChevronDown,
     Loader2,
     Trash2,
 } from "lucide-react";
@@ -55,6 +56,8 @@ import {
 import {
     toast,
 } from "sonner";
+import { OrderSource } from "@/types/order-sources";
+import { listOrderSources } from "@/features/order-sources/order-sources.service";
 
 /* ==========================================================================
 | Types
@@ -89,10 +92,10 @@ interface TablePaymentResponse {
     sessionId: number;
 
     sessionStatus:
-        | "open"
-        | "billing"
-        | "closed"
-        | "cancelled";
+    | "open"
+    | "billing"
+    | "closed"
+    | "cancelled";
 
     sessionClosed: boolean;
 
@@ -160,6 +163,12 @@ export function TablePaymentDialog({
         setSelectedPaymentMethodIds,
     ] = useState<number[]>([]);
 
+    const [orderSources, setOrderSources] =
+        useState<OrderSource[]>([]);
+
+    const [orderSourceId, setOrderSourceId] =
+        useState<number | null>(null);
+
     /*
     | Payment details for each selected method.
     |
@@ -217,15 +226,12 @@ export function TablePaymentDialog({
     |========================================================================== */
 
     useEffect(() => {
-
         if (!open) {
             return;
         }
 
         async function loadPaymentMethods() {
-
             try {
-
                 const response =
                     await getPaymentMethods();
 
@@ -239,9 +245,7 @@ export function TablePaymentDialog({
                         ? methods
                         : []
                 );
-
             } catch (error) {
-
                 console.error(
                     "Failed to load payment methods:",
                     error
@@ -253,8 +257,35 @@ export function TablePaymentDialog({
             }
         }
 
-        void loadPaymentMethods();
+        async function loadOrderSources() {
+            try {
+                const response =
+                    await listOrderSources();
 
+                const sources =
+                    response.data?.data ??
+                    response.data ??
+                    [];
+
+                setOrderSources(
+                    Array.isArray(sources)
+                        ? sources
+                        : []
+                );
+            } catch (error) {
+                console.error(
+                    "Failed to load order sources:",
+                    error
+                );
+
+                toast.error(
+                    "Unable to load order sources."
+                );
+            }
+        }
+
+        void loadPaymentMethods();
+        void loadOrderSources();
     }, [open]);
 
     /* ==========================================================================
@@ -443,7 +474,7 @@ export function TablePaymentDialog({
 
                     const entry =
                         paymentEntries[
-                            methodId
+                        methodId
                         ];
 
                     if (!entry) {
@@ -712,7 +743,7 @@ export function TablePaymentDialog({
 
                     const entry =
                         current[
-                            methodId
+                        methodId
                         ];
 
                     if (!entry) {
@@ -777,7 +808,7 @@ export function TablePaymentDialog({
 
                     const entry =
                         paymentEntries[
-                            id
+                        id
                         ];
 
                     if (!entry) {
@@ -819,16 +850,16 @@ export function TablePaymentDialog({
             maxAllowed
         ) {
 
-            toast.error(
-                `Maximum allowed for this payment is ${maxAllowed.toFixed(2)} QAR.`
-            );
+            // toast.error(
+            //     `Maximum allowed for this payment is ${maxAllowed.toFixed(2)} QAR.`
+            // );
 
             setPaymentEntries(
                 current => {
 
                     const entry =
                         current[
-                            methodId
+                        methodId
                         ];
 
                     if (!entry) {
@@ -858,7 +889,7 @@ export function TablePaymentDialog({
 
                 const entry =
                     current[
-                        methodId
+                    methodId
                     ];
 
                 if (!entry) {
@@ -899,7 +930,7 @@ export function TablePaymentDialog({
 
                 const entry =
                     current[
-                        methodId
+                    methodId
                     ];
 
                 if (!entry) {
@@ -1023,7 +1054,7 @@ export function TablePaymentDialog({
 
             const entry =
                 paymentEntries[
-                    methodId
+                methodId
                 ];
 
             if (!entry) {
@@ -1093,7 +1124,7 @@ export function TablePaymentDialog({
 
                 const entry =
                     paymentEntries[
-                        methodId
+                    methodId
                     ];
 
                 return {
@@ -1159,7 +1190,8 @@ export function TablePaymentDialog({
                         paidOrderIds.map(
                             Number
                         ),
-
+                    orderSourceId:
+                     orderSourceId,
                     amount:
                         Number(
                             paidAmount.toFixed(
@@ -1280,6 +1312,7 @@ export function TablePaymentDialog({
         setPaymentEntries({});
 
         setPaymentError(null);
+        setOrderSourceId(null);
 
         onClose();
     }
@@ -1496,10 +1529,9 @@ export function TablePaymentDialog({
                                                 p-4
                                                 text-left
                                                 transition
-                                                ${
-                                                    selected
-                                                        ? "border-primary bg-primary/5"
-                                                        : "hover:bg-muted/50"
+                                                ${selected
+                                                    ? "border-primary bg-primary/5"
+                                                    : "hover:bg-muted/50"
                                                 }
                                                 disabled:cursor-not-allowed
                                                 disabled:opacity-60
@@ -1524,10 +1556,9 @@ export function TablePaymentDialog({
                                                         justify-center
                                                         rounded-md
                                                         border
-                                                        ${
-                                                            selected
-                                                                ? "border-primary bg-primary text-primary-foreground"
-                                                                : ""
+                                                        ${selected
+                                                            ? "border-primary bg-primary text-primary-foreground"
+                                                            : ""
                                                         }
                                                     `}
                                                 >
@@ -1681,6 +1712,94 @@ export function TablePaymentDialog({
                     </div>
 
                     {/* =====================================================
+| ORDER SOURCE
+====================================================== */}
+
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-semibold">
+                                    Order Source
+                                </p>
+
+                                <p className="text-xs text-muted-foreground">
+                                    Where did these orders come from?
+                                </p>
+                            </div>
+
+                            <span className="text-[11px] text-muted-foreground">
+                                Optional
+                            </span>
+                        </div>
+
+                        <div className="relative">
+                            <select
+                                value={orderSourceId ?? ""}
+                                onChange={(event) => {
+                                    const value =
+                                        event.target.value;
+
+                                    setOrderSourceId(
+                                        value === ""
+                                            ? null
+                                            : Number(value)
+                                    );
+                                }}
+                                disabled={
+                                    paying ||
+                                    selectedOrderIds.length === 0
+                                }
+                                className="
+                h-10
+                w-full
+                appearance-none
+                rounded-lg
+                border
+                border-input
+                bg-background
+                px-3
+                pr-9
+                text-sm
+                outline-none
+                transition
+                hover:border-primary/40
+                focus:border-primary
+                focus:ring-2
+                focus:ring-primary/10
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+            "
+                            >
+                                <option value="">
+                                    Select order source
+                                </option>
+
+                                {orderSources.map((source) => (
+                                    <option
+                                        key={source.id}
+                                        value={source.id}
+                                    >
+                                        {source.name}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <ChevronDown
+                                className="
+                pointer-events-none
+                absolute
+                right-3
+                top-1/2
+                h-4
+                w-4
+                -translate-y-1/2
+                text-muted-foreground
+            "
+                            />
+                        </div>
+                    </div>
+
+                    {/* =====================================================
                     | PAYMENT METHODS
                     ====================================================== */}
 
@@ -1752,7 +1871,7 @@ export function TablePaymentDialog({
 
                                         const entry =
                                             paymentEntries[
-                                                methodId
+                                            methodId
                                             ];
 
                                         /*
@@ -1776,7 +1895,7 @@ export function TablePaymentDialog({
 
                                                     const other =
                                                         paymentEntries[
-                                                            id
+                                                        id
                                                         ];
 
                                                     if (!other) {
@@ -1815,10 +1934,9 @@ export function TablePaymentDialog({
                                                     border-2
                                                     p-4
                                                     transition-all
-                                                    ${
-                                                        selected
-                                                            ? "border-primary bg-primary/5 shadow-sm"
-                                                            : "border-border bg-background"
+                                                    ${selected
+                                                        ? "border-primary bg-primary/5 shadow-sm"
+                                                        : "border-border bg-background"
                                                     }
                                                 `}
                                             >
@@ -1857,10 +1975,9 @@ export function TablePaymentDialog({
                                                             justify-center
                                                             rounded-md
                                                             border-2
-                                                            ${
-                                                                selected
-                                                                    ? "border-primary bg-primary text-primary-foreground"
-                                                                    : "border-muted-foreground/40"
+                                                            ${selected
+                                                                ? "border-primary bg-primary text-primary-foreground"
+                                                                : "border-muted-foreground/40"
                                                             }
                                                         `}
                                                     >
@@ -2148,10 +2265,9 @@ export function TablePaymentDialog({
                             border-2
                             p-5
                             space-y-3
-                            ${
-                                isFullyPaid
-                                    ? "border-green-300 bg-green-50"
-                                    : "bg-muted/30"
+                            ${isFullyPaid
+                                ? "border-green-300 bg-green-50"
+                                : "bg-muted/30"
                             }
                         `}
                     >
@@ -2273,7 +2389,7 @@ export function TablePaymentDialog({
 
                                         const entry =
                                             paymentEntries[
-                                                methodId
+                                            methodId
                                             ];
 
                                         if (!entry) {

@@ -66,6 +66,10 @@ export function OrderCart({
     const [saving, setSaving] =
         useState(false);
 
+    const [orderType, setOrderType] = useState<
+        "takeaway" | "delivery"
+    >("takeaway");
+
     /*
     |--------------------------------------------------------------------------
     | Track lines saved during this component lifecycle
@@ -239,26 +243,26 @@ export function OrderCart({
     const afterItemDiscount =
         Math.max(
             subtotal -
-                itemDiscount,
+            itemDiscount,
             0
         );
 
     const orderDiscountAmount =
         orderDiscount
             ? orderDiscount.type ===
-              "percentage"
+                "percentage"
                 ? (
-                      afterItemDiscount *
-                      Number(
-                          orderDiscount.value
-                      )
-                  ) / 100
+                    afterItemDiscount *
+                    Number(
+                        orderDiscount.value
+                    )
+                ) / 100
                 : Math.min(
-                      Number(
-                          orderDiscount.value
-                      ),
-                      afterItemDiscount
-                  )
+                    Number(
+                        orderDiscount.value
+                    ),
+                    afterItemDiscount
+                )
             : 0;
 
     const discountAmount =
@@ -268,7 +272,7 @@ export function OrderCart({
     const total =
         Math.max(
             subtotal -
-                discountAmount,
+            discountAmount,
             0
         );
 
@@ -297,6 +301,11 @@ export function OrderCart({
     | Send To Kitchen
     |--------------------------------------------------------------------------
     */
+
+    const selectedOrderType =
+    mode === "dine-in"
+        ? "dine_in"
+        : orderType;
 
     async function handleSendToKitchen() {
         if (cart.length === 0) {
@@ -346,10 +355,7 @@ export function OrderCart({
 
                 table_id: null,
 
-                order_type:
-                    mode === "dine-in"
-                        ? "dine_in"
-                        : "takeaway",
+                order_type:selectedOrderType,
 
                 items:
                     itemsToSend.map(
@@ -394,18 +400,18 @@ export function OrderCart({
                             discounts:
                                 item.discount
                                     ? [
-                                          {
-                                              discount_id:
-                                                  item
-                                                      .discount
-                                                      .id,
+                                        {
+                                            discount_id:
+                                                item
+                                                    .discount
+                                                    .id,
 
-                                              amount:
-                                                  getDiscountAmount(
-                                                      item
-                                                  ),
-                                          },
-                                      ]
+                                            amount:
+                                                getDiscountAmount(
+                                                    item
+                                                ),
+                                        },
+                                    ]
                                     : [],
                         })
                     ),
@@ -455,14 +461,14 @@ export function OrderCart({
                         discounts:
                             orderDiscount
                                 ? [
-                                      {
-                                          discount_id:
-                                              orderDiscount.id,
+                                    {
+                                        discount_id:
+                                            orderDiscount.id,
 
-                                          amount:
-                                              orderDiscountAmount,
-                                      },
-                                  ]
+                                        amount:
+                                            orderDiscountAmount,
+                                    },
+                                ]
                                 : [],
                     });
 
@@ -814,12 +820,12 @@ export function OrderCart({
                         >
                             {isDraft
                                 ? mode ===
-                                  "takeaway"
-                                    ? "Takeaway Order"
+                                    "takeaway"
+                                    ? "New Order"
                                     : "New Order"
                                 : activeOrderNo
-                                  ? `Order #${activeOrderNo}`
-                                  : `Order #${orderId}`}
+                                    ? `Order #${activeOrderNo}`
+                                    : `Order #${orderId}`}
                         </h2>
 
                         <p
@@ -925,162 +931,185 @@ export function OrderCart({
 
             {/* FOOTER */}
 
+            {/* FOOTER */}
             <div
                 className="
-                    shrink-0
-                    space-y-4
-                    border-t
-                    bg-white
-                    p-5
-                "
+        shrink-0
+        space-y-4
+        border-t
+        bg-white
+        p-5
+    "
             >
-                <div
-                    className="
-                        flex
-                        justify-between
-                        text-sm
+                {/* ORDER TYPE */}
+                {mode === "takeaway" && (
+                    <div className="space-y-2.5">
+                        {/* <div className="flex items-center justify-between">
+                            <p className="text-sm font-semibold">
+                                Order Type
+                            </p>
+
+                            <span className="text-xs text-muted-foreground">
+                                Required
+                            </span>
+                        </div> */}
+
+                        <div className="grid grid-cols-2 gap-2">
+                            <Button
+                                type="button"
+                                variant={
+                                    orderType === "takeaway"
+                                        ? "default"
+                                        : "outline"
+                                }
+                                onClick={() =>
+                                    setOrderType("takeaway")
+                                }
+                                className="
+                        h-10
+                        rounded-lg
                     "
-                >
-                    <span>
-                        Subtotal
-                    </span>
+                            >
+                                {orderType === "takeaway" && (
+                                    <span className="mr-1.5">
+                                        ✓
+                                    </span>
+                                )}
 
-                    <span>
-                        {subtotal.toFixed(
-                            2
-                        )}{" "}
-                        QAR
-                    </span>
-                </div>
+                                Takeaway
+                            </Button>
 
-                {discountAmount > 0 && (
-                    <div
-                        className="
-                            flex
-                            justify-between
-                            text-sm
-                            text-green-600
-                        "
-                    >
-                        <span>
-                            Discount
-                        </span>
+                            <Button
+                                type="button"
+                                variant={
+                                    orderType === "delivery"
+                                        ? "default"
+                                        : "outline"
+                                }
+                                onClick={() =>
+                                    setOrderType("delivery")
+                                }
+                                className="
+                        h-10
+                        rounded-lg
+                    "
+                            >
+                                {orderType === "delivery" && (
+                                    <span className="mr-1.5">
+                                        ✓
+                                    </span>
+                                )}
 
-                        <span>
-                            -
-                            {discountAmount.toFixed(
-                                2
-                            )}{" "}
-                            QAR
-                        </span>
+                                Delivery
+                            </Button>
+                        </div>
                     </div>
                 )}
 
-                <Separator />
+                {/* TOTALS */}
+                <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                            Subtotal
+                        </span>
 
-                <div
-                    className="
-                        flex
-                        justify-between
-                        text-lg
-                        font-bold
-                    "
-                >
-                    <span>
-                        Total
-                    </span>
+                        <span className="font-medium">
+                            {subtotal.toFixed(2)} QAR
+                        </span>
+                    </div>
 
-                    <span>
-                        {total.toFixed(
-                            2
-                        )}{" "}
-                        QAR
-                    </span>
+                    {discountAmount > 0 && (
+                        <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                                Discount
+                            </span>
+
+                            <span className="font-medium text-green-600">
+                                -{discountAmount.toFixed(2)} QAR
+                            </span>
+                        </div>
+                    )}
+
+                    <Separator />
+
+                    <div className="flex items-end justify-between">
+                        <span className="text-base font-semibold">
+                            Total
+                        </span>
+
+                        <span className="text-2xl font-bold tracking-tight">
+                            {total.toFixed(2)} QAR
+                        </span>
+                    </div>
                 </div>
 
                 {/* ACTION */}
-
-                {cart.length === 0 ? (
-                    <Button
-                        disabled
-                        className="
-                            h-12
-                            w-full
-                            rounded-xl
-                            text-base
-                        "
-                    >
-                        Add Items to Order
-                    </Button>
-                ) : hasUnsavedItems ? (
-                    <Button
-                        disabled={
-                            saving
-                        }
-                        onClick={
-                            handleSendToKitchen
-                        }
-                        className="
-                            h-12
-                            w-full
-                            rounded-xl
-                            text-base
-                        "
-                    >
-                        {saving
-                            ? "Sending to Kitchen..."
-                            : isDraft
-                              ? "Send to Kitchen"
-                              : "Send New Items"}
-                    </Button>
-                ) : (
-                    <Button
-                        disabled={
-                            isPaymentDisabled ||
-                            !orderId ||
-                            orderId.startsWith(
-                                "new-"
-                            )
-                        }
-                        onClick={() =>
-                            setCheckoutOpen(
-                                true
-                            )
-                        }
-                        className="
-                            h-12
-                            w-full
-                            rounded-xl
-                            bg-green-900
-                            text-base
-                            hover:bg-green-800
-                        "
-                    >
-                        {status ===
-                        "completed"
-                            ? "Payment Completed"
-                            : status ===
-                                "cancelled"
-                              ? "Order Cancelled"
-                              : "Payment"}
-                    </Button>
-                )}
+                <div>
+                    {cart.length === 0 ? (
+                        <Button
+                            disabled
+                            className="
+                    h-12
+                    w-full
+                    rounded-xl
+                    text-base
+                "
+                        >
+                            Add Items to Order
+                        </Button>
+                    ) : hasUnsavedItems ? (
+                        <Button
+                            disabled={saving}
+                            onClick={handleSendToKitchen}
+                            className="
+                    h-12
+                    w-full
+                    rounded-xl
+                    text-base
+                "
+                        >
+                            {saving
+                                ? "Sending to Kitchen..."
+                                : isDraft
+                                    ? "Send to Kitchen"
+                                    : "Send New Items"}
+                        </Button>
+                    ) : (
+                        <Button
+                            disabled={
+                                isPaymentDisabled ||
+                                !orderId ||
+                                orderId.startsWith("new-")
+                            }
+                            onClick={() =>
+                                setCheckoutOpen(true)
+                            }
+                            className="
+                    h-12
+                    w-full
+                    rounded-xl
+                    bg-green-900
+                    text-base
+                    hover:bg-green-800
+                "
+                        >
+                            {status === "completed"
+                                ? "Payment Completed"
+                                : status === "cancelled"
+                                    ? "Order Cancelled"
+                                    : "Payment"}
+                        </Button>
+                    )}
+                </div>
 
                 {/* CHECKOUT */}
-
                 {checkoutOpen && (
                     <CheckoutDialog
-                        open={
-                            checkoutOpen
-                        }
+                        open={checkoutOpen}
                         onClose={() =>
-                            setCheckoutOpen(
-                                false
-                            )
+                            setCheckoutOpen(false)
                         }
-                        orderId={Number(
-                            orderId
-                        )}
+                        orderId={Number(orderId)}
                         onPaymentComplete={
                             handlePaymentComplete
                         }

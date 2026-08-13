@@ -40,6 +40,7 @@ export interface CreateTablePaymentItem {
 export interface CreateTablePaymentPayload {
     sessionId: number;
     orderIds: number[];
+    orderSourceId:number | null;
     amount: number;
     payments: CreateTablePaymentItem[];
 }

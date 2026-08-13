@@ -47,6 +47,7 @@ reference?: string;
 }
 
 export interface CreatePaymentPayload {
+order_source_id: number|null,
 
 payments: CreatePaymentItem[];
 
