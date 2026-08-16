@@ -27,11 +27,11 @@ export function POSNav() {
             href: "/walk-in/tables",
             icon: Armchair,
         },
-        // {
-        //     label: "Orders",
-        //     href: "/walk-in/orders",
-        //     icon: ClipboardList,
-        // },
+        {
+            label: "Orders",
+            href: "/walk-in/orders",
+            icon: ClipboardList,
+        },
     ];
 
     return (
@@ -73,7 +73,7 @@ export function POSNav() {
                             onClick={() =>
                                 router.push(tab.href)
                             }
-                            className={`
+                            className={` 
                                 relative
                                 flex
                                 h-11

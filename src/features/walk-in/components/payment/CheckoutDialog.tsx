@@ -128,7 +128,6 @@ export function CheckoutDialog({
                 state.orderDiscount
         );
 
-
     const completeOrder =
         useOrderStore(
             state =>

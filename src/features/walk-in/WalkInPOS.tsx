@@ -256,14 +256,13 @@ export function WalkInPOS() {
         <div
             className="
                 flex
-                h-dvh
+                h-full
+                min-h-0
                 flex-col
+                overflow-hidden
                 bg-slate-100
             "
         >
-            <Header />
-
-            <POSNav />
 
             <main
                 className="

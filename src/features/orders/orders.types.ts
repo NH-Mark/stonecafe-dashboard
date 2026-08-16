@@ -60,6 +60,8 @@ export interface Order {
     payments: Payment[];
 
     discounts?: OrderDiscount[];
+     number_plate: string;
+    order_source_id:number;
 }
 
 export interface OrderDiscount {

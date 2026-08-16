@@ -457,14 +457,14 @@ const originalItemTotal =
                                     </div>
 
                                     <div className="text-right">
-                                        {/* {totalDiscount > 0 && (
+                                        {totalDiscount > 0 && (
                                             <p className="text-sm text-muted-foreground line-through">
                                                 QAR{" "}
                                                 {originalTotal.toFixed(
                                                     2
                                                 )}
                                             </p>
-                                        )} */}
+                                        )}
 
                                         <p className="text-2xl font-bold tracking-tight">
                                             QAR{" "}
