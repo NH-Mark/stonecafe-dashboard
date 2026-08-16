@@ -27,7 +27,7 @@ import { toast } from "sonner";
 import {
     createPayment
 } from "../orders.service";
-import { getPaymentMethods } from "@/features/payment-method/payment-method.service";
+import { getPaymentMethods, listPaymentMethods } from "@/features/payment-method/payment-method.service";
 
 
 interface PaymentMethod {
@@ -91,7 +91,7 @@ export default function ReceivePaymentDialog({
             setLoadingMethods(true);
 
             const response =
-                await getPaymentMethods();
+                await listPaymentMethods();
 
 
             setMethods(

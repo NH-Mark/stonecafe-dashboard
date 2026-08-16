@@ -54,6 +54,7 @@ import {
 
 import {
     getPaymentMethods,
+    listPaymentMethods,
 } from "@/features/payment-method/payment-method.service";
 
 import {
@@ -353,7 +354,7 @@ export function CheckoutDialog({
                 try {
 
                     const response =
-                        await getPaymentMethods();
+                        await listPaymentMethods();
 
 
                     const methods =

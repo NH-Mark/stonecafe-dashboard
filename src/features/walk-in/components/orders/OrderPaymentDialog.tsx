@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 import { PaymentMethod } from "@/types/payment-method"
-import { getPaymentMethods } from "@/features/payment-method/payment-method.service"
+import { getPaymentMethods, listPaymentMethods } from "@/features/payment-method/payment-method.service"
 import { createPayment } from "@/features/orders/orders.service"
 
 import { toast } from "sonner"
@@ -111,7 +111,7 @@ export default function OrderPaymentDialog({
                 setMethodsLoading(true)
 
                 const response =
-                    await getPaymentMethods()
+                    await listPaymentMethods()
 
                 const methods =
                     response.data?.data ??
