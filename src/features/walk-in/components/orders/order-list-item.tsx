@@ -74,7 +74,11 @@ export default function OrderListItem({
             className={cn(
                 "w-full border-b p-4 text-left transition-colors",
                 "hover:bg-muted/50",
-                selected && "bg-muted"
+
+                selected && "bg-muted",
+
+                order.status?.toLowerCase() === "pending" &&
+                    "bg-yellow-50 hover:bg-yellow-100"
             )}
         >
 

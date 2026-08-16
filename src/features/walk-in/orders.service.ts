@@ -61,3 +61,30 @@ export async function getTodayOrders(): Promise<Order[]> {
         )
     }
 }
+
+export async function updateOrderStatus(
+    orderId: number,
+    status: "confirmed" | "cancelled"
+) {
+    try {
+        const response = await api.patch(
+            `/api/orders/${orderId}/status`,
+            {
+                status,
+            }
+        )
+
+        return response.data.data ?? response.data
+    } catch (error: any) {
+        console.error(
+            "Failed to update order status:",
+            error.response?.data || error.message
+        )
+
+        throw new Error(
+            error.response?.data?.message ||
+            error.message ||
+            "Failed to update order status"
+        )
+    }
+}

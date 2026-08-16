@@ -6,6 +6,8 @@ import {
     User,
     ChefHat,
     FileText,
+    XCircle,
+    CheckCircle2,
 } from "lucide-react"
 
 import { useEffect, useState } from "react"
@@ -18,10 +20,11 @@ import OrderSummary from "./order-summary"
 import OrderPayments from "./order-payment"
 
 import { Order } from "@/features/orders/orders.types"
-import { getOrder } from "../../orders.service"
+import { getOrder, updateOrderStatus } from "../../orders.service"
 
 interface OrderDetailsProps {
-    order: Order | null
+    order: Order | null,
+    onOrderUpdated?: (order: Order) => void
 }
 
 /*
@@ -77,7 +80,7 @@ function getModifierTotal(
             (sum, modifier) =>
                 sum +
                 Number(modifier.price || 0) *
-                    Number(modifier.quantity || 1),
+                Number(modifier.quantity || 1),
             0
         ) || 0
     )
@@ -122,6 +125,7 @@ function getFinalItemTotal(
 
 export default function OrderDetails({
     order,
+    onOrderUpdated,
 }: OrderDetailsProps) {
 
     /*
@@ -129,6 +133,9 @@ export default function OrderDetails({
     | Local Order State
     |--------------------------------------------------------------------------
     */
+
+    const [updatingStatus, setUpdatingStatus] =
+        useState(false)
 
     const [currentOrder, setCurrentOrder] =
         useState<Order | null>(order)
@@ -159,6 +166,7 @@ export default function OrderDetails({
                 await getOrder(currentOrder.id)
 
             setCurrentOrder(refreshedOrder)
+            onOrderUpdated?.(refreshedOrder)
 
             toast.success("Payment updated")
         } catch (error) {
@@ -170,6 +178,45 @@ export default function OrderDetails({
             toast.error(
                 "Payment succeeded, but failed to refresh order."
             )
+        }
+    }
+    async function handleStatusChange(
+        status: "confirmed" | "cancelled"
+    ) {
+        if (!currentOrder?.id || updatingStatus) {
+            return
+        }
+
+        try {
+            setUpdatingStatus(true)
+
+            await updateOrderStatus(
+                currentOrder.id,
+                status
+            )
+
+            const refreshedOrder =
+                await getOrder(currentOrder.id)
+
+            setCurrentOrder(refreshedOrder)
+            onOrderUpdated?.(refreshedOrder)
+
+            toast.success(
+                status === "confirmed"
+                    ? "Order confirmed"
+                    : "Order cancelled"
+            )
+        } catch (error) {
+            console.error(
+                "Failed to update order status:",
+                error
+            )
+
+            toast.error(
+                "Failed to update order status."
+            )
+        } finally {
+            setUpdatingStatus(false)
         }
     }
 
@@ -267,149 +314,136 @@ export default function OrderDetails({
 
                     <div
                         className="
-                            border-b
-                            pb-5
-                        "
-                        style={{
-                            borderColor: "#e1ddd8",
-                        }}
+        flex
+        items-start
+        justify-between
+        gap-6
+    "
                     >
+                        {/* LEFT — ORDER INFO */}
 
-                        <div
-                            className="
-                                flex
-                                items-start
-                                justify-between
-                                gap-6
-                            "
-                        >
+                        <div className="min-w-0">
 
-                            <div className="min-w-0">
-
-                                <div
+                            <div
+                                className="
+                flex
+                flex-wrap
+                items-center
+                gap-2
+            "
+                            >
+                                <h1
                                     className="
-                                        flex
-                                        flex-wrap
-                                        items-center
-                                        gap-2
-                                    "
+                    text-xl
+                    font-semibold
+                    tracking-tight
+                    text-[#40332a]
+                "
                                 >
+                                    #{currentOrder.order_no}
+                                </h1>
 
-                                    <h1
-                                        className="
-                                            text-xl
-                                            font-semibold
-                                            tracking-tight
-                                            text-[#40332a]
-                                        "
-                                    >
-                                        #{currentOrder.order_no}
-                                    </h1>
+                                <Badge>
+                                    {currentOrder.status}
+                                </Badge>
 
-                                    <Badge>
-                                        {currentOrder.status}
-                                    </Badge>
-
-                                    <Badge variant="secondary">
-                                        {currentOrder.payment_status}
-                                    </Badge>
-
-                                </div>
-
-                                <p
-                                    className="
-                                        mt-1
-                                        text-sm
-                                        text-muted-foreground
-                                    "
-                                >
-                                    {currentOrder.type || "Order"}
-
-                                    {currentOrder.source && (
-                                        <>
-                                            {" • "}
-                                            {currentOrder.source}
-                                        </>
-                                    )}
-                                </p>
-
+                                <Badge variant="secondary">
+                                    {currentOrder.payment_status}
+                                </Badge>
                             </div>
 
-                        </div>
+                            <p
+                                className="
+                mt-1
+                text-sm
+                text-muted-foreground
+            "
+                            >
+                                {currentOrder.type || "Order"}
 
-                        {/* ================================================= */}
-                        {/* META INFORMATION */}
-                        {/* ================================================= */}
-
-                        <div
-                            className="
-                                mt-6
-                                grid
-                                gap-5
-                                sm:grid-cols-2
-                                xl:grid-cols-4
-                            "
-                        >
-
-                            <OrderMeta
-                                icon={<User />}
-                                label="Customer"
-                                value={
-                                    currentOrder.customer ||
-                                    "Walk-in"
-                                }
-                            />
-
-                            <OrderMeta
-                                icon={<FileText />}
-                                label="Type"
-                                value={
-                                    currentOrder.type || "-"
-                                }
-                            />
-
-                            <OrderMeta
-                                icon={<FileText />}
-                                label="Source"
-                                value={
-                                    currentOrder.source || "-"
-                                }
-                            />
-
-                            <OrderMeta
-                                icon={<User />}
-                                label="Cashier"
-                                value={
-                                    currentOrder.cashier || "-"
-                                }
-                            />
-
-                            <OrderMeta
-                                icon={<MapPin />}
-                                label="Location"
-                                value={
-                                    currentOrder.location || "-"
-                                }
-                            />
-
-                            <OrderMeta
-                                icon={<MapPin />}
-                                label="Table"
-                                value={
-                                    currentOrder.table || "-"
-                                }
-                            />
-
-                            <OrderMeta
-                                icon={<Clock />}
-                                label="Ordered"
-                                value={formatDate(
-                                    currentOrder.ordered_at
+                                {currentOrder.source && (
+                                    <>
+                                        {" • "}
+                                        {currentOrder.source}
+                                    </>
                                 )}
-                            />
+                            </p>
 
                         </div>
 
+                        {/* RIGHT — ORDER ACTIONS */}
+
+                        {currentOrder.status?.toLowerCase() === "pending" && (
+                            <div
+                                className="
+                flex
+                shrink-0
+                items-center
+                gap-2
+            "
+                            >
+                                <button
+                                    type="button"
+                                    disabled={updatingStatus}
+                                    onClick={() =>
+                                        handleStatusChange("cancelled")
+                                    }
+                                    className="
+                    inline-flex
+                    h-9
+                    items-center
+                    gap-1.5
+                    rounded-lg
+                    border
+                    border-[#e5c9c9]
+                    bg-white
+                    px-3
+                    text-sm
+                    font-medium
+                    text-[#a94442]
+                    transition-colors
+                    hover:bg-[#fff5f5]
+                    disabled:pointer-events-none
+                    disabled:opacity-50
+                "
+                                >
+                                    <XCircle className="h-4 w-4" />
+
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="button"
+                                    disabled={updatingStatus}
+                                    onClick={() =>
+                                        handleStatusChange("confirmed")
+                                    }
+                                    className="
+                    inline-flex
+                    h-9
+                    items-center
+                    gap-1.5
+                    rounded-lg
+                    bg-[#3f6b4f]
+                    px-3.5
+                    text-sm
+                    font-medium
+                    text-white
+                    shadow-sm
+                    transition-colors
+                    hover:bg-[#345a42]
+                    disabled:pointer-events-none
+                    disabled:opacity-50
+                "
+                                >
+                                    <CheckCircle2 className="h-4 w-4" />
+
+                                    {updatingStatus
+                                        ? "Updating..."
+                                        : "Confirm"}
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* ================================================= */}
@@ -516,11 +550,10 @@ export default function OrderDetails({
                                                 key={item.id}
                                                 className={`
                                                     p-4
-                                                    ${
-                                                        index !==
+                                                    ${index !==
                                                         currentOrder.items.length - 1
-                                                            ? "border-b"
-                                                            : ""
+                                                        ? "border-b"
+                                                        : ""
                                                     }
                                                 `}
                                                 style={{
@@ -564,7 +597,7 @@ export default function OrderDetails({
                                                             QAR{" "}
                                                             {Number(
                                                                 item.unit_price ||
-                                                                    0
+                                                                0
                                                             ).toFixed(2)}
                                                         </p>
 
@@ -622,32 +655,32 @@ export default function OrderDetails({
 
                                                                                 {modifier.quantity >
                                                                                     1 && (
-                                                                                    <span className="ml-1">
-                                                                                        ×{" "}
-                                                                                        {
-                                                                                            modifier.quantity
-                                                                                        }
-                                                                                    </span>
-                                                                                )}
+                                                                                        <span className="ml-1">
+                                                                                            ×{" "}
+                                                                                            {
+                                                                                                modifier.quantity
+                                                                                            }
+                                                                                        </span>
+                                                                                    )}
 
                                                                                 {Number(
                                                                                     modifier.price ||
-                                                                                        0
+                                                                                    0
                                                                                 ) > 0 && (
-                                                                                    <span
-                                                                                        className="
+                                                                                        <span
+                                                                                            className="
                                                                                             ml-1
                                                                                             text-muted-foreground
                                                                                         "
-                                                                                    >
-                                                                                        + QAR{" "}
-                                                                                        {Number(
-                                                                                            modifier.price
-                                                                                        ).toFixed(
-                                                                                            2
-                                                                                        )}
-                                                                                    </span>
-                                                                                )}
+                                                                                        >
+                                                                                            + QAR{" "}
+                                                                                            {Number(
+                                                                                                modifier.price
+                                                                                            ).toFixed(
+                                                                                                2
+                                                                                            )}
+                                                                                        </span>
+                                                                                    )}
 
                                                                             </Badge>
 
@@ -701,7 +734,7 @@ export default function OrderDetails({
                                                                                     − QAR{" "}
                                                                                     {Number(
                                                                                         discount.amount ||
-                                                                                            0
+                                                                                        0
                                                                                     ).toFixed(
                                                                                         2
                                                                                     )}
@@ -745,10 +778,9 @@ export default function OrderDetails({
                                                         <p
                                                             className={`
                                                                 font-semibold
-                                                                ${
-                                                                    hasDiscount
-                                                                        ? "text-green-700"
-                                                                        : "text-[#40332a]"
+                                                                ${hasDiscount
+                                                                    ? "text-green-700"
+                                                                    : "text-[#40332a]"
                                                                 }
                                                             `}
                                                         >

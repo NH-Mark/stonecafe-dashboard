@@ -41,6 +41,8 @@ export default function OrdersPage() {
         setError,
     ] = useState<string | null>(null)
 
+
+
     /*
     |--------------------------------------------------------------------------
     | Load Orders
@@ -79,6 +81,18 @@ export default function OrdersPage() {
 
         void loadOrders()
     }, [])
+
+    function handleOrderUpdated(updatedOrder: Order) {
+        setOrders((prevOrders) =>
+            prevOrders.map((order) =>
+                order.id === updatedOrder.id
+                    ? updatedOrder
+                    : order
+            )
+        )
+
+        setSelectedOrder(updatedOrder)
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -371,6 +385,7 @@ export default function OrdersPage() {
                                             order={
                                                 selectedOrder
                                             }
+                                            onOrderUpdated={handleOrderUpdated}
                                         />
                                     </div>
                                 </div>
