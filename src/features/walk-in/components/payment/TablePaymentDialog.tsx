@@ -622,103 +622,141 @@ export function TablePaymentDialog({
     | Toggle payment method
     |========================================================================== */
 
-    function togglePaymentMethod(
-        method: PaymentMethod
-    ) {
+   function togglePaymentMethod(
+    method: PaymentMethod
+) {
+    if (paying) {
+        return;
+    }
 
-        if (paying) {
-            return;
-        }
+    if (selectedOrderIds.length === 0) {
+        toast.error(
+            "Please select an order first."
+        );
 
-        if (
-            selectedOrderIds.length === 0
-        ) {
+        return;
+    }
 
-            toast.error(
-                "Please select an order first."
-            );
+    const methodId =
+        Number(method.id);
 
-            return;
-        }
+    const alreadySelected =
+        selectedPaymentMethodIds.includes(
+            methodId
+        );
 
-        const methodId =
-            Number(
-                method.id
-            );
+    /* --------------------------------------------------------------
+    | Remove method
+    --------------------------------------------------------------- */
 
-        const alreadySelected =
-            selectedPaymentMethodIds.includes(
-                methodId
-            );
-
-        /* --------------------------------------------------------------
-        | Remove method
-        |--------------------------------------------------------------- */
-
-        if (alreadySelected) {
-
-            setSelectedPaymentMethodIds(
-                current =>
-                    current.filter(
-                        id =>
-                            id !==
-                            methodId
-                    )
-            );
-
-            setPaymentEntries(
-                current => {
-
-                    const next = {
-                        ...current,
-                    };
-
-                    delete next[
-                        methodId
-                    ];
-
-                    return next;
-                }
-            );
-
-            setPaymentError(null);
-
-            return;
-        }
-
-        /* --------------------------------------------------------------
-        | Add method
-        |--------------------------------------------------------------- */
+    if (alreadySelected) {
 
         setSelectedPaymentMethodIds(
-            current => [
-                ...current,
-                methodId,
-            ]
+            current =>
+                current.filter(
+                    id =>
+                        id !== methodId
+                )
         );
 
         setPaymentEntries(
-            current => ({
-                ...current,
+            current => {
 
-                [methodId]: {
-                    paymentMethodId:
-                        methodId,
+                const next = {
+                    ...current,
+                };
 
-                    paymentMethodName:
-                        method.name,
+                delete next[methodId];
 
-                    amount:
-                        "",
-
-                    reference:
-                        "",
-                },
-            })
+                return next;
+            }
         );
 
         setPaymentError(null);
+
+        return;
     }
+
+    /* --------------------------------------------------------------
+    | Calculate current remaining amount
+    |
+    | Example:
+    |
+    | Total = 100
+    | Cash = 60
+    | Remaining = 40
+    |
+    | New Card method automatically gets 40.
+    --------------------------------------------------------------- */
+
+    const currentPaidAmount =
+        selectedPaymentMethodIds.reduce(
+            (
+                total,
+                id
+            ) => {
+
+                const entry =
+                    paymentEntries[id];
+
+                if (!entry) {
+                    return total;
+                }
+
+                const amount =
+                    Number(entry.amount);
+
+                if (
+                    !Number.isFinite(amount) ||
+                    amount <= 0
+                ) {
+                    return total;
+                }
+
+                return total + amount;
+            },
+            0
+        );
+
+    const currentRemaining =
+        Math.max(
+            selectedTotal -
+            currentPaidAmount,
+            0
+        );
+
+    /* --------------------------------------------------------------
+    | Add method with remaining amount
+    --------------------------------------------------------------- */
+
+    setSelectedPaymentMethodIds(
+        current => [
+            ...current,
+            methodId,
+        ]
+    );
+
+    setPaymentEntries(
+        current => ({
+            ...current,
+
+            [methodId]: {
+                paymentMethodId:
+                    methodId,
+                paymentMethodName:
+                    method.name,
+                amount:
+                    currentRemaining > 0
+                        ? currentRemaining.toFixed(2)
+                        : "",
+                reference:
+                    "",
+            },
+        })
+    );
+
+    setPaymentError(null);
+}
 
     /* ==========================================================================
     | Update amount

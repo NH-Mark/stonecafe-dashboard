@@ -29,6 +29,7 @@ import {
 import { SessionHeader } from "@/features/walk-in/components/session/SessionHeader";
 import { POSNav } from "@/features/walk-in/components/POSNav";
 import { useRouter } from "next/navigation";
+import { Header } from "@/features/walk-in/components/Header";
 
 /*
 |--------------------------------------------------------------------------
@@ -247,7 +248,17 @@ export default function TablesPage() {
             {/* ========================================================= */}
             {/* HEADER */}
             {/* ========================================================= */}
+                <header className="shrink-0">
+                    <Header />
+                </header>
 
+                {/* ================================================= */}
+                {/* POS NAVIGATION */}
+                {/* ================================================= */}
+
+                <nav className="shrink-0">
+                    <POSNav />
+                </nav>
             {/* ========================================================= */}
             {/* CONTENT */}
             {/* ========================================================= */}

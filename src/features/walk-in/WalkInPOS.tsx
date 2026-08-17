@@ -263,6 +263,17 @@ export function WalkInPOS() {
                 bg-slate-100
             "
         >
+             <header className="shrink-0">
+                    <Header />
+                </header>
+
+                {/* ================================================= */}
+                {/* POS NAVIGATION */}
+                {/* ================================================= */}
+
+                <nav className="shrink-0">
+                    <POSNav />
+                </nav>
 
             <main
                 className="
@@ -272,6 +283,7 @@ export function WalkInPOS() {
                     p-3
                 "
             >
+                
                 <div
                     className="
                         grid

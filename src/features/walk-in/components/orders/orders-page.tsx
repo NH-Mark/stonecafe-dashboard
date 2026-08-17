@@ -19,6 +19,8 @@ import {
 
 import OrdersList from "./order-list"
 import OrderDetails from "./order-details"
+import { Header } from "../Header"
+import { POSNav } from "../POSNav"
 
 export default function OrdersPage() {
     const [
@@ -112,6 +114,17 @@ export default function OrdersPage() {
                 bg-[#f5f5f3]
             "
         >
+             <header className="shrink-0">
+                    <Header />
+                </header>
+
+                {/* ================================================= */}
+                {/* POS NAVIGATION */}
+                {/* ================================================= */}
+
+                <nav className="shrink-0">
+                    <POSNav />
+                </nav>
             <div
                 className="
                     mx-auto

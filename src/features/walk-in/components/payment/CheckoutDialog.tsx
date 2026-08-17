@@ -410,6 +410,21 @@ export function CheckoutDialog({
         },
         [open]
     );
+    useEffect(() => {
+        if (
+            open &&
+            selectedPaymentMethodId &&
+            remainingAmount > 0
+        ) {
+            setAmountInput(
+                remainingAmount.toFixed(2)
+            )
+        }
+    }, [
+        open,
+        selectedPaymentMethodId,
+        remainingAmount,
+    ])
 
 
     /*
@@ -608,12 +623,13 @@ export function CheckoutDialog({
         */
 
         setAmountInput(
-            ""
-        );
+            Math.max(
+                remainingAmount - amount,
+                0
+            ).toFixed(2)
+        )
 
-        setReference(
-            ""
-        );
+        setReference("")
 
     }
 
