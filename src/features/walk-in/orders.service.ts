@@ -88,3 +88,23 @@ export async function updateOrderStatus(
         )
     }
 }
+
+export async function printOrder(orderId: number) {
+    try {
+        const response = await api.post(
+            `/api/orders/${orderId}/print`
+        )
+
+        return response.data
+    } catch (error: any) {
+        console.error(
+            "Failed to print order:",
+            error.response?.data || error.message
+        )
+
+        throw new Error(
+            error.response?.data?.message ||
+            "Failed to print order"
+        )
+    }
+}

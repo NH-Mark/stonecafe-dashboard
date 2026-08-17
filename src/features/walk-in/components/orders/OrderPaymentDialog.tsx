@@ -146,14 +146,21 @@ export default function OrderPaymentDialog({
     |--------------------------------------------------------------------------
     */
 
-    useEffect(() => {
+   useEffect(() => {
         if (!open) {
             setAmount("")
             setReference("")
             setSelectedPaymentMethodId(null)
             setLoading(false)
+            return
         }
-    }, [open])
+
+        if (remainingAmount > 0) {
+            setAmount(remainingAmount.toFixed(2))
+        } else {
+            setAmount("")
+        }
+    }, [open, remainingAmount])
 
     /*
     |--------------------------------------------------------------------------
@@ -369,40 +376,18 @@ export default function OrderPaymentDialog({
 
                     <div className="space-y-2">
 
-                        <div className="flex items-center justify-between">
-
-                            <p className="text-sm font-semibold">
-                                Amount
-                            </p>
-
-                            <button
-                                type="button"
-                                onClick={fillRemaining}
-                                disabled={
-                                    loading ||
-                                    remainingAmount <= 0
-                                }
-                                className="
-                                    text-xs
-                                    font-semibold
-                                    text-primary
-                                    disabled:opacity-40
-                                "
-                            >
-                                Use Remaining
-                            </button>
-
-                        </div>
+                        <p className="text-sm font-semibold">
+                            Amount
+                        </p>
 
                         <Input
                             type="number"
                             min="0"
+                            max={remainingAmount.toFixed(2)}
                             step="0.01"
                             value={amount}
                             onChange={(event) =>
-                                setAmount(
-                                    event.target.value
-                                )
+                                setAmount(event.target.value)
                             }
                             disabled={
                                 loading ||
@@ -410,6 +395,11 @@ export default function OrderPaymentDialog({
                             }
                             placeholder="Payment amount"
                         />
+
+                        {/* <p className="text-xs text-muted-foreground">
+                            Remaining balance: QAR{" "}
+                            {remainingAmount.toFixed(2)}
+                        </p> */}
 
                     </div>
 

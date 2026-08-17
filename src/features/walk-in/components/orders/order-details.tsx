@@ -1,13 +1,12 @@
 "use client"
 
 import {
-    Clock,
     MapPin,
-    User,
     ChefHat,
     FileText,
     XCircle,
     CheckCircle2,
+    Printer,
 } from "lucide-react"
 
 import { useEffect, useState } from "react"
@@ -20,7 +19,7 @@ import OrderSummary from "./order-summary"
 import OrderPayments from "./order-payment"
 
 import { Order } from "@/features/orders/orders.types"
-import { getOrder, updateOrderStatus } from "../../orders.service"
+import { getOrder, printOrder, updateOrderStatus } from "../../orders.service"
 
 interface OrderDetailsProps {
     order: Order | null,
@@ -137,6 +136,9 @@ export default function OrderDetails({
     const [updatingStatus, setUpdatingStatus] =
         useState(false)
 
+    const [printing, setPrinting] =
+        useState(false)
+
     const [currentOrder, setCurrentOrder] =
         useState<Order | null>(order)
 
@@ -178,6 +180,41 @@ export default function OrderDetails({
             toast.error(
                 "Payment succeeded, but failed to refresh order."
             )
+        }
+    }
+    async function handlePrint() {
+
+        if (!currentOrder?.id || printing) {
+            return
+        }
+
+        try {
+
+            setPrinting(true)
+
+            await printOrder(currentOrder.id)
+
+            toast.success(
+                "Order sent to printer."
+            )
+
+        } catch (error) {
+
+            console.error(
+                "Failed to print order:",
+                error
+            )
+
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to print order."
+            )
+
+        } finally {
+
+            setPrinting(false)
+
         }
     }
     async function handleStatusChange(
@@ -373,22 +410,69 @@ export default function OrderDetails({
 
                         {/* RIGHT — ORDER ACTIONS */}
 
-                        {currentOrder.status?.toLowerCase() === "pending" && (
-                            <div
-                                className="
-                flex
-                shrink-0
+                        {/* RIGHT — ORDER ACTIONS */}
+
+                        <div
+                            className="
+        flex
+        shrink-0
+        items-center
+        gap-2
+    "
+                        >
+
+                            {/* PRINT */}
+
+                            {currentOrder.status?.toLowerCase() === "completed" &&
+                                currentOrder.payment_status?.toLowerCase() === "paid" && (
+
+                                    <button
+                                        type="button"
+                                        disabled={printing}
+                                        onClick={handlePrint}
+                                        className="
+                inline-flex
+                h-9
                 items-center
-                gap-2
+                gap-1.5
+                rounded-lg
+                border
+                border-[#e1ddd8]
+                bg-white
+                px-3
+                text-sm
+                font-medium
+                text-[#40332a]
+                shadow-sm
+                transition-colors
+                hover:bg-[#faf9f7]
+                disabled:pointer-events-none
+                disabled:opacity-50
             "
-                            >
-                                <button
-                                    type="button"
-                                    disabled={updatingStatus}
-                                    onClick={() =>
-                                        handleStatusChange("cancelled")
-                                    }
-                                    className="
+                                    >
+
+                                        <Printer className="h-4 w-4" />
+
+                                        {printing
+                                            ? "Printing..."
+                                            : "Print Order"}
+
+                                    </button>
+                                )}
+
+
+                            {/* PENDING ACTIONS */}
+
+                            {currentOrder.status?.toLowerCase() === "pending" && (
+
+                                <>
+                                    <button
+                                        type="button"
+                                        disabled={updatingStatus}
+                                        onClick={() =>
+                                            handleStatusChange("cancelled")
+                                        }
+                                        className="
                     inline-flex
                     h-9
                     items-center
@@ -406,19 +490,22 @@ export default function OrderDetails({
                     disabled:pointer-events-none
                     disabled:opacity-50
                 "
-                                >
-                                    <XCircle className="h-4 w-4" />
+                                    >
 
-                                    Cancel
-                                </button>
+                                        <XCircle className="h-4 w-4" />
 
-                                <button
-                                    type="button"
-                                    disabled={updatingStatus}
-                                    onClick={() =>
-                                        handleStatusChange("confirmed")
-                                    }
-                                    className="
+                                        Cancel
+
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        disabled={updatingStatus}
+                                        onClick={() =>
+                                            handleStatusChange("confirmed")
+                                        }
+                                        className="
                     inline-flex
                     h-9
                     items-center
@@ -435,15 +522,20 @@ export default function OrderDetails({
                     disabled:pointer-events-none
                     disabled:opacity-50
                 "
-                                >
-                                    <CheckCircle2 className="h-4 w-4" />
+                                    >
 
-                                    {updatingStatus
-                                        ? "Updating..."
-                                        : "Confirm"}
-                                </button>
-                            </div>
-                        )}
+                                        <CheckCircle2 className="h-4 w-4" />
+
+                                        {updatingStatus
+                                            ? "Updating..."
+                                            : "Confirm"}
+
+                                    </button>
+                                </>
+
+                            )}
+
+                        </div>
                     </div>
 
                     {/* ================================================= */}
