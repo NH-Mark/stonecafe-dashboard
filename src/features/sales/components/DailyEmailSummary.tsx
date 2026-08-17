@@ -97,6 +97,42 @@ export default function SalesEmailSettings() {
         }
     }
 
+    async function handleToggle() {
+        const newEnabled = !enabled
+
+        setSaving(true)
+
+        try {
+            const recipients = emails
+                .split(",")
+                .map(email => email.trim())
+                .filter(Boolean)
+
+            await updateDailySalesEmailSettings({
+                enabled: newEnabled,
+                recipients,
+                send_time: sendTime,
+            })
+
+            setEnabled(newEnabled)
+
+            toast.success(
+                newEnabled
+                    ? "Daily sales email enabled."
+                    : "Daily sales email disabled."
+            )
+
+        } catch (error) {
+            console.error(error)
+
+            toast.error(
+                "Failed to update email setting."
+            )
+        } finally {
+            setSaving(false)
+        }
+    }
+
     async function handleSendNow() {
 
         setSending(true)
@@ -220,42 +256,39 @@ export default function SalesEmailSettings() {
                                 ? "Disable daily sales email"
                                 : "Enable daily sales email"
                         }
-                        onClick={() =>
-                            setEnabled(value => !value)
-                        }
+                        onClick={handleToggle}
+                        disabled={saving}
                         className={`
-                            relative
-                            h-6
-                            w-11
-                            shrink-0
-                            rounded-full
-                            transition-colors
-                            ${
-                                enabled
-                                    ? "bg-[#6b5849]"
-                                    : "bg-gray-300"
+        relative
+        h-6
+        w-11
+        shrink-0
+        rounded-full
+        transition-colors
+        disabled:cursor-not-allowed
+        disabled:opacity-60
+        ${enabled
+                                ? "bg-[#6b5849]"
+                                : "bg-gray-300"
                             }
-                        `}
+    `}
                     >
-
                         <span
                             className={`
-                                absolute
-                                top-0.5
-                                h-5
-                                w-5
-                                rounded-full
-                                bg-white
-                                shadow
-                                transition-transform
-                                ${
-                                    enabled
-                                        ? "translate-x-5"
-                                        : "translate-x-0.5"
+            absolute
+            top-0.5
+            h-5
+            w-5
+            rounded-full
+            bg-white
+            shadow
+            transition-transform
+            ${enabled
+                                    ? "translate-x-5"
+                                    : "translate-x-0.5"
                                 }
-                            `}
+        `}
                         />
-
                     </button>
 
                 </div>
@@ -423,7 +456,7 @@ export default function SalesEmailSettings() {
                             "
                         >
 
-                           
+
 
 
                             <button
@@ -455,7 +488,7 @@ export default function SalesEmailSettings() {
                                     : "Save"}
 
                             </button>
-                             <button
+                            <button
                                 type="button"
                                 disabled={sending}
                                 onClick={handleSendNow}
