@@ -15,6 +15,7 @@ import { OrderType } from "@/types/order-type";
 import TopSellingItems from "./tables/TopSellingItems";
 import HourlyBreakdownByOrders from "./tables/HourlyBreakdownByOrders";
 import PageLoader from "@/components/common/PageLoader";
+import DailyEmailSummary from "./DailyEmailSummary";
 
 
 
@@ -88,7 +89,7 @@ export default function SalesDashboard() {
 
         <div className="space-y-6">
 
-
+            <DailyEmailSummary />
             <SalesFilters
                 orderTypes={orderTypes}
                 locations={locations}
