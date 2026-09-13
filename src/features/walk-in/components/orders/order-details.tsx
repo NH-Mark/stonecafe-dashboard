@@ -7,9 +7,13 @@ import {
     XCircle,
     CheckCircle2,
     Printer,
+    Table2,
 } from "lucide-react"
 
-import { useEffect, useState } from "react"
+import {
+    useEffect,
+    useState,
+} from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@base-ui/react"
@@ -19,38 +23,18 @@ import OrderSummary from "./order-summary"
 import OrderPayments from "./order-payment"
 
 import { Order } from "@/features/orders/orders.types"
-import { getOrder, printOrder, updateOrderStatus } from "../../orders.service"
+
+import {
+    getOrder,
+    printOrder,
+    updateOrderStatus,
+} from "../../orders.service"
+import { AssignTableDialog } from "./AssignTableDialog"
+
 
 interface OrderDetailsProps {
-    order: Order | null,
+    order: Order | null
     onOrderUpdated?: (order: Order) => void
-}
-
-/*
-|--------------------------------------------------------------------------
-| Date Formatter
-|--------------------------------------------------------------------------
-*/
-
-function formatDate(value: string | null) {
-    if (!value) {
-        return "-"
-    }
-
-    const normalizedValue = value.includes(" ")
-        ? value.replace(" ", "T")
-        : value
-
-    const date = new Date(normalizedValue)
-
-    if (Number.isNaN(date.getTime())) {
-        return "-"
-    }
-
-    return date.toLocaleString([], {
-        dateStyle: "medium",
-        timeStyle: "short",
-    })
 }
 
 /*
@@ -129,7 +113,7 @@ export default function OrderDetails({
 
     /*
     |--------------------------------------------------------------------------
-    | Local Order State
+    | Local State
     |--------------------------------------------------------------------------
     */
 
@@ -141,6 +125,9 @@ export default function OrderDetails({
 
     const [currentOrder, setCurrentOrder] =
         useState<Order | null>(order)
+
+    const [assignTableDialogOpen, setAssignTableDialogOpen] =
+        useState(false)
 
     /*
     |--------------------------------------------------------------------------
@@ -154,37 +141,79 @@ export default function OrderDetails({
 
     /*
     |--------------------------------------------------------------------------
+    | Table Assignment Condition
+    |--------------------------------------------------------------------------
+    |
+    | Show Assign Table only when:
+    |
+    | order_type_code = dine_in
+    | source          = QR Order
+    | status          = confirmed
+    | table           = null
+    |
+    */
+
+    const canAssignTable =
+        currentOrder?.order_type_code?.toLowerCase() ===
+            "dine_in" &&
+        currentOrder?.source?.toLowerCase() ===
+            "qr order" &&
+        currentOrder?.status?.toLowerCase() ===
+            "confirmed" &&
+        !currentOrder?.restaurant_table
+
+    /*
+    |--------------------------------------------------------------------------
     | Refresh Order
     |--------------------------------------------------------------------------
     */
 
     async function refreshOrder() {
+
         if (!currentOrder?.id) {
             return
         }
 
         try {
+
             const refreshedOrder =
-                await getOrder(currentOrder.id)
+                await getOrder(
+                    currentOrder.id
+                )
 
-            setCurrentOrder(refreshedOrder)
-            onOrderUpdated?.(refreshedOrder)
+            setCurrentOrder(
+                refreshedOrder
+            )
 
-            toast.success("Payment updated")
+            onOrderUpdated?.(
+                refreshedOrder
+            )
+
         } catch (error) {
+
             console.error(
                 "Failed to refresh order:",
                 error
             )
 
             toast.error(
-                "Payment succeeded, but failed to refresh order."
+                "Failed to refresh order."
             )
         }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Print Order
+    |--------------------------------------------------------------------------
+    */
+
     async function handlePrint() {
 
-        if (!currentOrder?.id || printing) {
+        if (
+            !currentOrder?.id ||
+            printing
+        ) {
             return
         }
 
@@ -192,7 +221,9 @@ export default function OrderDetails({
 
             setPrinting(true)
 
-            await printOrder(currentOrder.id)
+            await printOrder(
+                currentOrder.id
+            )
 
             toast.success(
                 "Order sent to printer."
@@ -217,14 +248,28 @@ export default function OrderDetails({
 
         }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status Change
+    |--------------------------------------------------------------------------
+    */
+
     async function handleStatusChange(
-        status: "confirmed" | "cancelled"
+        status:
+            | "confirmed"
+            | "cancelled"
     ) {
-        if (!currentOrder?.id || updatingStatus) {
+
+        if (
+            !currentOrder?.id ||
+            updatingStatus
+        ) {
             return
         }
 
         try {
+
             setUpdatingStatus(true)
 
             await updateOrderStatus(
@@ -233,17 +278,26 @@ export default function OrderDetails({
             )
 
             const refreshedOrder =
-                await getOrder(currentOrder.id)
+                await getOrder(
+                    currentOrder.id
+                )
 
-            setCurrentOrder(refreshedOrder)
-            onOrderUpdated?.(refreshedOrder)
+            setCurrentOrder(
+                refreshedOrder
+            )
+
+            onOrderUpdated?.(
+                refreshedOrder
+            )
 
             toast.success(
                 status === "confirmed"
                     ? "Order confirmed"
                     : "Order cancelled"
             )
+
         } catch (error) {
+
             console.error(
                 "Failed to update order status:",
                 error
@@ -252,8 +306,57 @@ export default function OrderDetails({
             toast.error(
                 "Failed to update order status."
             )
+
         } finally {
+
             setUpdatingStatus(false)
+
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Table Assigned
+    |--------------------------------------------------------------------------
+    |
+    | Called after AssignTableDialog successfully assigns
+    | a table to the order.
+    |
+    */
+
+    async function handleTableAssigned() {
+
+        setAssignTableDialogOpen(false)
+
+        if (!currentOrder?.id) {
+            return
+        }
+
+        try {
+
+            const refreshedOrder =
+                await getOrder(
+                    currentOrder.id
+                )
+
+            setCurrentOrder(
+                refreshedOrder
+            )
+
+            onOrderUpdated?.(
+                refreshedOrder
+            )
+
+        } catch (error) {
+
+            console.error(
+                "Failed to refresh order after table assignment:",
+                error
+            )
+
+            toast.error(
+                "Table assigned, but failed to refresh the order."
+            )
         }
     }
 
@@ -264,6 +367,7 @@ export default function OrderDetails({
     */
 
     if (!currentOrder) {
+
         return (
             <div
                 className="
@@ -273,6 +377,7 @@ export default function OrderDetails({
                     justify-center
                 "
             >
+
                 <div
                     className="
                         max-w-sm
@@ -280,6 +385,7 @@ export default function OrderDetails({
                         text-muted-foreground
                     "
                 >
+
                     <div
                         className="
                             mx-auto
@@ -292,6 +398,7 @@ export default function OrderDetails({
                             bg-[#f5f1ed]
                         "
                     >
+
                         <FileText
                             className="
                                 h-6
@@ -299,6 +406,7 @@ export default function OrderDetails({
                                 text-[#6b5849]
                             "
                         />
+
                     </div>
 
                     <p
@@ -321,7 +429,9 @@ export default function OrderDetails({
                         Select an order from the list
                         to view its details.
                     </p>
+
                 </div>
+
             </div>
         )
     }
@@ -335,7 +445,12 @@ export default function OrderDetails({
     return (
         <div className="w-full">
 
-            <div className="space-y-6 pb-8">
+            <div
+                className="
+                    space-y-6
+                    pb-8
+                "
+            >
 
                 <div
                     className="
@@ -351,31 +466,33 @@ export default function OrderDetails({
 
                     <div
                         className="
-        flex
-        items-start
-        justify-between
-        gap-6
-    "
+                            flex
+                            items-start
+                            justify-between
+                            gap-6
+                        "
                     >
+
                         {/* LEFT — ORDER INFO */}
 
                         <div className="min-w-0">
 
                             <div
                                 className="
-                flex
-                flex-wrap
-                items-center
-                gap-2
-            "
+                                    flex
+                                    flex-wrap
+                                    items-center
+                                    gap-2
+                                "
                             >
+
                                 <h1
                                     className="
-                    text-xl
-                    font-semibold
-                    tracking-tight
-                    text-[#40332a]
-                "
+                                        text-xl
+                                        font-semibold
+                                        tracking-tight
+                                        text-[#40332a]
+                                    "
                                 >
                                     #{currentOrder.order_no}
                                 </h1>
@@ -384,159 +501,276 @@ export default function OrderDetails({
                                     {currentOrder.status}
                                 </Badge>
 
-                                <Badge variant="secondary">
-                                    {currentOrder.payment_status}
+                                <Badge
+                                    variant="secondary"
+                                >
+                                    {
+                                        currentOrder.payment_status
+                                    }
                                 </Badge>
+
                             </div>
 
                             <p
                                 className="
-                mt-1
-                text-sm
-                text-muted-foreground
-            "
+                                    mt-1
+                                    text-sm
+                                    text-muted-foreground
+                                "
                             >
-                                {currentOrder.type || "Order"}
+
+                                {
+                                    currentOrder.type ||
+                                    "Order"
+                                }
 
                                 {currentOrder.source && (
                                     <>
                                         {" • "}
-                                        {currentOrder.source}
+                                        {
+                                            currentOrder.source
+                                        }
                                     </>
                                 )}
+
                             </p>
 
                         </div>
 
                         {/* RIGHT — ORDER ACTIONS */}
 
-                        {/* RIGHT — ORDER ACTIONS */}
-
                         <div
                             className="
-        flex
-        shrink-0
-        items-center
-        gap-2
-    "
+                                flex
+                                shrink-0
+                                flex-wrap
+                                items-center
+                                justify-end
+                                gap-2
+                            "
                         >
 
-                            {/* PRINT */}
+                            {/* ================================================= */}
+                            {/* ASSIGN TABLE */}
+                            {/* ================================================= */}
 
-                            {currentOrder.status?.toLowerCase() === "completed" &&
-                                currentOrder.payment_status?.toLowerCase() === "paid" && (
+                            {canAssignTable && (
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setAssignTableDialogOpen(
+                                            true
+                                        )
+                                    }
+                                    className="
+                                        inline-flex
+                                        h-9
+                                        items-center
+                                        gap-1.5
+                                        rounded-lg
+                                        border
+                                        border-[#d8c9bc]
+                                        bg-white
+                                        px-3
+                                        text-sm
+                                        font-medium
+                                        text-[#6b5849]
+                                        shadow-sm
+                                        transition-colors
+                                        hover:bg-[#faf7f4]
+                                    "
+                                >
+
+                                    <Table2
+                                        className="
+                                            h-4
+                                            w-4
+                                        "
+                                    />
+
+                                    Assign Table
+
+                                </button>
+
+                            )}
+
+                            {/* ================================================= */}
+                            {/* PRINT */}
+                            {/* ================================================= */}
+
+                            {currentOrder.status
+                                ?.toLowerCase() ===
+                                "completed" &&
+                                currentOrder.payment_status
+                                    ?.toLowerCase() ===
+                                "paid" && (
 
                                     <button
                                         type="button"
-                                        disabled={printing}
-                                        onClick={handlePrint}
+                                        disabled={
+                                            printing
+                                        }
+                                        onClick={
+                                            handlePrint
+                                        }
                                         className="
-                inline-flex
-                h-9
-                items-center
-                gap-1.5
-                rounded-lg
-                border
-                border-[#e1ddd8]
-                bg-white
-                px-3
-                text-sm
-                font-medium
-                text-[#40332a]
-                shadow-sm
-                transition-colors
-                hover:bg-[#faf9f7]
-                disabled:pointer-events-none
-                disabled:opacity-50
-            "
+                                            inline-flex
+                                            h-9
+                                            items-center
+                                            gap-1.5
+                                            rounded-lg
+                                            border
+                                            border-[#e1ddd8]
+                                            bg-white
+                                            px-3
+                                            text-sm
+                                            font-medium
+                                            text-[#40332a]
+                                            shadow-sm
+                                            transition-colors
+                                            hover:bg-[#faf9f7]
+                                            disabled:pointer-events-none
+                                            disabled:opacity-50
+                                        "
                                     >
 
-                                        <Printer className="h-4 w-4" />
+                                        <Printer
+                                            className="
+                                                h-4
+                                                w-4
+                                            "
+                                        />
 
                                         {printing
                                             ? "Printing..."
                                             : "Print Order"}
 
                                     </button>
+
                                 )}
 
-
+                            {/* ================================================= */}
                             {/* PENDING ACTIONS */}
+                            {/* ================================================= */}
 
-                            {currentOrder.status?.toLowerCase() === "pending" && (
+                            {currentOrder.status
+                                ?.toLowerCase() ===
+                                "pending" && (
 
                                 <>
+
                                     <button
                                         type="button"
-                                        disabled={updatingStatus}
+                                        disabled={
+                                            updatingStatus
+                                        }
                                         onClick={() =>
-                                            handleStatusChange("cancelled")
+                                            handleStatusChange(
+                                                "cancelled"
+                                            )
                                         }
                                         className="
-                    inline-flex
-                    h-9
-                    items-center
-                    gap-1.5
-                    rounded-lg
-                    border
-                    border-[#e5c9c9]
-                    bg-white
-                    px-3
-                    text-sm
-                    font-medium
-                    text-[#a94442]
-                    transition-colors
-                    hover:bg-[#fff5f5]
-                    disabled:pointer-events-none
-                    disabled:opacity-50
-                "
+                                            inline-flex
+                                            h-9
+                                            items-center
+                                            gap-1.5
+                                            rounded-lg
+                                            border
+                                            border-[#e5c9c9]
+                                            bg-white
+                                            px-3
+                                            text-sm
+                                            font-medium
+                                            text-[#a94442]
+                                            transition-colors
+                                            hover:bg-[#fff5f5]
+                                            disabled:pointer-events-none
+                                            disabled:opacity-50
+                                        "
                                     >
 
-                                        <XCircle className="h-4 w-4" />
+                                        <XCircle
+                                            className="
+                                                h-4
+                                                w-4
+                                            "
+                                        />
 
                                         Cancel
 
                                     </button>
 
-
                                     <button
                                         type="button"
-                                        disabled={updatingStatus}
+                                        disabled={
+                                            updatingStatus
+                                        }
                                         onClick={() =>
-                                            handleStatusChange("confirmed")
+                                            handleStatusChange(
+                                                "confirmed"
+                                            )
                                         }
                                         className="
-                    inline-flex
-                    h-9
-                    items-center
-                    gap-1.5
-                    rounded-lg
-                    bg-[#3f6b4f]
-                    px-3.5
-                    text-sm
-                    font-medium
-                    text-white
-                    shadow-sm
-                    transition-colors
-                    hover:bg-[#345a42]
-                    disabled:pointer-events-none
-                    disabled:opacity-50
-                "
+                                            inline-flex
+                                            h-9
+                                            items-center
+                                            gap-1.5
+                                            rounded-lg
+                                            bg-[#3f6b4f]
+                                            px-3.5
+                                            text-sm
+                                            font-medium
+                                            text-white
+                                            shadow-sm
+                                            transition-colors
+                                            hover:bg-[#345a42]
+                                            disabled:pointer-events-none
+                                            disabled:opacity-50
+                                        "
                                     >
 
-                                        <CheckCircle2 className="h-4 w-4" />
+                                        <CheckCircle2
+                                            className="
+                                                h-4
+                                                w-4
+                                            "
+                                        />
 
                                         {updatingStatus
                                             ? "Updating..."
                                             : "Confirm"}
 
                                     </button>
+
                                 </>
 
                             )}
 
                         </div>
+
                     </div>
+
+                    {/* ================================================= */}
+                    {/* ASSIGN TABLE DIALOG */}
+                    {/* ================================================= */}
+
+                    <AssignTableDialog
+                        open={
+                            assignTableDialogOpen
+                        }
+                        onClose={() =>
+                            setAssignTableDialogOpen(
+                                false
+                            )
+                        }
+                        orderId={
+                            currentOrder.id
+                        }
+                        onAssigned={() =>
+                            void handleTableAssigned()
+                        }
+                    />
 
                     {/* ================================================= */}
                     {/* ITEMS */}
@@ -599,10 +833,19 @@ export default function OrderDetails({
                                             text-muted-foreground
                                         "
                                     >
-                                        {currentOrder.items.length}{" "}
-                                        {currentOrder.items.length === 1
-                                            ? "item"
-                                            : "items"}
+                                        {
+                                            currentOrder
+                                                .items
+                                                .length
+                                        }{" "}
+                                        {
+                                            currentOrder
+                                                .items
+                                                .length ===
+                                            1
+                                                ? "item"
+                                                : "items"
+                                        }
                                     </p>
 
                                 </div>
@@ -611,7 +854,8 @@ export default function OrderDetails({
 
                             {/* Items */}
 
-                            {currentOrder.items.length > 0 ? (
+                            {currentOrder.items
+                                .length > 0 ? (
 
                                 currentOrder.items.map(
                                     (
@@ -635,17 +879,24 @@ export default function OrderDetails({
                                             )
 
                                         const hasDiscount =
-                                            discountTotal > 0
+                                            discountTotal >
+                                            0
 
                                         return (
                                             <div
-                                                key={item.id}
+                                                key={
+                                                    item.id
+                                                }
                                                 className={`
                                                     p-4
-                                                    ${index !==
-                                                        currentOrder.items.length - 1
-                                                        ? "border-b"
-                                                        : ""
+                                                    ${
+                                                        index !==
+                                                        currentOrder
+                                                            .items
+                                                            .length -
+                                                            1
+                                                            ? "border-b"
+                                                            : ""
                                                     }
                                                 `}
                                                 style={{
@@ -665,7 +916,11 @@ export default function OrderDetails({
 
                                                     {/* Item Information */}
 
-                                                    <div className="min-w-0">
+                                                    <div
+                                                        className="
+                                                            min-w-0
+                                                        "
+                                                    >
 
                                                         <p
                                                             className="
@@ -674,7 +929,9 @@ export default function OrderDetails({
                                                                 text-[#40332a]
                                                             "
                                                         >
-                                                            {item.menu_item}
+                                                            {
+                                                                item.menu_item
+                                                            }
                                                         </p>
 
                                                         <p
@@ -684,13 +941,17 @@ export default function OrderDetails({
                                                                 text-muted-foreground
                                                             "
                                                         >
-                                                            {item.quantity}
+                                                            {
+                                                                item.quantity
+                                                            }
                                                             {" × "}
                                                             QAR{" "}
                                                             {Number(
                                                                 item.unit_price ||
                                                                 0
-                                                            ).toFixed(2)}
+                                                            ).toFixed(
+                                                                2
+                                                            )}
                                                         </p>
 
                                                         {/* Notes */}
@@ -705,7 +966,9 @@ export default function OrderDetails({
                                                                 "
                                                             >
                                                                 Note:{" "}
-                                                                {item.notes}
+                                                                {
+                                                                    item.notes
+                                                                }
                                                             </p>
                                                         )}
 
@@ -713,7 +976,8 @@ export default function OrderDetails({
 
                                                         {item.modifiers &&
                                                             item.modifiers
-                                                                .length > 0 && (
+                                                                .length >
+                                                                0 && (
 
                                                                 <div
                                                                     className="
@@ -747,32 +1011,33 @@ export default function OrderDetails({
 
                                                                                 {modifier.quantity >
                                                                                     1 && (
-                                                                                        <span className="ml-1">
-                                                                                            ×{" "}
-                                                                                            {
-                                                                                                modifier.quantity
-                                                                                            }
-                                                                                        </span>
-                                                                                    )}
+                                                                                    <span className="ml-1">
+                                                                                        ×{" "}
+                                                                                        {
+                                                                                            modifier.quantity
+                                                                                        }
+                                                                                    </span>
+                                                                                )}
 
                                                                                 {Number(
                                                                                     modifier.price ||
                                                                                     0
-                                                                                ) > 0 && (
-                                                                                        <span
-                                                                                            className="
+                                                                                ) >
+                                                                                    0 && (
+                                                                                    <span
+                                                                                        className="
                                                                                             ml-1
                                                                                             text-muted-foreground
                                                                                         "
-                                                                                        >
-                                                                                            + QAR{" "}
-                                                                                            {Number(
-                                                                                                modifier.price
-                                                                                            ).toFixed(
-                                                                                                2
-                                                                                            )}
-                                                                                        </span>
-                                                                                    )}
+                                                                                    >
+                                                                                        + QAR{" "}
+                                                                                        {Number(
+                                                                                            modifier.price
+                                                                                        ).toFixed(
+                                                                                            2
+                                                                                        )}
+                                                                                    </span>
+                                                                                )}
 
                                                                             </Badge>
 
@@ -788,7 +1053,8 @@ export default function OrderDetails({
                                                         {hasDiscount &&
                                                             item.discounts &&
                                                             item.discounts
-                                                                .length > 0 && (
+                                                                .length >
+                                                                0 && (
 
                                                                 <div
                                                                     className="
@@ -822,8 +1088,14 @@ export default function OrderDetails({
                                                                                     }
                                                                                 </span>
 
-                                                                                <span className="font-medium">
-                                                                                    − QAR{" "}
+                                                                                <span
+                                                                                    className="
+                                                                                        font-medium
+                                                                                    "
+                                                                                >
+                                                                                    −
+                                                                                    {" "}
+                                                                                    QAR{" "}
                                                                                     {Number(
                                                                                         discount.amount ||
                                                                                         0
@@ -861,25 +1133,32 @@ export default function OrderDetails({
                                                                 "
                                                             >
                                                                 QAR{" "}
-                                                                {originalTotal.toFixed(
-                                                                    2
-                                                                )}
+                                                                {
+                                                                    originalTotal
+                                                                        .toFixed(
+                                                                            2
+                                                                        )
+                                                                }
                                                             </p>
                                                         )}
 
                                                         <p
                                                             className={`
                                                                 font-semibold
-                                                                ${hasDiscount
-                                                                    ? "text-green-700"
-                                                                    : "text-[#40332a]"
+                                                                ${
+                                                                    hasDiscount
+                                                                        ? "text-green-700"
+                                                                        : "text-[#40332a]"
                                                                 }
                                                             `}
                                                         >
                                                             QAR{" "}
-                                                            {finalTotal.toFixed(
-                                                                2
-                                                            )}
+                                                            {
+                                                                finalTotal
+                                                                    .toFixed(
+                                                                        2
+                                                                    )
+                                                            }
                                                         </p>
 
                                                     </div>
@@ -926,7 +1205,9 @@ export default function OrderDetails({
                         <div className="mt-3">
 
                             <OrderSummary
-                                order={currentOrder}
+                                order={
+                                    currentOrder
+                                }
                             />
 
                         </div>
@@ -944,8 +1225,12 @@ export default function OrderDetails({
                         <div className="mt-3">
 
                             <OrderPayments
-                                order={currentOrder}
-                                onPaymentSuccess={refreshOrder}
+                                order={
+                                    currentOrder
+                                }
+                                onPaymentSuccess={
+                                    refreshOrder
+                                }
                             />
 
                         </div>
@@ -958,12 +1243,15 @@ export default function OrderDetails({
 
                     {currentOrder.notes && (
                         <>
+
                             <Separator />
 
                             <section>
 
                                 <SectionTitle
-                                    icon={<FileText />}
+                                    icon={
+                                        <FileText />
+                                    }
                                 >
                                     Order Notes
                                 </SectionTitle>
@@ -983,17 +1271,20 @@ export default function OrderDetails({
                                             "#f3d9a6",
                                     }}
                                 >
-                                    {currentOrder.notes}
+                                    {
+                                        currentOrder.notes
+                                    }
                                 </div>
 
                             </section>
+
                         </>
                     )}
 
                     <Separator />
 
                     {/* ================================================= */}
-                    {/* KITCHEN / LOCATION */}
+                    {/* KITCHEN / LOCATION / TABLE */}
                     {/* ================================================= */}
 
                     <div
@@ -1001,102 +1292,47 @@ export default function OrderDetails({
                             grid
                             gap-4
                             sm:grid-cols-2
+                            lg:grid-cols-3
                         "
                     >
 
                         <InfoCard
-                            icon={<ChefHat />}
+                            icon={
+                                <ChefHat />
+                            }
                             title="Kitchen"
                             value={
-                                currentOrder.kitchen_status ||
+                                currentOrder
+                                    .kitchen_status ||
                                 "-"
                             }
                         />
 
                         <InfoCard
-                            icon={<MapPin />}
+                            icon={
+                                <MapPin />
+                            }
                             title="Location"
                             value={
-                                currentOrder.location ||
+                                currentOrder
+                                    .location ||
                                 "-"
+                            }
+                        />
+
+                        <InfoCard
+                            icon={
+                                <Table2 />
+                            }
+                            title="Table"
+                            value={
+                                currentOrder
+                                    .restaurant_table?.name ||
+                                "Not assigned"
                             }
                         />
 
                     </div>
-
-                </div>
-
-            </div>
-
-        </div>
-    )
-}
-
-/*
-|--------------------------------------------------------------------------
-| Order Meta
-|--------------------------------------------------------------------------
-*/
-
-function OrderMeta({
-    icon,
-    label,
-    value,
-}: {
-    icon: React.ReactNode
-    label: string
-    value: string
-}) {
-    return (
-        <div className="min-w-0">
-
-            <div
-                className="
-                    flex
-                    items-center
-                    gap-2
-                "
-            >
-
-                <span
-                    className="
-                        flex
-                        h-8
-                        w-8
-                        shrink-0
-                        items-center
-                        justify-center
-                        rounded-lg
-                        bg-[#f5f1ed]
-                        text-[#6b5849]
-                        [&_svg]:h-4
-                        [&_svg]:w-4
-                    "
-                >
-                    {icon}
-                </span>
-
-                <div className="min-w-0">
-
-                    <p
-                        className="
-                            text-[11px]
-                            text-[#8a8179]
-                        "
-                    >
-                        {label}
-                    </p>
-
-                    <p
-                        className="
-                            truncate
-                            text-sm
-                            font-medium
-                            text-[#40332a]
-                        "
-                    >
-                        {value}
-                    </p>
 
                 </div>
 
@@ -1206,6 +1442,7 @@ function InfoCard({
                 </span>
 
             </div>
+
             <p
                 className="
                     mt-2

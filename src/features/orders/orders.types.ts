@@ -1,3 +1,5 @@
+import { RestaurantTable } from "../walk-in/components/tables/tables.service";
+
 export interface OrderItemModifier {
     modifier: string;
     quantity: number;
@@ -36,10 +38,12 @@ export interface Order {
     order_no: string;
 
     type: string;
+    order_type_code:string;
     source: string;
 
     customer?: string;
     table?: string;
+    restaurant_table:RestaurantTable;
     cashier?: string;
     location?: string;
 
@@ -60,7 +64,8 @@ export interface Order {
     payments: Payment[];
 
     discounts?: OrderDiscount[];
-     number_plate: string;
+    number_plate: string;
+    dining_session_id:number;
     order_source_id:number;
 }
 

@@ -1,12 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
-    useEffect,
-    useState,
-} from "react";
-
-import {
-    ArrowRightLeft,
+    Check,
     Loader2,
     Table2,
 } from "lucide-react";
@@ -19,62 +15,45 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 
-import {
-    Button,
-} from "@/components/ui/button";
-
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 import {
-    toast,
-} from "sonner";
-import { getTables, RestaurantTable } from "../tables/tables.service";
-import { transferDiningSessionTable } from "../../dining-session.service";
-import { useRouter } from "next/navigation";
+    getTables,
+    RestaurantTable,
+} from "../tables/tables.service";
+import { assignOrderTable } from "../../orders.service";
 
-interface TransferTableDialogProps {
+
+interface AssignTableDialogProps {
     open: boolean;
-
     onClose: () => void;
 
-    currentTableId?: number | null;
+    orderId: number;
 
-    currentTableName?: string;
-
-    sessionId?: number | null;
-
-    onTransferred?: (
+    onAssigned?: (
         table: RestaurantTable
     ) => void;
 }
 
-export function TransferTableDialog({
+export function AssignTableDialog({
     open,
     onClose,
-    currentTableId,
-    currentTableName,
-    sessionId,
-    onTransferred,
-}: TransferTableDialogProps) {
+    orderId,
+    onAssigned,
+}: AssignTableDialogProps) {
+    const [tables, setTables] = useState<
+        RestaurantTable[]
+    >([]);
 
-    const [
-        tables,
-        setTables,
-    ] = useState<RestaurantTable[]>([]);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [
-        loading,
-        setLoading,
-    ] = useState(false);
+    const [assigning, setAssigning] =
+        useState(false);
 
-    const [
-        transferring,
-        setTransferring,
-    ] = useState(false);
-
-    const [
-        selectedTableId,
-        setSelectedTableId,
-    ] = useState<number | null>(null);
+    const [selectedTableId, setSelectedTableId] =
+        useState<number | null>(null);
 
     useEffect(() => {
         if (!open) {
@@ -90,12 +69,6 @@ export function TransferTableDialog({
                 const result =
                     await getTables();
 
-                /*
-                |------------------------------------------------------------------
-                | Only available tables can be selected.
-                |------------------------------------------------------------------
-                */
-
                 setTables(
                     result.filter(
                         table =>
@@ -103,10 +76,9 @@ export function TransferTableDialog({
                             "available"
                     )
                 );
-
             } catch (error) {
                 console.error(
-                    "Failed to load tables:",
+                    "Failed to load available tables:",
                     error
                 );
 
@@ -115,30 +87,15 @@ export function TransferTableDialog({
                 );
 
                 setTables([]);
-
             } finally {
                 setLoading(false);
             }
         }
 
         void loadTables();
-
     }, [open]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Transfer
-    |--------------------------------------------------------------------------
-    |
-    | The backend transfer endpoint has not been created yet.
-    |
-    | Keep the UI ready and connect the API call here once the endpoint
-    | exists.
-    |
-    */
-    const router = useRouter();
-    async function handleTransfer() {
-
+    async function handleAssign() {
         if (!selectedTableId) {
             toast.error(
                 "Please select a table."
@@ -147,12 +104,10 @@ export function TransferTableDialog({
             return;
         }
 
-        const table =
-            tables.find(
-                item =>
-                    item.id ===
-                    selectedTableId
-            );
+        const table = tables.find(
+            item =>
+                item.id === selectedTableId
+        );
 
         if (!table) {
             toast.error(
@@ -162,46 +117,40 @@ export function TransferTableDialog({
             return;
         }
 
-        if (!sessionId) {
+        if (!orderId) {
             toast.error(
-                "Dining session not found."
+                "Order not found."
             );
 
             return;
         }
 
         try {
+            setAssigning(true);
 
-            setTransferring(true);
-
-            
-            
-            await transferDiningSessionTable(
-                sessionId,
+            await assignOrderTable(
+                orderId,
                 table.id
             );
-           
 
-            onTransferred?.(table);
+            onAssigned?.(table);
+
             onClose();
-            router.push("/walk-in/tables");
-           
-            
-        } catch (error) {
 
+            toast.success(
+                `Table ${table.name} assigned successfully.`
+            );
+        } catch (error) {
             console.error(
-                "Failed to transfer table:",
+                "Failed to assign table:",
                 error
             );
 
             toast.error(
-                "Unable to transfer table."
+                "Unable to assign table."
             );
-
         } finally {
-
-            setTransferring(false);
-
+            setAssigning(false);
         }
     }
 
@@ -209,7 +158,10 @@ export function TransferTableDialog({
         <Dialog
             open={open}
             onOpenChange={value => {
-                if (!value && !transferring) {
+                if (
+                    !value &&
+                    !assigning
+                ) {
                     onClose();
                 }
             }}
@@ -222,7 +174,6 @@ export function TransferTableDialog({
                     overflow-hidden
                 "
             >
-
                 {/* HEADER */}
 
                 <div
@@ -234,7 +185,6 @@ export function TransferTableDialog({
                     "
                 >
                     <DialogHeader>
-
                         <DialogTitle
                             className="
                                 flex
@@ -243,14 +193,14 @@ export function TransferTableDialog({
                                 text-xl
                             "
                         >
-                            <ArrowRightLeft
+                            <Table2
                                 className="
                                     h-5
                                     w-5
                                 "
                             />
 
-                            Assign/Transfer Table
+                            Assign Table
                         </DialogTitle>
 
                         <DialogDescription
@@ -258,10 +208,9 @@ export function TransferTableDialog({
                                 text-primary-foreground/70
                             "
                         >
-                            Move this dining session to
-                            another available table.
+                            Select an available table
+                            for this dine-in order.
                         </DialogDescription>
-
                     </DialogHeader>
                 </div>
 
@@ -271,63 +220,9 @@ export function TransferTableDialog({
                         p-6
                     "
                 >
-
-                    {/* CURRENT TABLE */}
-
-                    <div
-                        className="
-                            rounded-2xl
-                            border
-                            bg-muted/30
-                            p-4
-                        "
-                    >
-
-                        <p
-                            className="
-                                text-xs
-                                font-medium
-                                uppercase
-                                tracking-wide
-                                text-muted-foreground
-                            "
-                        >
-                            Current Table
-                        </p>
-
-                        <div
-                            className="
-                                mt-1
-                                flex
-                                items-center
-                                gap-2
-                            "
-                        >
-
-                            <Table2
-                                className="
-                                    h-5
-                                    w-5
-                                "
-                            />
-
-                            <span
-                                className="
-                                    font-semibold
-                                "
-                            >
-                                {currentTableName ??
-                                    "Current Table"}
-                            </span>
-
-                        </div>
-
-                    </div>
-
                     {/* AVAILABLE TABLES */}
 
                     <div>
-
                         <div
                             className="
                                 mb-3
@@ -336,7 +231,6 @@ export function TransferTableDialog({
                                 justify-between
                             "
                         >
-
                             <p
                                 className="
                                     text-sm
@@ -353,14 +247,13 @@ export function TransferTableDialog({
                                         text-muted-foreground
                                     "
                                 >
-                                    {tables.length} available
+                                    {tables.length}{" "}
+                                    available
                                 </span>
                             )}
-
                         </div>
 
                         {loading ? (
-
                             <div
                                 className="
                                     flex
@@ -371,7 +264,6 @@ export function TransferTableDialog({
                                     p-8
                                 "
                             >
-
                                 <Loader2
                                     className="
                                         h-5
@@ -380,11 +272,8 @@ export function TransferTableDialog({
                                         text-muted-foreground
                                     "
                                 />
-
                             </div>
-
                         ) : tables.length === 0 ? (
-
                             <div
                                 className="
                                     rounded-2xl
@@ -394,7 +283,6 @@ export function TransferTableDialog({
                                     text-center
                                 "
                             >
-
                                 <Table2
                                     className="
                                         mx-auto
@@ -421,15 +309,12 @@ export function TransferTableDialog({
                                         text-muted-foreground
                                     "
                                 >
-                                    There are currently no
-                                    tables available for
-                                    transfer.
+                                    There are currently
+                                    no tables available
+                                    for this order.
                                 </p>
-
                             </div>
-
                         ) : (
-
                             <div
                                 className="
                                     grid
@@ -437,10 +322,8 @@ export function TransferTableDialog({
                                     gap-3
                                 "
                             >
-
                                 {tables.map(
                                     table => {
-
                                         const selected =
                                             selectedTableId ===
                                             table.id;
@@ -452,7 +335,7 @@ export function TransferTableDialog({
                                                 }
                                                 type="button"
                                                 disabled={
-                                                    transferring
+                                                    assigning
                                                 }
                                                 onClick={() =>
                                                     setSelectedTableId(
@@ -460,6 +343,7 @@ export function TransferTableDialog({
                                                     )
                                                 }
                                                 className={`
+                                                    relative
                                                     rounded-2xl
                                                     border
                                                     p-4
@@ -474,6 +358,30 @@ export function TransferTableDialog({
                                                     disabled:opacity-50
                                                 `}
                                             >
+                                                {selected && (
+                                                    <div
+                                                        className="
+                                                            absolute
+                                                            right-3
+                                                            top-3
+                                                            flex
+                                                            h-5
+                                                            w-5
+                                                            items-center
+                                                            justify-center
+                                                            rounded-full
+                                                            bg-primary
+                                                            text-primary-foreground
+                                                        "
+                                                    >
+                                                        <Check
+                                                            className="
+                                                                h-3
+                                                                w-3
+                                                            "
+                                                        />
+                                                    </div>
+                                                )}
 
                                                 <div
                                                     className="
@@ -482,7 +390,6 @@ export function TransferTableDialog({
                                                         gap-3
                                                     "
                                                 >
-
                                                     <div
                                                         className="
                                                             flex
@@ -504,7 +411,6 @@ export function TransferTableDialog({
                                                     </div>
 
                                                     <div>
-
                                                         <p
                                                             className="
                                                                 font-semibold
@@ -523,20 +429,14 @@ export function TransferTableDialog({
                                                         >
                                                             Available
                                                         </p>
-
                                                     </div>
-
                                                 </div>
-
                                             </button>
                                         );
                                     }
                                 )}
-
                             </div>
-
                         )}
-
                     </div>
 
                     {/* ACTIONS */}
@@ -549,7 +449,6 @@ export function TransferTableDialog({
                             pt-5
                         "
                     >
-
                         <Button
                             type="button"
                             variant="outline"
@@ -558,7 +457,7 @@ export function TransferTableDialog({
                                 rounded-xl
                             "
                             disabled={
-                                transferring
+                                assigning
                             }
                             onClick={
                                 onClose
@@ -575,14 +474,13 @@ export function TransferTableDialog({
                             "
                             disabled={
                                 !selectedTableId ||
-                                transferring
+                                assigning
                             }
                             onClick={
-                                handleTransfer
+                                handleAssign
                             }
                         >
-
-                            {transferring ? (
+                            {assigning ? (
                                 <>
                                     <Loader2
                                         className="
@@ -593,11 +491,11 @@ export function TransferTableDialog({
                                         "
                                     />
 
-                                    Transferring...
+                                    Assigning...
                                 </>
                             ) : (
                                 <>
-                                    <ArrowRightLeft
+                                    <Table2
                                         className="
                                             mr-2
                                             h-4
@@ -605,16 +503,12 @@ export function TransferTableDialog({
                                         "
                                     />
 
-                                    Transfer
+                                    Assign Table
                                 </>
                             )}
-
                         </Button>
-
                     </div>
-
                 </div>
-
             </DialogContent>
         </Dialog>
     );

@@ -108,3 +108,17 @@ export async function printOrder(orderId: number) {
         )
     }
 }
+
+export async function assignOrderTable(
+    orderId: number,
+    tableId: number
+) {
+    const response = await api.post(
+        `/api/orders/${orderId}/assign-table`,
+        {
+            table_id: tableId,
+        }
+    )
+
+    return response.data.data ?? response.data
+}
