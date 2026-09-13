@@ -20,41 +20,254 @@ export default function SalesEmailSettings() {
     const [saving, setSaving] = useState(false)
     const [sending, setSending] = useState(false)
 
-    useEffect(() => {
+    type DateRangeType =
+        | "today"
+        | "yesterday"
+        | "this_week"
+        | "this_month"
+        | "last_month"
+        | "custom"
 
-        async function load() {
+    const [dateRange, setDateRange] =
+        useState<DateRangeType>("yesterday")
 
-            try {
+    const [customFrom, setCustomFrom] = useState("")
+    const [customTo, setCustomTo] = useState("")
 
-                const settings =
-                    await getDailySalesEmailSettings()
+    const detectDateRange = (
+        fromDate: string,
+        toDate: string
+    ): {
+        range: DateRangeType
+        customFrom: string
+        customTo: string
+    } => {
+        const now = new Date()
 
-                setEnabled(settings.enabled)
+        const formatDate = (date: Date) =>
+            date.toISOString().split("T")[0]
 
-                setEmails(
-                    settings.recipients.join(", ")
-                )
+        const today = formatDate(now)
 
-                setSendTime(settings.send_time)
+        const yesterdayDate = new Date(now)
+        yesterdayDate.setDate(now.getDate() - 1)
 
-            } catch (error) {
+        const yesterday = formatDate(yesterdayDate)
 
-                toast.error(
-                    "Failed to load email settings"
-                )
-
-            } finally {
-
-                setLoading(false)
-
+        // Today
+        if (
+            fromDate === today &&
+            toDate === today
+        ) {
+            return {
+                range: "today",
+                customFrom: "",
+                customTo: "",
             }
         }
+
+        // Yesterday
+        if (
+            fromDate === yesterday &&
+            toDate === yesterday
+        ) {
+            return {
+                range: "yesterday",
+                customFrom: "",
+                customTo: "",
+            }
+        }
+
+        // This week
+        const weekStart = new Date(now)
+        const day = weekStart.getDay()
+        const diff = day === 0 ? 6 : day - 1
+
+        weekStart.setDate(
+            weekStart.getDate() - diff
+        )
+
+        if (
+            fromDate === formatDate(weekStart) &&
+            toDate === today
+        ) {
+            return {
+                range: "this_week",
+                customFrom: "",
+                customTo: "",
+            }
+        }
+
+        // This month
+        const monthStart = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            1
+        )
+
+        if (
+            fromDate === formatDate(monthStart) &&
+            toDate === today
+        ) {
+            return {
+                range: "this_month",
+                customFrom: "",
+                customTo: "",
+            }
+        }
+
+        // Last month
+        const lastMonthStart = new Date(
+            now.getFullYear(),
+            now.getMonth() - 1,
+            1
+        )
+
+        const lastMonthEnd = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            0
+        )
+
+        if (
+            fromDate === formatDate(lastMonthStart) &&
+            toDate === formatDate(lastMonthEnd)
+        ) {
+            return {
+                range: "last_month",
+                customFrom: "",
+                customTo: "",
+            }
+        }
+
+        // Custom range
+        return {
+            range: "custom",
+            customFrom: fromDate,
+            customTo: toDate,
+        }
+    }
+    const getDateRange = () => {
+        const now = new Date()
+
+        const formatDate = (date: Date) =>
+            date.toISOString().split("T")[0]
+
+        if (dateRange === "today") {
+            const today = formatDate(now)
+
+            return {
+                from_date: today,
+                to_date: today,
+            }
+        }
+
+        if (dateRange === "yesterday") {
+            const yesterday = new Date(now)
+            yesterday.setDate(now.getDate() - 1)
+
+            const date = formatDate(yesterday)
+
+            return {
+                from_date: date,
+                to_date: date,
+            }
+        }
+
+        if (dateRange === "this_week") {
+            const start = new Date(now)
+            const day = start.getDay()
+
+            const diff = day === 0 ? 6 : day - 1
+
+            start.setDate(start.getDate() - diff)
+
+            return {
+                from_date: formatDate(start),
+                to_date: formatDate(now),
+            }
+        }
+
+        if (dateRange === "this_month") {
+            const start = new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                1
+            )
+
+            return {
+                from_date: formatDate(start),
+                to_date: formatDate(now),
+            }
+        }
+
+        if (dateRange === "last_month") {
+            const start = new Date(
+                now.getFullYear(),
+                now.getMonth() - 1,
+                1
+            )
+
+            const end = new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                0
+            )
+
+            return {
+                from_date: formatDate(start),
+                to_date: formatDate(end),
+            }
+        }
+
+        return {
+            from_date: customFrom,
+            to_date: customTo,
+        }
+    }
+
+    useEffect(() => {
+
+
+       async function load() {
+        try {
+            const settings =
+                await getDailySalesEmailSettings()
+
+            setEnabled(settings.enabled)
+
+            setEmails(
+                settings.recipients.join(", ")
+            )
+
+            setSendTime(settings.send_time)
+
+            const detected = detectDateRange(
+                settings.from_date,
+                settings.to_date
+            )
+
+            setDateRange(detected.range)
+            setCustomFrom(detected.customFrom)
+            setCustomTo(detected.customTo)
+
+        } catch (error) {
+            console.error(error)
+
+            toast.error(
+                "Failed to load email settings"
+            )
+        } finally {
+            setLoading(false)
+        }
+    }
 
         load()
 
     }, [])
 
     async function handleSave() {
+        const range = getDateRange()
 
         const recipients = emails
             .split(",")
@@ -78,6 +291,9 @@ export default function SalesEmailSettings() {
                 enabled,
                 recipients,
                 send_time: sendTime,
+                date_range:dateRange,
+                from_date: range.from_date,
+                to_date: range.to_date,
             })
 
             toast.success(
@@ -98,6 +314,7 @@ export default function SalesEmailSettings() {
     }
 
     async function handleToggle() {
+        const range = getDateRange()
         const newEnabled = !enabled
 
         setSaving(true)
@@ -112,6 +329,9 @@ export default function SalesEmailSettings() {
                 enabled: newEnabled,
                 recipients,
                 send_time: sendTime,
+                date_range:dateRange,
+                from_date: range.from_date,
+                to_date: range.to_date,
             })
 
             setEnabled(newEnabled)
@@ -134,29 +354,47 @@ export default function SalesEmailSettings() {
     }
 
     async function handleSendNow() {
+        if (dateRange === "custom") {
+            if (!customFrom || !customTo) {
+                toast.error(
+                    "Please select both start and end dates."
+                )
+                return
+            }
+
+            if (customFrom > customTo) {
+                toast.error(
+                    "Start date cannot be after end date."
+                )
+                return
+            }
+        }
 
         setSending(true)
 
         try {
+            const range = getDateRange()
 
-            await sendDailySalesEmailNow()
+            await sendDailySalesEmailNow({
+                date_range:dateRange,
+                from_date: range.from_date,
+                to_date: range.to_date,
+            })
 
             toast.success(
-                "Daily sales summary sent."
+                "Sales summary sent."
             )
-
         } catch (error) {
+            console.error(error)
 
             toast.error(
                 "Failed to send email."
             )
-
         } finally {
-
             setSending(false)
-
         }
     }
+
 
     if (loading) {
         return null
@@ -225,7 +463,7 @@ export default function SalesEmailSettings() {
                                 text-muted-foreground
                             "
                         >
-                            Automatically send yesterday's
+                            Automatically send
                             sales summary every day.
                         </p>
 
@@ -317,7 +555,7 @@ export default function SalesEmailSettings() {
                         className="
                             grid
                             gap-4
-                            lg:grid-cols-[1fr_180px_auto]
+                            lg:grid-cols-[minmax(0,1fr)_180px_180px_180px]
                             lg:items-end
                         "
                     >
@@ -384,6 +622,131 @@ export default function SalesEmailSettings() {
                             />
 
                         </div>
+                        <div className="lg:col-span-1">
+                            <label
+                                className="
+            mb-1.5
+            block
+            text-xs
+            font-medium
+            text-[#40332a]
+        "
+                            >
+                                Sales date range
+                            </label>
+
+                            <select
+                                value={dateRange}
+                                onChange={event =>
+                                    setDateRange(
+                                        event.target.value as DateRangeType
+                                    )
+                                }
+                                className="
+            h-9
+            w-full
+            rounded-lg
+            border
+            bg-white
+            px-3
+            text-sm
+            text-[#40332a]
+            outline-none
+            focus:border-[#6b5849]
+            focus:ring-2
+            focus:ring-[#6b5849]/10
+        "
+                            >
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                                <option value="this_week">This week</option>
+                                <option value="this_month">This month</option>
+                                <option value="last_month">Last month</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+
+                        {dateRange === "custom" && (
+                            <>
+                                <div>
+                                    <label
+                                        className="
+                    mb-1.5
+                    block
+                    text-xs
+                    font-medium
+                    text-[#40332a]
+                "
+                                    >
+                                        From
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        value={customFrom}
+                                        onChange={event =>
+                                            setCustomFrom(event.target.value)
+                                        }
+                                        className="
+                    h-9
+                    w-full
+                    min-w-0
+                    rounded-lg
+                    border
+                    bg-white
+                    px-3
+                    text-sm
+                    text-[#40332a]
+                    outline-none
+                    focus:border-[#6b5849]
+                    focus:ring-2
+                    focus:ring-[#6b5849]/10
+                "
+                                    />
+                                </div>
+
+                                <div>
+                                    <label
+                                        className="
+                    mb-1.5
+                    block
+                    text-xs
+                    font-medium
+                    text-[#40332a]
+                "
+                                    >
+                                        To
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        min={customFrom || undefined}
+                                        value={customTo}
+                                        onChange={event =>
+                                            setCustomTo(event.target.value)
+                                        }
+                                        className="
+                    h-9
+                    w-full
+                    min-w-0
+                    rounded-lg
+                    border
+                    bg-white
+                    px-3
+                    text-sm
+                    text-[#40332a]
+                    outline-none
+                    focus:border-[#6b5849]
+                    focus:ring-2
+                    focus:ring-[#6b5849]/10
+                "
+                                    />
+                                </div>
+                            </>
+                        )}
+
+
+
 
 
                         {/* ================================================= */}
@@ -493,32 +856,29 @@ export default function SalesEmailSettings() {
                                 disabled={sending}
                                 onClick={handleSendNow}
                                 className="
-                                    inline-flex
-                                    h-9
-                                    items-center
-                                    gap-2
-                                    rounded-lg
-                                    border
-                                    px-3
-                                    text-xs
-                                    font-medium
-                                    text-[#40332a]
-                                    transition
-                                    hover:bg-[#faf9f7]
-                                    disabled:cursor-not-allowed
-                                    disabled:opacity-50
-                                "
+        inline-flex
+        h-9
+        items-center
+        gap-2
+        whitespace-nowrap
+        rounded-lg
+        border
+        px-3
+        text-xs
+        font-medium
+        text-[#40332a]
+        transition
+        hover:bg-[#faf9f7]
+        disabled:cursor-not-allowed
+        disabled:opacity-50
+    "
                                 style={{
                                     borderColor: "#e1ddd8",
                                 }}
                             >
+                                <Send className="h-3.5 w-3.5 shrink-0" />
 
-                                <Send className="h-3.5 w-3.5" />
-
-                                {sending
-                                    ? "Sending..."
-                                    : "Send Test"}
-
+                                {sending ? "Sending..." : "Send Test"}
                             </button>
 
                         </div>

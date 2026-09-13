@@ -40,11 +40,21 @@ export async function getOrderTypes(){
 
 }
 
+export type DateRangeType =
+    | "today"
+    | "yesterday"
+    | "this_week"
+    | "this_month"
+    | "last_month"
+    | "custom"
 
 export interface DailySalesEmailSettings {
     enabled: boolean
     recipients: string[]
     send_time: string
+    date_range: DateRangeType
+    from_date: string
+    to_date: string
 }
 
 export async function getDailySalesEmailSettings(): Promise<DailySalesEmailSettings> {
@@ -58,7 +68,6 @@ export async function getDailySalesEmailSettings(): Promise<DailySalesEmailSetti
 export async function updateDailySalesEmailSettings(
     data: DailySalesEmailSettings
 ): Promise<DailySalesEmailSettings> {
-
     const response = await api.put(
         "/api/sales/email-settings",
         data
@@ -67,10 +76,15 @@ export async function updateDailySalesEmailSettings(
     return response.data.data
 }
 
-export async function sendDailySalesEmailNow() {
-
+export async function sendDailySalesEmailNow(
+    data: Pick<
+        DailySalesEmailSettings,
+        "date_range" | "from_date" | "to_date"
+    >
+) {
     const response = await api.post(
-        "/api/sales/email-settings/send-now"
+        "/api/sales/email-settings/send-now",
+        data
     )
 
     return response.data
