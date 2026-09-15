@@ -233,9 +233,15 @@ export default function ModifierTable({
                 </div>
                 
 
-                <Button render={<Link href="/menu/create">
-                        New Menu Item
-                    </Link>}>
+                <Button
+                    nativeButton={false}
+                    render={
+                        <Link href="/menu/create">
+                            New Menu Item
+                        </Link>
+                    }
+                >
+                    New Menu Item
                 </Button>
             </div>
          

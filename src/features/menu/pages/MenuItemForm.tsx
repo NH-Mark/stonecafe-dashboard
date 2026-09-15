@@ -27,6 +27,7 @@ import { updateMenuItemModifierGroup } from "../menu.service";
 import { MenuItemTag } from "@/types/menu-item-tag";
 import { FoodSymbol } from "@/types/food-symbol";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Props {
     mode: "create" | "edit";
@@ -60,7 +61,7 @@ export default function MenuItemForm({
 }: Props) {
 
     const [editingGroup, setEditingGroup] = useState<any>(null);
-
+    const router = useRouter();
 
     const form = useForm<
         z.input<typeof menuItemSchema>,
@@ -559,6 +560,7 @@ export default function MenuItemForm({
                         type="button"
                         variant="outline"
                         disabled={submitting}
+                        onClick={() => router.push("/menu")}
                     >
                         Cancel
                     </Button>

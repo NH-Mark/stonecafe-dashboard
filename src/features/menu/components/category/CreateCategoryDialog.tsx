@@ -280,7 +280,11 @@ export default function CreateCategoryDialog({
                         </div>
 
                         <DialogFooter>
-                            <Button variant="outline">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setOpen(false)}
+                            >
                                 Cancel
                             </Button>
 
