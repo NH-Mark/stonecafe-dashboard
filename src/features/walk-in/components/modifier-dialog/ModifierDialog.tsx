@@ -44,12 +44,6 @@ export function ModifierDialog() {
 
     const selection =
         useModifierSelection(item);
-
-
-
-
-
-
     const {
 
         selected,

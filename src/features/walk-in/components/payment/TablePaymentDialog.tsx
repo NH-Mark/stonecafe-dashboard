@@ -1363,16 +1363,33 @@ export function TablePaymentDialog({
     return (
         <Dialog
             open={open}
-            onOpenChange={value => {
+            onOpenChange={(value, eventDetails) => {
+                if (!value) {
+                // Ignore clicks outside the dialog
+                if (eventDetails.reason === "outside-press") {
+                    eventDetails.cancel();
+                    return;
+                }
 
-                if (
-                    !value &&
-                    !paying
-                ) {
+                // Don't close while payment is in progress
+                if (paying) {
+                    eventDetails.cancel();
+                    return;
+                }
 
-                    close();
+                close();
                 }
             }}
+            // onOpenChange={value => {
+
+            //     if (
+            //         !value &&
+            //         !paying
+            //     ) {
+
+            //         close();
+            //     }
+            // }}
         >
 
             <DialogContent
@@ -1384,11 +1401,9 @@ export function TablePaymentDialog({
             >
 
                 <DialogHeader>
-
                     <DialogTitle>
                         Pay Table
                     </DialogTitle>
-
                 </DialogHeader>
 
                 <div

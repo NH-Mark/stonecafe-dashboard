@@ -969,24 +969,37 @@ export function CheckoutDialog({
 
     return (
 
+        // <Dialog
+
+        //     open={
+        //         open
+        //     }
+
+        //     onOpenChange={
+        //         value => {
+
+        //             if (!value) {
+        //                 close();
+        //             }
+
+        //         }
+        //     }
+
+        // >
         <Dialog
-
-            open={
-                open
-            }
-
-            onOpenChange={
-                value => {
-
-                    if (!value) {
-                        close();
-                    }
-
+            open={open}
+            onOpenChange={(value, eventDetails) => {
+                if (value) {
+                    return;
                 }
-            }
 
+                if (eventDetails.reason === "outside-press") {
+                    eventDetails.cancel();
+                    return;
+                }
+                close();
+            }}
         >
-
             <DialogContent
 
                 className="
