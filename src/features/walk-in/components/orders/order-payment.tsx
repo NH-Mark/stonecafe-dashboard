@@ -69,7 +69,8 @@ export default function OrderPayments({
 
     const canAddPayment =
         remainingAmount > 0 &&
-        order.payment_status !== "paid"
+        order.payment_status !== "paid" &&
+        order.status != "cancelled"
 
     return (
         <>
