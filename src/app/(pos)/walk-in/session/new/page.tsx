@@ -24,8 +24,6 @@ export default function NewDiningSessionPage() {
     const [error, setError] =
         useState<string | null>(null);
 
-    
-
 
     useEffect(() => {
 
@@ -88,16 +86,12 @@ export default function NewDiningSessionPage() {
 
         createSession();
 
-        
-
 
         return () => {
             cancelled = true;
         };
 
     }, [tableId, router]);
-
-    
 
 
     if (error) {
