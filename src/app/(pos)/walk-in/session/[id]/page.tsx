@@ -19,6 +19,7 @@ import {
 } from "@/features/menu/category.service";
 
 import {
+    closeEmptyDiningSession,
     DiningSession,
     getDiningSession,
 } from "@/features/walk-in/dining-session.service";
@@ -1051,10 +1052,29 @@ export default function DiningSessionPage() {
     |--------------------------------------------------------------------------
     */
 
-    function goBack() {
-        router.push(
-            "/walk-in/tables"
-        );
+    // function goBack() {
+    //     router.push(
+    //         "/walk-in/tables"
+    //     );
+    // }
+    async function goBack() {
+        try {
+            const hasOrders =
+                (session?.orders?.length ?? 0) > 0;
+
+            if (session?.id && !hasOrders) {
+                await closeEmptyDiningSession(
+                    Number(session.id)
+                );
+            }
+        } catch (error) {
+            console.error(
+                "Failed to close empty dining session:",
+                error
+            );
+        } finally {
+            router.push("/walk-in/tables");
+        }
     }
 
     /*

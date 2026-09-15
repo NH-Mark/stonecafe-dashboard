@@ -102,3 +102,11 @@ export async function transferDiningSessionTable(
 
     return response.data.data;
 }
+
+export async function closeEmptyDiningSession(
+    sessionId: number
+) {
+    return api.delete(
+        `/api/pos/dining-sessions/${sessionId}`
+    );
+}
