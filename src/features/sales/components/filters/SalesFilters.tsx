@@ -313,15 +313,16 @@ export default function SalesFilters({
                             align="end"
                             className="w-auto p-0"
                         >
-                            <Calendar
-                                mode="range"
-                                numberOfMonths={2}
-                                selected={date}
-                                onSelect={
-                                    handleDateSelect
-                                }
-                                autoFocus
-                            />
+                                <Calendar
+                                    mode="range"
+                                    numberOfMonths={2}
+                                    selected={date}
+                                    onSelect={handleDateSelect}
+                                    autoFocus
+                                    captionLayout="dropdown"
+                                    // fromYear={2020}
+                                    // toYear={new Date().getFullYear() + 5}
+                                />
                         </PopoverContent>
                     </Popover>
                 )}
