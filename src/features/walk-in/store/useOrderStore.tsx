@@ -1697,46 +1697,52 @@ export const useOrderStore = create<OrderStore>(
                 };
             });
         },
-        updateKitchenStatus: (  
-            orderId,
-            kitchenStatus
-        ) => {
-            set(state => {
-                console.log("updateKitchenStatus calling");
-                const id = String(orderId);
+       updateKitchenStatus: (orderId, kitchenStatus) => {
+    set(state => {
+        const id = String(orderId);
 
-                const order = state.orders[id];
+        console.log("🔥 Updating kitchen order:", {
+            receivedId: id,
+            activeOrderId: state.activeOrderId,
+            orderKeys: Object.keys(state.orders),
+            kitchenStatus,
+        });
 
-                if (!order) {
-                    console.warn(
-                        `Cannot update kitchen status. Order ${id} does not exist in Zustand.`
-                    );
+        const order = state.orders[id];
 
-                    return state;
+        if (!order) {
+            console.warn(
+                `❌ Order ${id} does not exist in Zustand.`,
+                {
+                    availableOrders: Object.keys(state.orders),
+                    activeOrderId: state.activeOrderId,
                 }
+            );
 
-                const updatedOrder: LocalOrder = {
-                    ...order,
-                    kitchenStatus,
-                };
+            return state;
+        }
 
-                const isActive =
-                    state.activeOrderId === id;
+        const updatedOrder: LocalOrder = {
+            ...order,
+            kitchenStatus,
+        };
 
-                return {
-                    orders: {
-                        ...state.orders,
+        const isActive =
+            state.activeOrderId === id;
 
-                        [id]: updatedOrder,
-                    },
+        return {
+            orders: {
+                ...state.orders,
+                [id]: updatedOrder,
+            },
 
-                    kitchenStatus:
-                        isActive
-                            ? kitchenStatus
-                            : state.kitchenStatus,
-                };
-            });
-        },
+            kitchenStatus:
+                isActive
+                    ? kitchenStatus
+                    : state.kitchenStatus,
+        };
+    });
+},
     })
 
 );
