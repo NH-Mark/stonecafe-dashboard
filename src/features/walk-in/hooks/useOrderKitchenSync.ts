@@ -3,9 +3,9 @@
 import { useEffect } from "react";
 
 import { getEcho } from "@/lib/echo";
-import { getKitchenOrder } from "@/features/kitchen/services/kitchen.service";
 
 import { useKitchenOrderStore } from "../store/useKitchenOrderStore";
+import { getKitchenOrder } from "@/features/kitchen-display/services/kitchen.service";
 
 export function useOrderKitchenSync() {
     const setKitchenStatus =
