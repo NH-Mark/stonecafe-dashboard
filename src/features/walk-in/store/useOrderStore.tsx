@@ -42,7 +42,7 @@ export interface LocalOrder {
     orderDiscount: OrderDiscount | null;
 
     status: OrderStatus;
-     kitchenStatus: KitchenStatus;
+    kitchenStatus: KitchenStatus;
 
     isNew: boolean;
 
@@ -371,7 +371,7 @@ export const useOrderStore = create<OrderStore>(
                         initialData?.status ??
                         "draft",
 
-                      kitchenStatus:
+                    kitchenStatus:
                         initialData?.kitchenStatus ?? "pending",
 
                     isNew:
@@ -424,6 +424,10 @@ export const useOrderStore = create<OrderStore>(
                         shouldActivate
                             ? order.status
                             : state.status,
+                    kitchenStatus:
+                        shouldActivate
+                            ? order.kitchenStatus
+                            : state.kitchenStatus,
                 };
             });
         },
@@ -536,7 +540,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -841,7 +845,7 @@ export const useOrderStore = create<OrderStore>(
                     nextActiveId =
                         remaining.length > 0
                             ? remaining[
-                                remaining.length - 1
+                            remaining.length - 1
                             ]
                             : null;
                 }
@@ -849,7 +853,7 @@ export const useOrderStore = create<OrderStore>(
                 const activeOrder =
                     nextActiveId
                         ? nextOrders[
-                            nextActiveId
+                        nextActiveId
                         ]
                         : null;
 
@@ -942,7 +946,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -998,7 +1002,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1052,7 +1056,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1104,14 +1108,14 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
                 console.log("active");
-                 console.log(active);
+                console.log(active);
 
                 if (!active) {
                     return state;
-                }   
+                }
                 if (isKitchenLocked(active)) {
                     console.warn(
                         `Cannot add item. Order ${active.orderNo} is already ${active.kitchenStatus}.`
@@ -1124,13 +1128,13 @@ export const useOrderStore = create<OrderStore>(
                     active.cart.find(
                         item =>
                             item.menuItem.id ===
-                                newItem.menuItem.id &&
+                            newItem.menuItem.id &&
                             sameModifiers(
                                 item.modifiers,
                                 newItem.modifiers
                             ) &&
                             item.note ===
-                                newItem.note
+                            newItem.note
                     );
 
                 let nextCart: CartItem[];
@@ -1141,7 +1145,7 @@ export const useOrderStore = create<OrderStore>(
                         active.cart.map(
                             item =>
                                 item.lineId ===
-                                existing.lineId
+                                    existing.lineId
                                     ? {
                                         ...item,
 
@@ -1201,7 +1205,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1259,7 +1263,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1270,7 +1274,7 @@ export const useOrderStore = create<OrderStore>(
                     active.cart.map(
                         item =>
                             item.lineId ===
-                            lineId
+                                lineId
                                 ? {
                                     ...item,
 
@@ -1322,7 +1326,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1337,7 +1341,7 @@ export const useOrderStore = create<OrderStore>(
                         .map(
                             item =>
                                 item.lineId ===
-                                lineId
+                                    lineId
                                     ? {
                                         ...item,
 
@@ -1394,7 +1398,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1408,7 +1412,7 @@ export const useOrderStore = create<OrderStore>(
                     active.cart.map(
                         item =>
                             item.lineId ===
-                            lineId
+                                lineId
                                 ? {
                                     ...item,
                                     ...data,
@@ -1458,7 +1462,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1469,7 +1473,7 @@ export const useOrderStore = create<OrderStore>(
                     active.cart.map(
                         item =>
                             item.lineId ===
-                            lineId
+                                lineId
                                 ? {
                                     ...item,
                                     discount,
@@ -1518,7 +1522,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1529,7 +1533,7 @@ export const useOrderStore = create<OrderStore>(
                     active.cart.map(
                         item =>
                             item.lineId ===
-                            lineId
+                                lineId
                                 ? {
                                     ...item,
                                     discount: null,
@@ -1589,7 +1593,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1693,45 +1697,46 @@ export const useOrderStore = create<OrderStore>(
                 };
             });
         },
-        updateKitchenStatus: (
-    orderId,
-    kitchenStatus
-) => {
-    set(state => {
-        const id = String(orderId);
+        updateKitchenStatus: (  
+            orderId,
+            kitchenStatus
+        ) => {
+            set(state => {
+                console.log("updateKitchenStatus calling");
+                const id = String(orderId);
 
-        const order = state.orders[id];
+                const order = state.orders[id];
 
-        if (!order) {
-            console.warn(
-                `Cannot update kitchen status. Order ${id} does not exist in Zustand.`
-            );
+                if (!order) {
+                    console.warn(
+                        `Cannot update kitchen status. Order ${id} does not exist in Zustand.`
+                    );
 
-            return state;
-        }
+                    return state;
+                }
 
-        const updatedOrder: LocalOrder = {
-            ...order,
-            kitchenStatus,
-        };
+                const updatedOrder: LocalOrder = {
+                    ...order,
+                    kitchenStatus,
+                };
 
-        const isActive =
-            state.activeOrderId === id;
+                const isActive =
+                    state.activeOrderId === id;
 
-        return {
-            orders: {
-                ...state.orders,
+                return {
+                    orders: {
+                        ...state.orders,
 
-                [id]: updatedOrder,
-            },
+                        [id]: updatedOrder,
+                    },
 
-            kitchenStatus:
-                isActive
-                    ? kitchenStatus
-                    : state.kitchenStatus,
-        };
-    });
-},
+                    kitchenStatus:
+                        isActive
+                            ? kitchenStatus
+                            : state.kitchenStatus,
+                };
+            });
+        },
     })
-    
+
 );
