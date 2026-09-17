@@ -20,6 +20,7 @@ import {
 import { OrderSource } from "@/types/order-sources";
 import EditOrderSourceDialog from "./EditOrderSourceDialog";
 import DeleteOrderSourceDialog from "./DeleteOrderSourceDialog";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 interface Props {
   orderSource: OrderSource;
@@ -51,21 +52,24 @@ export default function OrderSourceActions({
                 />
 
                 <DropdownMenuContent align="end">
-
-                    <DropdownMenuItem
-                        onClick={() => setEditOpen(true)}
-                    >
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                        onClick={() => setDeleteOpen(true)}
-                    >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                    </DropdownMenuItem>
-
+                    <PermissionGuard permission="order-sources.update">
+                        <DropdownMenuItem
+                            onClick={() => setEditOpen(true)}
+                        >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                   
+                    <PermissionGuard permission="order-sources.delete">
+                        <DropdownMenuItem
+                            onClick={() => setDeleteOpen(true)}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                    
                 </DropdownMenuContent>
 
             </DropdownMenu>

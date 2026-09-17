@@ -41,6 +41,7 @@ import {
 } from "sonner";
 import { OrderSourceFormValues, orderSourceSchema } from "../order-sources.schema";
 import { createOrderSource } from "../order-sources.service";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 interface Props {
     onSuccess: () => Promise<void>;
@@ -94,14 +95,17 @@ export default function CreateOrderSourceDialog({
             open={open}
             onOpenChange={setOpen}
         >
-            <DialogTrigger
-                render={
-                    <Button>
-                        <Plus className="mr-2 h-4" />
-                        Add Order Source
-                    </Button>
-                }
-            />
+            <PermissionGuard permission="order-sources.create">
+                <DialogTrigger
+                    render={
+                        <Button>
+                            <Plus className="mr-2 h-4" />
+                            Add Order Source
+                        </Button>
+                    }
+                />
+            </PermissionGuard>
+            
 
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>

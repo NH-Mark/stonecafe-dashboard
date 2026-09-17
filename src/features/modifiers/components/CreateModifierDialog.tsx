@@ -58,6 +58,7 @@ import {
     applyApiErrors
 } from "@/lib/form-errors";
 import { ModifierGroup } from "@/types/modifier-group";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 
 interface Props {
@@ -159,18 +160,20 @@ export default function CreateModifierDialog({
             onOpenChange={setOpen}
         >
 
+            <PermissionGuard permission="menu.create">
+                <DialogTrigger
+                    render={
+                        <Button>
 
-            <DialogTrigger
-                render={
-                    <Button>
+                            <Plus className="h-4 w-4 mr-2" />
 
-                        <Plus className="h-4 w-4 mr-2" />
+                            Add Modifier
 
-                        Add Modifier
-
-                    </Button>
-                }
-            />
+                        </Button>
+                    }
+                />
+            </PermissionGuard>
+            
 
 
 

@@ -20,6 +20,7 @@ import {
 import { Location } from "@/types/location";
 import EditLocationDialog from "./EditLocationDialog";
 import DeleteLocationDialog from "./DeleteLocationDialog";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 interface Props {
   location: Location;
@@ -51,20 +52,24 @@ export default function LocationActions({
                 />
 
                 <DropdownMenuContent align="end">
-
-                    <DropdownMenuItem
-                        onClick={() => setEditOpen(true)}
-                    >
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                        onClick={() => setDeleteOpen(true)}
-                    >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                    </DropdownMenuItem>
+                    <PermissionGuard permission="locations.update">
+                        <DropdownMenuItem
+                            onClick={() => setEditOpen(true)}
+                        >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                    
+                    <PermissionGuard permission="locations.delete">
+                        <DropdownMenuItem
+                            onClick={() => setDeleteOpen(true)}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                    
 
                 </DropdownMenuContent>
 

@@ -41,6 +41,7 @@ import {
 } from "sonner";
 import { PaymentMethodFormValues, paymentMethodSchema } from "../payment-method.schema";
 import { createPaymentMethod } from "../payment-method.service";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 
 interface Props {
@@ -95,14 +96,17 @@ export default function CreatePaymentMethodDialog({
             open={open}
             onOpenChange={setOpen}
         >
-            <DialogTrigger
-                render={
-                    <Button>
-                        <Plus className="mr-2 h-4" />
-                        Add Payment Method
-                    </Button>
-                }
-            />
+            <PermissionGuard permission="payment-methods.create">
+                <DialogTrigger
+                    render={
+                        <Button>
+                            <Plus className="mr-2 h-4" />
+                            Add Payment Method
+                        </Button>
+                    }
+                />
+            </PermissionGuard>
+           
 
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>

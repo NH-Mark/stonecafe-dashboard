@@ -27,6 +27,7 @@ import {
 import { Modifier } from "@/types/modifier";
 import EditModifierDialog from "./EditModifierDialog";
 import DeleteModifierDialog from "./DeleteModifierDialog";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 
 interface Props {
@@ -82,33 +83,37 @@ export default function ModifierActions({
 
                 <DropdownMenuContent align="end">
 
+                     <PermissionGuard permission="menu.update">
+                        <DropdownMenuItem
+                            onClick={() =>
+                                setEditOpen(true)
+                            }
+                        >
 
-                    <DropdownMenuItem
-                        onClick={() =>
-                            setEditOpen(true)
-                        }
-                    >
+                            <Pencil className="mr-2 h-4 w-4" />
 
-                        <Pencil className="mr-2 h-4 w-4" />
+                            Edit
 
-                        Edit
-
-                    </DropdownMenuItem>
+                        </DropdownMenuItem>
+                     </PermissionGuard>
+                    
 
 
+                    <PermissionGuard permission="menu.delete">
+                        <DropdownMenuItem
+                            onClick={() =>
+                                setDeleteOpen(true)
+                            }
+                        >
 
-                    <DropdownMenuItem
-                        onClick={() =>
-                            setDeleteOpen(true)
-                        }
-                    >
+                            <Trash2 className="mr-2 h-4 w-4" />
 
-                        <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
 
-                        Delete
+                        </DropdownMenuItem>
 
-                    </DropdownMenuItem>
-
+                    </PermissionGuard>
+                   
 
 
                 </DropdownMenuContent>

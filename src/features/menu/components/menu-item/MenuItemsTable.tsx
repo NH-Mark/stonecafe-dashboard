@@ -16,6 +16,7 @@ import { getMenuItems } from "../../menu.service";
 import { menuItemColumns } from "./MenuItemColumns";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 interface ModifierResponse {
 data: MenuItem[];
@@ -232,17 +233,19 @@ export default function ModifierTable({
                     </h2>
                 </div>
                 
-
-                <Button
-                    nativeButton={false}
-                    render={
-                        <Link href="/menu/create">
-                            New Menu Item
-                        </Link>
-                    }
-                >
-                    New Menu Item
-                </Button>
+                <PermissionGuard permission="menu.create">
+                    <Button
+                        nativeButton={false}
+                        render={
+                            <Link href="/menu/create">
+                                New Menu Item
+                            </Link>
+                        }
+                    >
+                        New Menu Item
+                    </Button>
+                </PermissionGuard>
+                
             </div>
          
             {/* ========================================

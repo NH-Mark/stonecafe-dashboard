@@ -40,6 +40,7 @@ import { Role } from "@/types/role";
 import { Location } from "@/types/location";
 import { applyApiErrors } from "@/lib/form-errors";
 import { toast } from "sonner";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 
 
@@ -120,15 +121,17 @@ export default function CreateStaffDialog({
             onOpenChange={setOpen}
         >
 
-
-            <DialogTrigger
-                render={
-                    <Button>
-                        <Plus className="mr-2 h-4" />
-                        Add Staff
-                    </Button>
-                }
-            />
+            <PermissionGuard permission="users.create">
+                <DialogTrigger
+                    render={
+                        <Button>
+                            <Plus className="mr-2 h-4" />
+                            Add Staff
+                        </Button>
+                    }
+                />
+            </PermissionGuard>
+            
 
 
 

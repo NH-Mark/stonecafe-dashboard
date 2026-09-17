@@ -22,6 +22,7 @@ import EditRoleDialog from "./EditRoleDialog";
 import { Role } from "@/types/role";
 import { Permission } from "@/types/permission";
 import DeleteRoleDialog from "./DeleteRoleDialog";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 
 interface Props {
@@ -67,29 +68,33 @@ export default function RoleActions({
         <DropdownMenuContent
           align="end"
         >
+          <PermissionGuard permission="users.update">
+             <DropdownMenuItem
+              onClick={() => setEditOpen(true)}
+            >
 
-          <DropdownMenuItem
-            onClick={() => setEditOpen(true)}
-          >
+              <Pencil className="mr-2 h-4 w-4" />
 
-            <Pencil className="mr-2 h-4 w-4" />
+              Edit
 
-            Edit
-
-          </DropdownMenuItem>
+            </DropdownMenuItem>
+          </PermissionGuard>
+         
 
 
+          <PermissionGuard permission="users.delete">
+            <DropdownMenuItem
+              onClick={() => setDeleteOpen(true)}
+              className="text-destructive"
+            >
 
-          <DropdownMenuItem
-            onClick={() => setDeleteOpen(true)}
-            className="text-destructive"
-          >
+              <Trash2 className="mr-2 h-4 w-4" />
 
-            <Trash2 className="mr-2 h-4 w-4" />
+              Delete
 
-            Delete
-
-          </DropdownMenuItem>
+            </DropdownMenuItem>
+          </PermissionGuard>
+         
 
 
         </DropdownMenuContent>

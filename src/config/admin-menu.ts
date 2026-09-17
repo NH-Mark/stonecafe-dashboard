@@ -96,36 +96,36 @@ export const adminMenu: AdminMenuItem[] = [
             //         },
             //     ],
             // },
-            {
-                title: "Customers",
-                href: "/sales/customers",
-                icon: Users,
-                permission: "sales.customers.view",
-            },
+            // {
+            //     title: "Customers",
+            //     href: "/sales/customers",
+            //     icon: Users,
+            //     permission: "sales.customers.view",
+            // },
 
 
-            {
-                title: "Refunds",
-                href: "/sales/refunds",
-                icon: RotateCcw,
-                permission: "sales.refunds.view",
-            },
+            // {
+            //     title: "Refunds",
+            //     href: "/sales/refunds",
+            //     icon: RotateCcw,
+            //     permission: "sales.refunds.view",
+            // },
 
 
-            {
-                title: "Discounts",
-                href: "/sales/discounts",
-                icon: BadgePercent,
-                permission: "sales.discounts.view",
-            },
+            // {
+            //     title: "Discounts",
+            //     href: "/sales/discounts",
+            //     icon: BadgePercent,
+            //     permission: "sales.discounts.view",
+            // },
 
 
-            {
-                title: "Settings",
-                href: "/sales/settings",
-                icon: Settings,
-                permission: "sales.settings.view",
-            },
+            // {
+            //     title: "Settings",
+            //     href: "/sales/settings",
+            //     icon: Settings,
+            //     permission: "sales.settings.view",
+            // },
 
         ],
     },

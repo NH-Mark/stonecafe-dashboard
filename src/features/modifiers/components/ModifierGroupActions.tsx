@@ -32,6 +32,7 @@ import {
 import { ModifierGroup } from "@/types/modifier-group";
 import EditModifierGroupDialog from "./EditModifierGroupDialog";
 import DeleteModifierGroupDialog from "./DeleteModifierGroupDialog";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 
 interface Props {
@@ -84,34 +85,38 @@ export default function ModifierGroupActions({
 
                 <DropdownMenuContent align="end">
 
+                    <PermissionGuard permission="menu.update">
+                        <DropdownMenuItem
 
-                    <DropdownMenuItem
+                            onClick={() => setEditOpen(true)}
 
-                        onClick={() => setEditOpen(true)}
+                        >
 
-                    >
+                            <Pencil className="mr-2 h-4 w-4" />
 
-                        <Pencil className="mr-2 h-4 w-4" />
+                            Edit
 
-                        Edit
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                    
 
-                    </DropdownMenuItem>
 
+                    <PermissionGuard permission="menu.delete">
+                        <DropdownMenuItem
 
+                            className="text-destructive"
 
-                    <DropdownMenuItem
+                            onClick={() => setDeleteOpen(true)}
 
-                        className="text-destructive"
+                        >
 
-                        onClick={() => setDeleteOpen(true)}
+                            <Trash2 className="mr-2 h-4 w-4" />
 
-                    >
+                            Delete
 
-                        <Trash2 className="mr-2 h-4 w-4" />
-
-                        Delete
-
-                    </DropdownMenuItem>
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                    
 
 
                 </DropdownMenuContent>

@@ -20,6 +20,7 @@ import {
 import { PaymentMethod } from "@/types/payment-method";
 import EditPaymentMethodDialog from "./EditPaymentMethodDialog";
 import DeletePaymentMethodDialog from "./DeletePaymentMethodDialog";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 interface Props {
   paymentMethod: PaymentMethod;
@@ -51,20 +52,23 @@ export default function PaymentMethodActions({
                 />
 
                 <DropdownMenuContent align="end">
-
-                    <DropdownMenuItem
-                        onClick={() => setEditOpen(true)}
-                    >
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                        onClick={() => setDeleteOpen(true)}
-                    >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                    </DropdownMenuItem>
+                    <PermissionGuard permission="payment-methods.update">
+                        <DropdownMenuItem
+                            onClick={() => setEditOpen(true)}
+                        >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                    <PermissionGuard permission="payment-methods.delete">
+                        <DropdownMenuItem
+                            onClick={() => setDeleteOpen(true)}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                    
 
                 </DropdownMenuContent>
 

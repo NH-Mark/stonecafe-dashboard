@@ -22,6 +22,7 @@ import {
 import { MenuItem } from "@/types/menu-item";
 import DeleteMenuItemDialog from "./DeleteMenuItemDialog";
 import { useState } from "react";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 
 interface Props {
@@ -56,7 +57,8 @@ export default function MenuItemActions({
                 />
 
                 <DropdownMenuContent align="end">
-
+                
+                <PermissionGuard permission="menu.update">
                     <DropdownMenuItem
                         onClick={() =>
                             router.push(`/menu/${menuItem.id}`)
@@ -65,8 +67,10 @@ export default function MenuItemActions({
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                     </DropdownMenuItem>
+                </PermissionGuard>
+                   
 
-
+                <PermissionGuard permission="menu.delete">
                     <DropdownMenuItem
                         onClick={() =>
                             setDeleteOpen(true)
@@ -75,6 +79,8 @@ export default function MenuItemActions({
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                     </DropdownMenuItem>
+                </PermissionGuard>
+                  
 
                 </DropdownMenuContent>
 

@@ -48,6 +48,7 @@ import {
     LocationFormValues,
     locationSchema
 } from "../location.schema";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 
 
@@ -140,18 +141,20 @@ export default function CreateLocationDialog({
             onOpenChange={setOpen}
         >
 
+            <PermissionGuard permission="locations.create">
+                <DialogTrigger
+                    render={
+                        <Button>
 
-            <DialogTrigger
-                render={
-                    <Button>
+                            <Plus className="mr-2 h-4" />
 
-                        <Plus className="mr-2 h-4" />
+                            Add Location
 
-                        Add Location
-
-                    </Button>
-                }
-            />
+                        </Button>
+                    }
+                />
+            </PermissionGuard>
+           
 
 
 

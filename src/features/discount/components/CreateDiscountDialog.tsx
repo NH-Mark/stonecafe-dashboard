@@ -48,6 +48,7 @@ import {
 import {
     createDiscount,
 } from "../discount.service";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 interface Props {
     onSuccess: () => Promise<void>;
@@ -104,14 +105,17 @@ export default function CreateDiscountDialog({
             open={open}
             onOpenChange={setOpen}
         >
-            <DialogTrigger
-                render={
-                    <Button>
-                        <Plus className="mr-2 h-4" />
-                        Add Discount
-                    </Button>
-                }
-            />
+            <PermissionGuard permission="discounts.create">
+                <DialogTrigger
+                    render={
+                        <Button>
+                            <Plus className="mr-2 h-4" />
+                            Add Discount
+                        </Button>
+                    }
+                />
+            </PermissionGuard>
+            
 
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>

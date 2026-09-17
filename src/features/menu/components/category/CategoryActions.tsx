@@ -31,6 +31,7 @@ import {
 } from "react";
 import EditCategoryDialog from "./EditCategoryDialog";
 import DeleteCategoryDialog from "./DeleteCategoryDialog";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 
 interface Props {
@@ -85,34 +86,37 @@ export default function CategoryActions({
 
                 <DropdownMenuContent align="end">
 
+                    <PermissionGuard permission="menu.update"> 
+                        <DropdownMenuItem
 
-                    <DropdownMenuItem
+                            onClick={() => setEditOpen(true)}
 
-                        onClick={() => setEditOpen(true)}
-
-                    >
+                        >
 
                         <Pencil className="mr-2 h-4 w-4" />
 
                         Edit
 
-                    </DropdownMenuItem>
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                  
 
 
+                    <PermissionGuard permission="menu.delete"> 
+                        <DropdownMenuItem
 
-                    <DropdownMenuItem
+                            className="text-destructive"
 
-                        className="text-destructive"
+                            onClick={() => setDeleteOpen(true)}
 
-                        onClick={() => setDeleteOpen(true)}
+                        >
 
-                    >
+                            <Trash2 className="mr-2 h-4 w-4" />
 
-                        <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
 
-                        Delete
-
-                    </DropdownMenuItem>
+                        </DropdownMenuItem>
+                    </PermissionGuard>
 
 
                 </DropdownMenuContent>

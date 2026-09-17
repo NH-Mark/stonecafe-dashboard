@@ -48,7 +48,7 @@ export default function OrderActions({
                         <Eye className="mr-2 h-4 w-4" />
                         View
                     </DropdownMenuItem>
-                      <DropdownMenuItem
+                      {/* <DropdownMenuItem
                         onClick={() => setOrderStatusOpen(true)}
                     >
                         <Package className="mr-2 h-4 w-4" />
@@ -62,7 +62,7 @@ export default function OrderActions({
                             <CreditCard className="mr-2 h-4 w-4 shrink-0" />
                             Receive Payment
                         </DropdownMenuItem>
-                    )}
+                    )} */}
                     </DropdownMenuContent>
             </DropdownMenu>
 

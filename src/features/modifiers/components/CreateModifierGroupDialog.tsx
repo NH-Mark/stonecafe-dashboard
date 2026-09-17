@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { applyApiErrors } from "@/lib/form-errors";
 import { ModifierGroupFormValues, modifierGroupSchema } from "../modifier-group.schema";
 import { createModifierGroup } from "../modifier.service";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 interface Props {
     onSuccess: () => Promise<void>;
@@ -68,14 +69,17 @@ export default function CreateModifierGroupDialog({
             open={open}
             onOpenChange={setOpen}
         >
-            <DialogTrigger
-                render={
-                    <Button>
-                        <Plus className="h-4 w-4" />
-                        New Modifier Group
-                    </Button>
-                }
-            />
+            <PermissionGuard permission="menu.create">
+                <DialogTrigger
+                    render={
+                        <Button>
+                            <Plus className="h-4 w-4" />
+                            New Modifier Group
+                        </Button>
+                    }
+                />
+            </PermissionGuard>
+            
 
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>

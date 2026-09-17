@@ -30,6 +30,7 @@ import { applyApiErrors } from "@/lib/form-errors";
 import { CategoryFormValues, categorySchema } from "../../category.schema";
 import { Category } from "@/types/category";
 import ImageUploader from "@/components/common/ImageUploader";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 interface Props {
     onSuccess: () => Promise<void>;
@@ -78,15 +79,17 @@ export default function CreateCategoryDialog({
             open={open}
             onOpenChange={setOpen}
         >
-            <DialogTrigger
-                render={
-                    <Button>
-                        <Plus className="h-4 w-4" />
-                        New Category
-                    </Button>
-                }
-            />
-
+            <PermissionGuard permission="menu.create">
+                <DialogTrigger
+                    render={
+                        <Button>
+                            <Plus className="h-4 w-4" />
+                            New Category
+                        </Button>
+                    }
+                />
+            </PermissionGuard>
+          
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>

@@ -22,6 +22,7 @@ import {
 import { Role } from "@/types/role";
 import { User } from "@/types/user";
 import { Location } from "@/types/location";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 interface Props {
    user: User;
@@ -57,20 +58,24 @@ export default function StaffActions({
                 />
 
                 <DropdownMenuContent align="end">
-
-                    <DropdownMenuItem
-                        onClick={() => setEditOpen(true)}
-                    >
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                        onClick={() => setDeleteOpen(true)}
-                    >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                    </DropdownMenuItem>
+                    <PermissionGuard permission="users.update">
+                        <DropdownMenuItem
+                            onClick={() => setEditOpen(true)}
+                        >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                        
+                    <PermissionGuard permission="users.delete">
+                        <DropdownMenuItem
+                            onClick={() => setDeleteOpen(true)}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                  
 
                 </DropdownMenuContent>
 

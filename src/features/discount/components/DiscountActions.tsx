@@ -20,6 +20,7 @@ import {
 import { Discount } from "@/types/discount";
 import EditDiscountDialog from "./EditDiscountDialog";
 import DeleteDiscountDialog from "./DeleteDiscountDialog";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 interface Props {
   discount: Discount;
@@ -51,20 +52,24 @@ export default function DiscountActions({
                 />
 
                 <DropdownMenuContent align="end">
-
-                    <DropdownMenuItem
-                        onClick={() => setEditOpen(true)}
-                    >
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                        onClick={() => setDeleteOpen(true)}
-                    >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                    </DropdownMenuItem>
+                    <PermissionGuard permission="discounts.update">
+                        <DropdownMenuItem
+                            onClick={() => setEditOpen(true)}
+                        >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                    
+                    <PermissionGuard permission="discounts.delete">
+                        <DropdownMenuItem
+                            onClick={() => setDeleteOpen(true)}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+                    
 
                 </DropdownMenuContent>
 
