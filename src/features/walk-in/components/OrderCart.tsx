@@ -190,7 +190,7 @@ export function OrderCart({
         savedLineIds,
     } = order;
 
-    kitchenStatus !== "pending";
+    
     /*
     |--------------------------------------------------------------------------
     | Saved line IDs

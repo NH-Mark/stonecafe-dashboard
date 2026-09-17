@@ -183,6 +183,15 @@ function sameModifiers(
     );
 }
 
+function isKitchenLocked(
+    order: LocalOrder
+): boolean {
+    return (
+        !order.id.startsWith("new-") &&
+        order.kitchenStatus !== "pending"
+    );
+}
+
 /*
 |--------------------------------------------------------------------------
 | Store
@@ -323,6 +332,11 @@ export const useOrderStore = create<OrderStore>(
                             isActive
                                 ? nextOrder.status
                                 : state.status,
+
+                        kitchenStatus:
+                            isActive
+                                ? nextOrder.kitchenStatus
+                                : state.kitchenStatus,
                     };
                 }
 
@@ -782,6 +796,11 @@ export const useOrderStore = create<OrderStore>(
                         isActive
                             ? newOrder.status
                             : state.status,
+
+                    kitchenStatus:
+                        isActive
+                            ? newOrder.kitchenStatus
+                            : state.kitchenStatus,
                 };
             });
         },
@@ -861,6 +880,9 @@ export const useOrderStore = create<OrderStore>(
                     status:
                         activeOrder?.status ??
                         "draft",
+                    kitchenStatus:
+                        activeOrder?.kitchenStatus ??
+                        "pending",
                 };
             });
         },
@@ -892,6 +914,7 @@ export const useOrderStore = create<OrderStore>(
 
                 status:
                     "draft",
+                kitchenStatus: "pending",
             });
         },
 
@@ -1086,6 +1109,13 @@ export const useOrderStore = create<OrderStore>(
 
                 if (!active) {
                     return state;
+                }   
+                if (isKitchenLocked(active)) {
+                    console.warn(
+                        `Cannot add item. Order ${active.orderNo} is already ${active.kitchenStatus}.`
+                    );
+
+                    return state;
                 }
 
                 const existing =
@@ -1173,6 +1203,9 @@ export const useOrderStore = create<OrderStore>(
                     ];
 
                 if (!active) {
+                    return state;
+                }
+                if (isKitchenLocked(active)) {
                     return state;
                 }
 
@@ -1293,6 +1326,9 @@ export const useOrderStore = create<OrderStore>(
                 if (!active) {
                     return state;
                 }
+                if (isKitchenLocked(active)) {
+                    return state;
+                }
 
                 const nextCart =
                     active.cart
@@ -1360,6 +1396,9 @@ export const useOrderStore = create<OrderStore>(
                     ];
 
                 if (!active) {
+                    return state;
+                }
+                if (isKitchenLocked(active)) {
                     return state;
                 }
 

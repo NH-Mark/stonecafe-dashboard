@@ -138,7 +138,7 @@ export function useKitchenOrders() {
 
                     const updatedOrder =
                         await getKitchenOrder(orderId)
-
+                    console.log( updatedOrder.kitchen_status);
                     updateKitchenStatus(
                         String(updatedOrder.id),
                         updatedOrder.kitchen_status
