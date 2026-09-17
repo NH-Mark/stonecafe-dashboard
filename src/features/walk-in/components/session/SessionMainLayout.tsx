@@ -35,6 +35,7 @@ import {
     ShoppingCart,
     X,
 } from "lucide-react";
+import { useOrderKitchenSync } from "../../hooks/useOrderKitchenSync";
 
 interface SessionMainLayoutProps {
     sessionId: number;
@@ -66,6 +67,8 @@ export function SessionMainLayout({
     activeOrderNo,
     onOrderSaved,
 }: SessionMainLayoutProps) {
+    useOrderKitchenSync();
+
 
     const [
         categoryOpen,
