@@ -19,11 +19,6 @@ export type OrderStatus =
     | "completed"
     | "cancelled";
 
-export type KitchenStatus =
-    | "pending"
-    | "preparing"
-    | "ready";
-
 export interface OrderDiscount {
     id: number;
     name: string;
@@ -42,7 +37,6 @@ export interface LocalOrder {
     orderDiscount: OrderDiscount | null;
 
     status: OrderStatus;
-    kitchenStatus: KitchenStatus;
 
     isNew: boolean;
 
@@ -144,13 +138,6 @@ interface OrderStore {
         orderId: string,
         lineIds: string[]
     ) => void;
-
-    kitchenStatus: KitchenStatus;
-
-    updateKitchenStatus: (
-        orderId: string,
-        kitchenStatus: KitchenStatus
-    ) => void;
 }
 
 /*
@@ -183,15 +170,6 @@ function sameModifiers(
     );
 }
 
-function isKitchenLocked(
-    order: LocalOrder
-): boolean {
-    return (
-        !order.id.startsWith("new-") &&
-        order.kitchenStatus !== "pending"
-    );
-}
-
 /*
 |--------------------------------------------------------------------------
 | Store
@@ -220,7 +198,6 @@ export const useOrderStore = create<OrderStore>(
         orderDiscount: null,
 
         status: "draft",
-        kitchenStatus: "pending",
 
         /*
         |--------------------------------------------------------------------------
@@ -286,11 +263,6 @@ export const useOrderStore = create<OrderStore>(
                             initialData?.savedLineIds ??
                             existing.savedLineIds ??
                             [],
-
-                        kitchenStatus:
-                            initialData?.kitchenStatus ??
-                            existing.kitchenStatus ??
-                            "pending",
                     };
 
                     const isActive =
@@ -332,11 +304,6 @@ export const useOrderStore = create<OrderStore>(
                             isActive
                                 ? nextOrder.status
                                 : state.status,
-
-                        kitchenStatus:
-                            isActive
-                                ? nextOrder.kitchenStatus
-                                : state.kitchenStatus,
                     };
                 }
 
@@ -370,9 +337,6 @@ export const useOrderStore = create<OrderStore>(
                     status:
                         initialData?.status ??
                         "draft",
-
-                    kitchenStatus:
-                        initialData?.kitchenStatus ?? "pending",
 
                     isNew:
                         initialData?.isNew ??
@@ -424,10 +388,6 @@ export const useOrderStore = create<OrderStore>(
                         shouldActivate
                             ? order.status
                             : state.status,
-                    kitchenStatus:
-                        shouldActivate
-                            ? order.kitchenStatus
-                            : state.kitchenStatus,
                 };
             });
         },
@@ -508,9 +468,6 @@ export const useOrderStore = create<OrderStore>(
 
                     status:
                         order.status ?? "draft",
-
-                    kitchenStatus:
-                        order.kitchenStatus ?? "pending",
                 };
             });
         },
@@ -540,7 +497,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
 
                 if (!active) {
@@ -800,11 +757,6 @@ export const useOrderStore = create<OrderStore>(
                         isActive
                             ? newOrder.status
                             : state.status,
-
-                    kitchenStatus:
-                        isActive
-                            ? newOrder.kitchenStatus
-                            : state.kitchenStatus,
                 };
             });
         },
@@ -845,7 +797,7 @@ export const useOrderStore = create<OrderStore>(
                     nextActiveId =
                         remaining.length > 0
                             ? remaining[
-                            remaining.length - 1
+                                remaining.length - 1
                             ]
                             : null;
                 }
@@ -853,7 +805,7 @@ export const useOrderStore = create<OrderStore>(
                 const activeOrder =
                     nextActiveId
                         ? nextOrders[
-                        nextActiveId
+                            nextActiveId
                         ]
                         : null;
 
@@ -884,9 +836,6 @@ export const useOrderStore = create<OrderStore>(
                     status:
                         activeOrder?.status ??
                         "draft",
-                    kitchenStatus:
-                        activeOrder?.kitchenStatus ??
-                        "pending",
                 };
             });
         },
@@ -918,7 +867,6 @@ export const useOrderStore = create<OrderStore>(
 
                 status:
                     "draft",
-                kitchenStatus: "pending",
             });
         },
 
@@ -946,7 +894,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1002,7 +950,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1056,7 +1004,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1108,19 +1056,10 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
-                console.log("active");
-                console.log(active);
 
                 if (!active) {
-                    return state;
-                }
-                if (isKitchenLocked(active)) {
-                    console.warn(
-                        `Cannot add item. Order ${active.orderNo} is already ${active.kitchenStatus}.`
-                    );
-
                     return state;
                 }
 
@@ -1128,13 +1067,13 @@ export const useOrderStore = create<OrderStore>(
                     active.cart.find(
                         item =>
                             item.menuItem.id ===
-                            newItem.menuItem.id &&
+                                newItem.menuItem.id &&
                             sameModifiers(
                                 item.modifiers,
                                 newItem.modifiers
                             ) &&
                             item.note ===
-                            newItem.note
+                                newItem.note
                     );
 
                 let nextCart: CartItem[];
@@ -1145,7 +1084,7 @@ export const useOrderStore = create<OrderStore>(
                         active.cart.map(
                             item =>
                                 item.lineId ===
-                                    existing.lineId
+                                existing.lineId
                                     ? {
                                         ...item,
 
@@ -1205,13 +1144,10 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
 
                 if (!active) {
-                    return state;
-                }
-                if (isKitchenLocked(active)) {
                     return state;
                 }
 
@@ -1263,7 +1199,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1274,7 +1210,7 @@ export const useOrderStore = create<OrderStore>(
                     active.cart.map(
                         item =>
                             item.lineId ===
-                                lineId
+                            lineId
                                 ? {
                                     ...item,
 
@@ -1326,13 +1262,10 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
 
                 if (!active) {
-                    return state;
-                }
-                if (isKitchenLocked(active)) {
                     return state;
                 }
 
@@ -1341,7 +1274,7 @@ export const useOrderStore = create<OrderStore>(
                         .map(
                             item =>
                                 item.lineId ===
-                                    lineId
+                                lineId
                                     ? {
                                         ...item,
 
@@ -1398,13 +1331,10 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
 
                 if (!active) {
-                    return state;
-                }
-                if (isKitchenLocked(active)) {
                     return state;
                 }
 
@@ -1412,7 +1342,7 @@ export const useOrderStore = create<OrderStore>(
                     active.cart.map(
                         item =>
                             item.lineId ===
-                                lineId
+                            lineId
                                 ? {
                                     ...item,
                                     ...data,
@@ -1462,7 +1392,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1473,7 +1403,7 @@ export const useOrderStore = create<OrderStore>(
                     active.cart.map(
                         item =>
                             item.lineId ===
-                                lineId
+                            lineId
                                 ? {
                                     ...item,
                                     discount,
@@ -1522,7 +1452,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1533,7 +1463,7 @@ export const useOrderStore = create<OrderStore>(
                     active.cart.map(
                         item =>
                             item.lineId ===
-                                lineId
+                            lineId
                                 ? {
                                     ...item,
                                     discount: null,
@@ -1593,7 +1523,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                    state.activeOrderId
+                        state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1697,52 +1627,5 @@ export const useOrderStore = create<OrderStore>(
                 };
             });
         },
-       updateKitchenStatus: (orderId, kitchenStatus) => {
-    set(state => {
-        const id = String(orderId);
-
-        console.log("🔥 Updating kitchen order:", {
-            receivedId: id,
-            activeOrderId: state.activeOrderId,
-            orderKeys: Object.keys(state.orders),
-            kitchenStatus,
-        });
-
-        const order = state.orders[id];
-
-        if (!order) {
-            console.warn(
-                `❌ Order ${id} does not exist in Zustand.`,
-                {
-                    availableOrders: Object.keys(state.orders),
-                    activeOrderId: state.activeOrderId,
-                }
-            );
-
-            return state;
-        }
-
-        const updatedOrder: LocalOrder = {
-            ...order,
-            kitchenStatus,
-        };
-
-        const isActive =
-            state.activeOrderId === id;
-
-        return {
-            orders: {
-                ...state.orders,
-                [id]: updatedOrder,
-            },
-
-            kitchenStatus:
-                isActive
-                    ? kitchenStatus
-                    : state.kitchenStatus,
-        };
-    });
-},
     })
-
 );

@@ -186,11 +186,9 @@ export function OrderCart({
         orderDiscount,
         orderNote,
         status,
-        kitchenStatus,
         savedLineIds,
     } = order;
 
-    
     /*
     |--------------------------------------------------------------------------
     | Saved line IDs
@@ -298,10 +296,6 @@ export function OrderCart({
         status === "completed" ||
         status === "cancelled";
 
-    const isKitchenLocked =
-    !isDraft &&
-    kitchenStatus !== "pending";
-
     /*
     |--------------------------------------------------------------------------
     | Send To Kitchen
@@ -314,17 +308,6 @@ export function OrderCart({
         : orderType;
 
     async function handleSendToKitchen() {
-        console.log(kitchenStatus);
-         if (
-                !isDraft &&
-                kitchenStatus !== "pending"
-            ) {
-                toast.error(
-                    "This order is already being prepared. You cannot add new items."
-                );
-
-                return;
-            }
         if (cart.length === 0) {
             toast.error(
                 "Add at least one item."
@@ -1076,22 +1059,20 @@ export function OrderCart({
                         </Button>
                     ) : hasUnsavedItems ? (
                         <Button
-                            disabled={saving || isKitchenLocked}
+                            disabled={saving}
                             onClick={handleSendToKitchen}
                             className="
-                                h-12
-                                w-full
-                                rounded-xl
-                                text-base
-                            "
+                    h-12
+                    w-full
+                    rounded-xl
+                    text-base
+                "
                         >
                             {saving
                                 ? "Sending to Kitchen..."
                                 : isDraft
                                     ? "Send to Kitchen"
-                                    : isKitchenLocked
-                                        ? "Kitchen is Preparing"
-                                        : "Send New Items"}
+                                    : "Send New Items"}
                         </Button>
                     ) : (
                         <Button

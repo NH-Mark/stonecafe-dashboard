@@ -72,6 +72,7 @@ import {
 import {
     Header,
 } from "@/features/walk-in/components/Header";
+import { useKitchenOrderStore } from "@/features/walk-in/store/useKitchenOrderStore";
 
 /*
 |--------------------------------------------------------------------------
@@ -159,6 +160,11 @@ interface ApiSessionOrder {
         | "completed"
         | "cancelled";
 
+    kitchen_status:
+        | "pending"
+        | "preparing"
+        | "ready";
+
     total: number;
 
     createdAt: string;
@@ -183,6 +189,11 @@ export default function DiningSessionPage() {
 
     const sessionId = Number(
         params.id
+    );
+
+    const setKitchenStatus =
+    useKitchenOrderStore(
+        state => state.setKitchenStatus
     );
 
     /*
@@ -828,6 +839,7 @@ export default function DiningSessionPage() {
                             status:
                                 order.status,
 
+
                             isNew:
                                 false,
 
@@ -837,6 +849,11 @@ export default function DiningSessionPage() {
                                         item.lineId
                                 ),
                         }
+                    );
+
+                    setKitchenStatus(
+                        String(order.id),
+                        order.kitchen_status
                     );
                 }
             );

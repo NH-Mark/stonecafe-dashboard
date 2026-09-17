@@ -31,6 +31,7 @@ import {
 import {
     DiscountDialog,
 } from "./discount/DiscountDialog";
+import { useOrderKitchenStatus } from "../hooks/useOrderKitchenStatus";
 
 
 export function OrderItem({
@@ -48,6 +49,8 @@ export function OrderItem({
     | Store
     |--------------------------------------------------------------------------
     */
+
+   
 
     const increaseQty =
         useOrderStore(
@@ -98,6 +101,18 @@ export function OrderItem({
                 ];
             }
         );
+
+    const activeOrderId = useOrderStore(
+        state => state.activeOrderId
+    );
+
+    const kitchenStatus = useOrderKitchenStatus(
+        activeOrderId
+    );
+
+    const isKitchenLocked =
+        kitchenStatus === "preparing" ||
+        kitchenStatus === "ready";
 
 
     /*
@@ -526,7 +541,7 @@ export function OrderItem({
 
 
                     <Button
-
+                        disabled={isKitchenLocked}
                         size="icon"
 
                         variant="outline"
