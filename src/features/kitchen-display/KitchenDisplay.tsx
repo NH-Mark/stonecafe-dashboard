@@ -21,7 +21,7 @@ export function KitchenDisplay(){
 
      const {
         orders,
-        highlightedOrders,
+        newItemIds,
     } = useKitchenOrders()
 
 
@@ -182,7 +182,7 @@ export function KitchenDisplay(){
 
                  <KitchenBoard
                     orders={orders}
-                    highlightedOrders={highlightedOrders}
+                    newItemIds={newItemIds}
                 />
             </main>
 

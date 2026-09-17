@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
 import { getEcho } from "@/lib/echo"
 
 import {
@@ -13,10 +12,7 @@ import { KitchenOrder } from "../kitchen.types"
 
 export function useKitchenOrders() {
     const [orders, setOrders] = useState<KitchenOrder[]>([])
-
-    // Orders that recently received new/updated items
-    const [highlightedOrders, setHighlightedOrders] =
-        useState<number[]>([])
+    const [newItemIds, setNewItemIds] = useState<number[]>([])
 
     useEffect(() => {
         let mounted = true
@@ -79,22 +75,26 @@ export function useKitchenOrders() {
                         return [...prev, newOrder]
                     })
 
-                    // Highlight new order
-                    setHighlightedOrders((prev) =>
-                        prev.includes(orderId)
-                            ? prev
-                            : [...prev, orderId]
+                    // Highlight all items of a completely new order
+                    const itemIds = newOrder.items.map(
+                        (item) => item.id
                     )
 
-                    // Remove highlight after 5 seconds
+                    setNewItemIds((prev) => [
+                        ...prev,
+                        ...itemIds.filter(
+                            (id) => !prev.includes(id)
+                        ),
+                    ])
+
                     setTimeout(() => {
                         if (!mounted) {
                             return
                         }
 
-                        setHighlightedOrders((prev) =>
+                        setNewItemIds((prev) =>
                             prev.filter(
-                                (id) => id !== orderId
+                                (id) => !itemIds.includes(id)
                             )
                         )
                     }, 5000)
@@ -128,6 +128,32 @@ export function useKitchenOrders() {
                         return
                     }
 
+                    // Find the previous version of this order
+                    const previousOrder =
+                        orders.find(
+                            (order) =>
+                                order.id === orderId
+                        )
+
+                    // Find items that did not exist before
+                    const previousItemIds =
+                        previousOrder?.items.map(
+                            (item) => item.id
+                        ) ?? []
+
+                    const addedItemIds =
+                        updatedOrder.items
+                            .filter(
+                                (item) =>
+                                    !previousItemIds.includes(
+                                        item.id
+                                    )
+                            )
+                            .map(
+                                (item) => item.id
+                            )
+
+                    // Update order
                     setOrders((prev) =>
                         prev.map((item) =>
                             item.id === updatedOrder.id
@@ -136,25 +162,31 @@ export function useKitchenOrders() {
                         )
                     )
 
-                    // Highlight updated order
-                    setHighlightedOrders((prev) =>
-                        prev.includes(orderId)
-                            ? prev
-                            : [...prev, orderId]
-                    )
+                    // Highlight newly added items
+                    if (addedItemIds.length > 0) {
+                        setNewItemIds((prev) => [
+                            ...prev,
+                            ...addedItemIds.filter(
+                                (id) =>
+                                    !prev.includes(id)
+                            ),
+                        ])
 
-                    // Remove highlight after 5 seconds
-                    setTimeout(() => {
-                        if (!mounted) {
-                            return
-                        }
+                        setTimeout(() => {
+                            if (!mounted) {
+                                return
+                            }
 
-                        setHighlightedOrders((prev) =>
-                            prev.filter(
-                                (id) => id !== orderId
+                            setNewItemIds((prev) =>
+                                prev.filter(
+                                    (id) =>
+                                        !addedItemIds.includes(
+                                            id
+                                        )
+                                )
                             )
-                        )
-                    }, 5000)
+                        }, 5000)
+                    }
                 } catch (error) {
                     console.error(
                         "Failed to fetch updated kitchen order:",
@@ -166,13 +198,12 @@ export function useKitchenOrders() {
 
         return () => {
             mounted = false
-
             echo.leave("kitchen")
         }
     }, [])
 
     return {
         orders,
-        highlightedOrders,
+        newItemIds,
     }
 }

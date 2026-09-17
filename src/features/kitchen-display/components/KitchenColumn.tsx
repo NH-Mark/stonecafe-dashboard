@@ -5,14 +5,14 @@ interface Props {
     title: string
     status: string
     orders: KitchenOrder[]
-    highlightedOrders: number[]
+    newItemIds: number[]
 }
 
 export function KitchenColumn({
     title,
     status,
     orders,
-    highlightedOrders,
+    newItemIds,
 }: Props) {
     const filteredOrders = orders.filter(
         (item) =>
@@ -83,9 +83,7 @@ export function KitchenColumn({
                     <KitchenOrderCard
                         key={order.id}
                         order={order}
-                        isHighlighted={highlightedOrders.includes(
-                            order.id
-                        )}
+                        newItemIds={newItemIds}
                     />
                 ))}
             </div>

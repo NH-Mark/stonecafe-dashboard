@@ -3,7 +3,7 @@ import { KitchenOrder as Order } from "../kitchen.types"
 
 interface Props {
     orders: Order[]
-    highlightedOrders: number[]
+    newItemIds: number[]
 }
 
 const columns = [
@@ -23,7 +23,7 @@ const columns = [
 
 export function KitchenBoard({
     orders,
-    highlightedOrders,
+    newItemIds,
 }: Props) {
     return (
         <div
@@ -41,7 +41,7 @@ export function KitchenBoard({
                     title={column.title}
                     status={column.status}
                     orders={orders}
-                    highlightedOrders={highlightedOrders}
+                    newItemIds={newItemIds}
                 />
             ))}
         </div>
