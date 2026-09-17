@@ -19,6 +19,11 @@ export type OrderStatus =
     | "completed"
     | "cancelled";
 
+export type KitchenStatus =
+    | "pending"
+    | "preparing"
+    | "ready";
+
 export interface OrderDiscount {
     id: number;
     name: string;
@@ -37,6 +42,7 @@ export interface LocalOrder {
     orderDiscount: OrderDiscount | null;
 
     status: OrderStatus;
+     kitchenStatus: KitchenStatus;
 
     isNew: boolean;
 
@@ -138,6 +144,13 @@ interface OrderStore {
         orderId: string,
         lineIds: string[]
     ) => void;
+
+    kitchenStatus: KitchenStatus;
+
+    updateKitchenStatus: (
+        orderId: string,
+        kitchenStatus: KitchenStatus
+    ) => void;
 }
 
 /*
@@ -198,6 +211,7 @@ export const useOrderStore = create<OrderStore>(
         orderDiscount: null,
 
         status: "draft",
+        kitchenStatus: "pending",
 
         /*
         |--------------------------------------------------------------------------
@@ -263,6 +277,11 @@ export const useOrderStore = create<OrderStore>(
                             initialData?.savedLineIds ??
                             existing.savedLineIds ??
                             [],
+
+                        kitchenStatus:
+                            initialData?.kitchenStatus ??
+                            existing.kitchenStatus ??
+                            "pending",
                     };
 
                     const isActive =
@@ -337,6 +356,9 @@ export const useOrderStore = create<OrderStore>(
                     status:
                         initialData?.status ??
                         "draft",
+
+                      kitchenStatus:
+                        initialData?.kitchenStatus ?? "pending",
 
                     isNew:
                         initialData?.isNew ??
@@ -468,6 +490,9 @@ export const useOrderStore = create<OrderStore>(
 
                     status:
                         order.status ?? "draft",
+
+                    kitchenStatus:
+                        order.kitchenStatus ?? "pending",
                 };
             });
         },
@@ -1627,5 +1652,45 @@ export const useOrderStore = create<OrderStore>(
                 };
             });
         },
+        updateKitchenStatus: (
+    orderId,
+    kitchenStatus
+) => {
+    set(state => {
+        const id = String(orderId);
+
+        const order = state.orders[id];
+
+        if (!order) {
+            console.warn(
+                `Cannot update kitchen status. Order ${id} does not exist in Zustand.`
+            );
+
+            return state;
+        }
+
+        const updatedOrder: LocalOrder = {
+            ...order,
+            kitchenStatus,
+        };
+
+        const isActive =
+            state.activeOrderId === id;
+
+        return {
+            orders: {
+                ...state.orders,
+
+                [id]: updatedOrder,
+            },
+
+            kitchenStatus:
+                isActive
+                    ? kitchenStatus
+                    : state.kitchenStatus,
+        };
+    });
+},
     })
+    
 );

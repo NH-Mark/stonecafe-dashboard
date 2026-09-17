@@ -9,6 +9,7 @@ import {
 } from "../services/kitchen.service"
 
 import { KitchenOrder } from "../kitchen.types"
+import { useOrderStore } from "@/features/walk-in/store/useOrderStore"
 
 export function useKitchenOrders() {
     const [orders, setOrders] = useState<KitchenOrder[]>([])
@@ -16,6 +17,11 @@ export function useKitchenOrders() {
 
     // Always contains the latest orders
     const ordersRef = useRef<KitchenOrder[]>([])
+
+    const updateKitchenStatus =
+        useOrderStore(
+            (state) => state.updateKitchenStatus
+        )
 
     useEffect(() => {
         let mounted = true
@@ -132,6 +138,11 @@ export function useKitchenOrders() {
 
                     const updatedOrder =
                         await getKitchenOrder(orderId)
+
+                    updateKitchenStatus(
+                        String(updatedOrder.id),
+                        updatedOrder.kitchen_status
+                    )
 
                     if (!mounted) {
                         return
