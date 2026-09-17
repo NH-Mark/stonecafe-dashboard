@@ -187,6 +187,7 @@ export function useKitchenOrders() {
                             )
                         }, 5000)
                     }
+                    console.log(newItemIds);
                 } catch (error) {
                     console.error(
                         "Failed to fetch updated kitchen order:",
