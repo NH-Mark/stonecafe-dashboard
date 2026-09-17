@@ -13,7 +13,24 @@ export function MenuItemCard({
 }) {
 
     const addItem = useOrderStore(state => state.addItem);
+    const kitchenStatus = useOrderStore(
+        state =>
+            state.activeOrderId
+                ? state.orders[state.activeOrderId]
+                    ?.kitchenStatus
+                : "pending"
+    );
 
+    const activeOrderId = useOrderStore(
+        state => state.activeOrderId
+    );
+
+    const isKitchenLocked =
+        !!activeOrderId &&
+        !activeOrderId.startsWith("new-") &&
+        kitchenStatus !== "pending";
+    console.log(kitchenStatus);
+    console.log(kitchenStatus);
     const openDialog = useModifierDialog(
         state => state.openDialog
     );
@@ -118,6 +135,12 @@ export function MenuItemCard({
                 <Button
 
                     onClick={() => {
+                        console.log("isKitchenLocked");
+                        console.log(isKitchenLocked);
+                        if (isKitchenLocked) {
+                            return;
+                        }
+
 
                         if (item.modifier_groups?.length) {
 

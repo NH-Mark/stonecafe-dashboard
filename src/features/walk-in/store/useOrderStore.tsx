@@ -1106,6 +1106,8 @@ export const useOrderStore = create<OrderStore>(
                     state.orders[
                         state.activeOrderId
                     ];
+                console.log("active");
+                 console.log(active);
 
                 if (!active) {
                     return state;
