@@ -35,3 +35,13 @@ export async function updateKitchenStatus(
     return response.data;
 
 }
+
+export async function getKitchenOrder(
+    orderId: number
+): Promise<KitchenOrder> {
+    const response = await api.get(
+        `/api/kitchen/orders/${orderId}`
+    )
+
+    return response.data.data ?? response.data
+}

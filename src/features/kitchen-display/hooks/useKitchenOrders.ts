@@ -1,164 +1,119 @@
-"use client";
+
+"use client"
+
+import { useEffect, useState } from "react"
+
+import { getEcho } from "@/lib/echo"
 
 
-import {
-    useEffect,
-    useState
-} from "react";
+import { getKitchenOrder, getKitchenOrders } from "../services/kitchen.service"
 
+import { KitchenOrder } from "../kitchen.types"
+import { getOrder } from "@/features/walk-in/orders.service"
 
-import { getEcho } from "@/lib/echo";
+export function useKitchenOrders() {
+    const [orders, setOrders] = useState<KitchenOrder[]>([])
 
-import { getKitchenOrders } from "../services/kitchen.service";
+    useEffect(() => {
+        let mounted = true
 
-import { KitchenOrder } from "../kitchen.types";
+        async function load() {
+            try {
+                const data = await getKitchenOrders()
 
-
-
-export function useKitchenOrders(){
-
-
-    const [orders,setOrders] =
-        useState<KitchenOrder[]>([]);
-
-
-
-    useEffect(()=>{
-
-
-        async function load(){
-
-            const data =
-                await getKitchenOrders();
-
-
-            setOrders(data);
-
+                if (mounted) {
+                    setOrders(data)
+                }
+            } catch (error) {
+                console.error(
+                    "Failed to load kitchen orders:",
+                    error
+                )
+            }
         }
 
+        void load()
 
-        load();
+        const echo = getEcho()
 
+        if (!echo) {
+            return
+        }
 
-
-        const echo =
-            getEcho();
-
-
-        if(!echo)
-            return;
-
-
-
-        const channel =
-            echo.channel("kitchen");
-
-
-
+        const channel = echo.channel("kitchen")
 
         // New Order
-
         channel.listen(
             ".order.created",
-            (event:any)=>{
+            async (event: { order_id: number }) => {
+                try {
+                    const orderId = event.order_id
 
+                    if (!orderId) {
+                        return
+                    }
 
-                const newOrder =
-                    event.order;
+                    // Fetch the complete order from the API
+                   const newOrder =
+                            await getKitchenOrder(orderId)
 
+                        setOrders((prev) => {
+                            const exists = prev.some(
+                                (item) => item.id === newOrder.id
+                            )
 
+                            if (exists) {
+                                return prev
+                            }
 
-                setOrders(prev=>{
-
-
-                    const exists =
-                        prev.some(
-                            item =>
-                            item.id === newOrder.id
-                        );
-
-
-
-                    if(exists)
-                        return prev;
-
-
-
-                    return [
-
-                        ...prev,
-
-                        newOrder
-
-                    ];
-
-
-                });
-
-
+                            return [...prev, newOrder]
+                        })
+                } catch (error) {
+                    console.error(
+                        "Failed to fetch new kitchen order:",
+                        error
+                    )
+                }
             }
-        );
-
-
-
-
+        )
 
         // Status Update
-
         channel.listen(
             ".order.updated",
-            (event:any)=>{
+            async (event: { order_id: number }) => {
+                try {
+                    const orderId = event.order_id
 
+                    if (!orderId) {
+                        return
+                    }
 
-                const updatedOrder =
-                    event.order;
+                    // Fetch the latest order from the API
+                    const updatedOrder =
+                        await getKitchenOrder(orderId)
 
-
-
-                setOrders(prev=>{
-
-
-                    return prev.map(
-                        item =>
-
-                        item.id === updatedOrder.id
-
-                        ?
-                        updatedOrder
-
-                        :
-                        item
-
-                    );
-
-
-                });
-
-
+                    setOrders((prev) =>
+                        prev.map((item) =>
+                            item.id === updatedOrder.id
+                                ? updatedOrder
+                                : item
+                        )
+                    )
+                } catch (error) {
+                    console.error(
+                        "Failed to fetch updated kitchen order:",
+                        error
+                    )
+                }
             }
-        );
+        )
 
+        return () => {
+            mounted = false
 
+            echo.leave("kitchen")
+        }
+    }, [])
 
-
-
-        return()=>{
-
-
-            echo.leave(
-                "kitchen"
-            );
-
-
-        };
-
-
-
-    },[]);
-
-
-
-    return orders;
-
-
+    return orders
 }
