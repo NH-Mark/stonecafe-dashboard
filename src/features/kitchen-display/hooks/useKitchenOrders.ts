@@ -101,12 +101,12 @@ export function useKitchenOrders() {
                     )
 
                     // Permanently highlight new items
-                    setNewItemIds((prev) => [
-                        ...new Set([
-                            ...prev,
-                            ...itemIds,
-                        ]),
-                    ])
+                    // setNewItemIds((prev) => [
+                    //     ...new Set([
+                    //         ...prev,
+                    //         ...itemIds,
+                    //     ]),
+                    // ])
                 } catch (error) {
                     console.error(
                         "Failed to fetch new kitchen order:",
