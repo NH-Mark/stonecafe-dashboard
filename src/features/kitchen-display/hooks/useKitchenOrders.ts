@@ -100,25 +100,13 @@ export function useKitchenOrders() {
                         itemIds
                     )
 
+                    // Permanently highlight new items
                     setNewItemIds((prev) => [
                         ...new Set([
                             ...prev,
                             ...itemIds,
                         ]),
                     ])
-
-                    setTimeout(() => {
-                        if (!mounted) {
-                            return
-                        }
-
-                        setNewItemIds((prev) =>
-                            prev.filter(
-                                (id) =>
-                                    !itemIds.includes(id)
-                            )
-                        )
-                    }, 5000)
                 } catch (error) {
                     console.error(
                         "Failed to fetch new kitchen order:",
@@ -149,9 +137,7 @@ export function useKitchenOrders() {
                         return
                     }
 
-                    // IMPORTANT:
-                    // Get the latest order from the ref,
-                    // not from the stale `orders` variable.
+                    // Get the latest order from the ref
                     const previousOrder =
                         ordersRef.current.find(
                             (order) =>
@@ -173,6 +159,7 @@ export function useKitchenOrders() {
                         previousItemIds
                     )
 
+                    // Find only newly added items
                     const addedItemIds =
                         updatedOrder.items
                             .filter(
@@ -190,7 +177,7 @@ export function useKitchenOrders() {
                         addedItemIds
                     )
 
-                    // Update orders
+                    // Update orders and ref
                     setOrders((prev) => {
                         const updatedOrders =
                             prev.map((item) =>
@@ -199,14 +186,13 @@ export function useKitchenOrders() {
                                     : item
                             )
 
-                        // Keep ref synchronized
                         ordersRef.current =
                             updatedOrders
 
                         return updatedOrders
                     })
 
-                    // Highlight newly added items
+                    // Permanently highlight newly added items
                     if (addedItemIds.length > 0) {
                         setNewItemIds((prev) => [
                             ...new Set([
@@ -214,21 +200,6 @@ export function useKitchenOrders() {
                                 ...addedItemIds,
                             ]),
                         ])
-
-                        setTimeout(() => {
-                            if (!mounted) {
-                                return
-                            }
-
-                            setNewItemIds((prev) =>
-                                prev.filter(
-                                    (id) =>
-                                        !addedItemIds.includes(
-                                            id
-                                        )
-                                )
-                            )
-                        }, 5000)
                     }
                 } catch (error) {
                     console.error(

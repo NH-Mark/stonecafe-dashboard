@@ -43,7 +43,6 @@ export function KitchenOrderItem({
                         inset-y-0
                         left-0
                         w-1
-                        animate-pulse
                         bg-[#d6a85f]
                     "
                 />
