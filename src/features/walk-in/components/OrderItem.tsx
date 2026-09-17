@@ -102,19 +102,21 @@ export function OrderItem({
             }
         );
 
-    const activeOrderId = useOrderStore(
-        state => state.activeOrderId
-    );
+        const activeOrderId = useOrderStore(
+            state => state.activeOrderId
+        );
 
-    const kitchenStatus = useOrderKitchenStatus(
-        activeOrderId
-    );
+        const kitchenStatus = useOrderKitchenStatus(activeOrderId);
 
-    const isKitchenLocked =
-        kitchenStatus === "preparing" ||
-        kitchenStatus === "ready";
+        const isKitchenLocked =
+            kitchenStatus === "preparing" ||
+            kitchenStatus === "ready";
 
-
+        console.log("ORDER ITEM KITCHEN DEBUG", {
+            activeOrderId,
+            kitchenStatus,
+            isKitchenLocked,
+        });
     /*
     |--------------------------------------------------------------------------
     | Discount dialog
