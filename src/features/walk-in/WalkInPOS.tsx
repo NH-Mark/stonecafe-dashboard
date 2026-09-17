@@ -23,8 +23,11 @@ import {
 } from "lucide-react";
 
 import { POSNav } from "./components/POSNav";
+import { useOrderKitchenSync } from "./hooks/useOrderKitchenSync";
 
 export function WalkInPOS() {
+     useOrderKitchenSync();
+
     const [categories, setCategories] =
         useState<any[]>([]);
 

@@ -5,7 +5,8 @@ import { create } from "zustand";
 export type KitchenStatus =
     | "pending"
     | "preparing"
-    | "ready";
+    | "ready"
+    | "unknown";
 
 interface KitchenOrderStore {
     statuses: Record<string, KitchenStatus>;
@@ -26,10 +27,12 @@ export const useKitchenOrderStore =
     create<KitchenOrderStore>((set, get) => ({
         statuses: {},
 
-        setKitchenStatus: (
-            orderId,
-            status
-        ) => {
+        setKitchenStatus: (orderId, status) => {
+            console.log("🔥 SETTING STATUS:", {
+                orderId,
+                status,
+            });
+
             set(state => ({
                 statuses: {
                     ...state.statuses,
@@ -41,7 +44,7 @@ export const useKitchenOrderStore =
         getKitchenStatus: orderId => {
             return (
                 get().statuses[String(orderId)] ??
-                "pending"
+                "unknown"
             );
         },
 
