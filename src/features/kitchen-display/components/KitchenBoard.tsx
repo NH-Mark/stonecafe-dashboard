@@ -1,70 +1,49 @@
-import { KitchenColumn } from "./KitchenColumn";
-import { KitchenOrder as Order} from "../kitchen.types";
+import { KitchenColumn } from "./KitchenColumn"
+import { KitchenOrder as Order } from "../kitchen.types"
 
 interface Props {
-
-    orders: Order[];
-
+    orders: Order[]
+    highlightedOrders: number[]
 }
 
-
-
 const columns = [
-
     {
         title: "Pending",
-        status: "pending"
+        status: "pending",
     },
-
     {
         title: "Preparing",
-        status: "preparing"
+        status: "preparing",
     },
-
     {
         title: "Ready",
-        status: "ready"
-    }
-
-];
-
-
+        status: "ready",
+    },
+]
 
 export function KitchenBoard({
-    orders
-}:Props){
-
-
+    orders,
+    highlightedOrders,
+}: Props) {
     return (
-
         <div
-        className="
-        grid
-        h-full
-        grid-cols-1
-        gap-3
-
-        md:grid-cols-3">
-
-            {
-                columns.map(column=>(
-
-                    <KitchenColumn
-
-                        key={column.status}
-
-                        title={column.title}
-
-                        status={column.status}
-
-                        orders={orders}
-
-                    />
-
-                ))
-            }
-
+            className="
+                grid
+                h-full
+                grid-cols-1
+                gap-3
+                md:grid-cols-3
+            "
+        >
+            {columns.map((column) => (
+                <KitchenColumn
+                    key={column.status}
+                    title={column.title}
+                    status={column.status}
+                    orders={orders}
+                    highlightedOrders={highlightedOrders}
+                />
+            ))}
         </div>
-
-    );
+    )
 }

@@ -8,12 +8,14 @@ import { KitchenStatusButton } from "./KitchenStatusButton";
 
 interface Props {
     order: KitchenOrder;
+    isHighlighted:Boolean;
 }
 
 
 
 export function KitchenOrderCard({
-    order
+    order,
+    isHighlighted = false,
 }: Props) {
 
 
@@ -74,7 +76,11 @@ export function KitchenOrderCard({
                 text-[#40332a]
                 "
                         >
-                            {order.order_no}
+                            {order.order_no} {isHighlighted && (
+                                    <div className="mb-3 text-xs font-bold text-[#b07835]">
+                                        New items added
+                                    </div>
+                                )}
                         </h3>
 
 

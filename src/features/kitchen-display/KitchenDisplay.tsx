@@ -19,8 +19,10 @@ import { useKitchenOrders } from "./hooks/useKitchenOrders";
 export function KitchenDisplay(){
 
 
-    const orders =
-        useKitchenOrders();
+     const {
+        orders,
+        highlightedOrders,
+    } = useKitchenOrders()
 
 
     const router =
@@ -178,8 +180,9 @@ export function KitchenDisplay(){
                 "
             >
 
-                <KitchenBoard
+                 <KitchenBoard
                     orders={orders}
+                    highlightedOrders={highlightedOrders}
                 />
             </main>
 
