@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { getEcho } from "@/lib/echo"
 
 import {
@@ -14,6 +14,9 @@ export function useKitchenOrders() {
     const [orders, setOrders] = useState<KitchenOrder[]>([])
     const [newItemIds, setNewItemIds] = useState<number[]>([])
 
+    // Always contains the latest orders
+    const ordersRef = useRef<KitchenOrder[]>([])
+
     useEffect(() => {
         let mounted = true
 
@@ -21,9 +24,14 @@ export function useKitchenOrders() {
             try {
                 const data = await getKitchenOrders()
 
-                if (mounted) {
-                    setOrders(data)
+                if (!mounted) {
+                    return
                 }
+
+                setOrders(data)
+
+                // Keep ref synchronized
+                ordersRef.current = data
             } catch (error) {
                 console.error(
                     "Failed to load kitchen orders:",
@@ -72,19 +80,31 @@ export function useKitchenOrders() {
                             return prev
                         }
 
-                        return [...prev, newOrder]
+                        const updatedOrders = [
+                            ...prev,
+                            newOrder,
+                        ]
+
+                        ordersRef.current = updatedOrders
+
+                        return updatedOrders
                     })
 
-                    // Highlight all items of a completely new order
+                    // All items are new for a completely new order
                     const itemIds = newOrder.items.map(
                         (item) => item.id
                     )
 
+                    console.log(
+                        "New order item IDs:",
+                        itemIds
+                    )
+
                     setNewItemIds((prev) => [
-                        ...prev,
-                        ...itemIds.filter(
-                            (id) => !prev.includes(id)
-                        ),
+                        ...new Set([
+                            ...prev,
+                            ...itemIds,
+                        ]),
                     ])
 
                     setTimeout(() => {
@@ -94,7 +114,8 @@ export function useKitchenOrders() {
 
                         setNewItemIds((prev) =>
                             prev.filter(
-                                (id) => !itemIds.includes(id)
+                                (id) =>
+                                    !itemIds.includes(id)
                             )
                         )
                     }, 5000)
@@ -128,18 +149,29 @@ export function useKitchenOrders() {
                         return
                     }
 
-                    // Find the previous version of this order
+                    // IMPORTANT:
+                    // Get the latest order from the ref,
+                    // not from the stale `orders` variable.
                     const previousOrder =
-                        orders.find(
+                        ordersRef.current.find(
                             (order) =>
                                 order.id === orderId
                         )
 
-                    // Find items that did not exist before
+                    console.log(
+                        "Previous order:",
+                        previousOrder
+                    )
+
                     const previousItemIds =
                         previousOrder?.items.map(
                             (item) => item.id
                         ) ?? []
+
+                    console.log(
+                        "Previous item IDs:",
+                        previousItemIds
+                    )
 
                     const addedItemIds =
                         updatedOrder.items
@@ -153,23 +185,34 @@ export function useKitchenOrders() {
                                 (item) => item.id
                             )
 
-                    // Update order
-                    setOrders((prev) =>
-                        prev.map((item) =>
-                            item.id === updatedOrder.id
-                                ? updatedOrder
-                                : item
-                        )
+                    console.log(
+                        "Newly added item IDs:",
+                        addedItemIds
                     )
+
+                    // Update orders
+                    setOrders((prev) => {
+                        const updatedOrders =
+                            prev.map((item) =>
+                                item.id === updatedOrder.id
+                                    ? updatedOrder
+                                    : item
+                            )
+
+                        // Keep ref synchronized
+                        ordersRef.current =
+                            updatedOrders
+
+                        return updatedOrders
+                    })
 
                     // Highlight newly added items
                     if (addedItemIds.length > 0) {
                         setNewItemIds((prev) => [
-                            ...prev,
-                            ...addedItemIds.filter(
-                                (id) =>
-                                    !prev.includes(id)
-                            ),
+                            ...new Set([
+                                ...prev,
+                                ...addedItemIds,
+                            ]),
                         ])
 
                         setTimeout(() => {
@@ -187,7 +230,6 @@ export function useKitchenOrders() {
                             )
                         }, 5000)
                     }
-                    console.log(newItemIds);
                 } catch (error) {
                     console.error(
                         "Failed to fetch updated kitchen order:",
