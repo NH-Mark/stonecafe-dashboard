@@ -477,7 +477,7 @@ export function OrderItem({
                 >
 
                     <Button
-
+                        disabled={isKitchenLocked}
                         size="icon"
 
                         variant="outline"

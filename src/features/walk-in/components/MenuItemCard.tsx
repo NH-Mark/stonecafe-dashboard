@@ -4,6 +4,7 @@ import { imageUrl } from "@/utils/image";
 import { Plus } from "lucide-react";
 import { useOrderStore } from "../store/useOrderStore";
 import { useModifierDialog } from "../store/useModifierDialog";
+import { useOrderKitchenStatus } from "../hooks/useOrderKitchenStatus";
 
 
 export function MenuItemCard({
@@ -17,6 +18,14 @@ export function MenuItemCard({
     const openDialog = useModifierDialog(
         state => state.openDialog
     );
+    const activeOrderId = useOrderStore(
+            state => state.activeOrderId
+        );
+    const kitchenStatus = useOrderKitchenStatus(activeOrderId);
+    
+    const isKitchenLocked =
+                kitchenStatus === "preparing" ||
+                kitchenStatus === "ready";
 
 
     return (
@@ -116,6 +125,7 @@ export function MenuItemCard({
 
 
                 <Button
+                    disabled={isKitchenLocked}
 
                     onClick={() => {
 
