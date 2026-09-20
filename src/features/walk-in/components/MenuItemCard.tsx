@@ -1,35 +1,81 @@
+
+"use client";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MenuItem } from "@/types/menu-item";
 import { imageUrl } from "@/utils/image";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
+
 import { useOrderStore } from "../store/useOrderStore";
 import { useModifierDialog } from "../store/useModifierDialog";
 import { useOrderKitchenStatus } from "../hooks/useOrderKitchenStatus";
 
-
 export function MenuItemCard({
-    item
+    item,
 }: {
-    item: MenuItem
+    item: MenuItem;
 }) {
+    const [adding, setAdding] = useState(false);
 
-    const addItem = useOrderStore(state => state.addItem);
+    const addItem = useOrderStore(
+        (state) => state.addItem
+    );
 
     const openDialog = useModifierDialog(
-        state => state.openDialog
+        (state) => state.openDialog
     );
-    const activeOrderId = useOrderStore(
-            state => state.activeOrderId
-        );
-    const kitchenStatus = useOrderKitchenStatus(activeOrderId);
-    
-    const isKitchenLocked =
-                kitchenStatus === "preparing" ||
-                kitchenStatus === "ready";
 
+    const activeOrderId = useOrderStore(
+        (state) => state.activeOrderId
+    );
+
+    const kitchenStatus =
+        useOrderKitchenStatus(activeOrderId);
+
+    const isKitchenLocked =
+        kitchenStatus === "preparing" ||
+        kitchenStatus === "ready";
+
+    const handleAdd = () => {
+        if (isKitchenLocked) {
+            return;
+        }
+
+
+        try {
+            if (item.modifier_groups?.length) {
+                openDialog(item);
+
+                return;
+            }
+
+            setAdding(true);
+            addItem({
+                lineId: crypto.randomUUID(),
+                menuItem: item,
+                quantity: 1,
+                modifiers: [],
+                note: "",
+            });
+
+            // Keep loader visible briefly so the user
+            // gets visual feedback.
+            setTimeout(() => {
+                setAdding(false);
+            }, 300);
+
+        } catch (error) {
+            console.error(
+                "Failed to add item:",
+                error
+            );
+
+            setAdding(false);
+        }
+    };
 
     return (
-
         <div
             className="
                 flex
@@ -45,11 +91,9 @@ export function MenuItemCard({
                 hover:shadow-lg
             "
         >
-
-
             {/* Image */}
-            <div className="relative h-[150px] w-full shrink-0">
 
+            <div className="relative h-[150px] w-full shrink-0">
                 <img
                     src={imageUrl(item.image)}
                     alt={item.name}
@@ -60,8 +104,8 @@ export function MenuItemCard({
                     "
                 />
 
-
                 {/* Price */}
+
                 <span
                     className="
                         absolute
@@ -79,8 +123,9 @@ export function MenuItemCard({
                 >
                     {item.price} QAR
                 </span>
-
             </div>
+
+            {/* Content */}
 
             <div
                 className="
@@ -91,9 +136,7 @@ export function MenuItemCard({
                     p-4
                 "
             >
-
                 <div>
-
                     <h3
                         className="
                             truncate
@@ -105,63 +148,54 @@ export function MenuItemCard({
                         {item.name}
                     </h3>
 
-
-                    {
-                        item.category && (
-                            <p
-                                className="
-                                    mt-1
-                                    text-xs
-                                    text-slate-500
-                                "
-                            >
-                                {item.category.name}
-                            </p>
-                        )
-                    }
-
+                    {item.category && (
+                        <p
+                            className="
+                                mt-1
+                                text-xs
+                                text-slate-500
+                            "
+                        >
+                            {item.category.name}
+                        </p>
+                    )}
                 </div>
 
-
-
                 <Button
-                    disabled={isKitchenLocked}
-
-                    onClick={() => {
-
-                        if (item.modifier_groups?.length) {
-
-                            openDialog(item);
-
-                            return;
-
-                        }
-
-                        addItem({
-
-                            lineId: crypto.randomUUID(),
-
-                            menuItem: item,
-
-                            quantity: 1,
-
-                            modifiers: [],
-
-                            note: "",
-
-                        });
-
-                    }}
-
+                    disabled={
+                        isKitchenLocked ||
+                        adding
+                    }
+                    onClick={handleAdd}
                 >
-                    Add
+                    {adding ? (
+                        <>
+                            <Loader2
+                                className="
+                                    mr-2
+                                    h-4
+                                    w-4
+                                    animate-spin
+                                "
+                            />
+
+                            Adding...
+                        </>
+                    ) : (
+                        <>
+                            <Plus
+                                className="
+                                    mr-2
+                                    h-4
+                                    w-4
+                                "
+                            />
+
+                            Add
+                        </>
+                    )}
                 </Button>
-
-
             </div>
-
-
         </div>
-
     );
 }

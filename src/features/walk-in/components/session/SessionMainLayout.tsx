@@ -119,7 +119,6 @@ export function SessionMainLayout({
                 p-2
                 pb-[76px]
                 sm:p-3
-                sm:pb-[82px]
                 lg:pb-3
             "
         >
