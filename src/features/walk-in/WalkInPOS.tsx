@@ -284,7 +284,6 @@ export function WalkInPOS() {
                     min-h-0
                     overflow-hidden
                     p-3
-                    pb-0
                 "
             >
                 
