@@ -184,6 +184,7 @@ export function DiscountDialog({
                     overflow-hidden
                     rounded-3xl
                     p-6
+                    z-[100]
                 "
             >
 
