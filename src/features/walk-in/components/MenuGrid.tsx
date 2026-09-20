@@ -97,13 +97,16 @@ export function MenuGrid({ categoryId }: {
 
             <div
                 className="
-                    grid
+                     grid
                     min-h-0
                     flex-1
-                    grid-cols-4
-                    gap-5
+                    grid-cols-2
+                    gap-4
                     overflow-y-auto
-                    p-5
+                    p-4
+                    md:grid-cols-4
+                    md:gap-5
+                    md:p-5
                 "
             >
 
@@ -113,12 +116,13 @@ export function MenuGrid({ categoryId }: {
 
                             <div
                                 className="
-                                    col-span-4
+                                   col-span-2
                                     flex
                                     h-full
                                     min-h-[300px]
                                     items-center
                                     justify-center
+                                    md:col-span-4
                                 "
                             >
                                 <PageLoader />
@@ -142,7 +146,10 @@ export function MenuGrid({ categoryId }: {
                 {
                     !loading && filteredItems.length === 0 && (
 
-                        <div className="col-span-4 text-center text-gray-500">
+                        <div className="col-span-2
+                                        text-center
+                                        text-gray-500
+                                        md:col-span-4">
 
                             No menu items found
 
