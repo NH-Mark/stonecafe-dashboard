@@ -50,7 +50,7 @@ export default function OrdersList({
 
             const matchesType =
                 type === "all" ||
-                order.type?.toLowerCase() === type
+                order.order_type_code?.toLowerCase() === type
 
 
             const matchesPayment =
