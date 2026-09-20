@@ -506,7 +506,7 @@ export function SessionMainLayout({
                 `}
             >
 
-                <div
+                {/* <div
                     className="
                         flex
                         shrink-0
@@ -524,9 +524,10 @@ export function SessionMainLayout({
                                 font-bold
                             "
                         >
-                            {activeOrderNo
-                                ? `Order #${activeOrderNo}`
-                                : "Current Order"}
+                         {activeOrderNo &&
+                        activeOrderNo !== "undefined"
+                            ? `Order #${activeOrderNo}`
+                            : "Current Order"}
                         </p>
 
                         <p
@@ -562,7 +563,7 @@ export function SessionMainLayout({
                             "
                         />
                     </Button>
-                </div>
+                </div> */}
 
                 <div
                     className="
