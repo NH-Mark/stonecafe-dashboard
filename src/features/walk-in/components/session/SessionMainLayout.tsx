@@ -486,7 +486,7 @@ export function SessionMainLayout({
                     fixed
                     inset-y-0
                     right-0
-                    z-[60]
+                    z-[50]
                     flex
                     w-full
                     max-w-md
