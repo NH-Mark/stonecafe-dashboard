@@ -505,6 +505,7 @@ export function Header({
         confirmedSessionOrders.length >
         0;
 
+
     /*
     |--------------------------------------------------------------------------
     | New order
@@ -528,12 +529,13 @@ export function Header({
         | Normal POS
         |----------------------------------------------------------------------
         */
+       window.location.reload();
 
-        clear();
+        //  clear();
 
-        setSearch("");
+        // setSearch("");
 
-        onNewOrder?.();
+        // onNewOrder?.();
     }
 
     /*
