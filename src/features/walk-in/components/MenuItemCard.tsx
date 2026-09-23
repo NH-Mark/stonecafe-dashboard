@@ -38,11 +38,9 @@ export function MenuItemCard({
         kitchenStatus === "ready";
 
     const handleAdd = () => {
-        if (isKitchenLocked) {
-            return;
-        }
-
-
+        // if (isKitchenLocked) {
+        //     return;
+        // }
         try {
             if (item.modifier_groups?.length) {
                 openDialog(item);
@@ -163,7 +161,6 @@ export function MenuItemCard({
 
                 <Button
                     disabled={
-                        isKitchenLocked ||
                         adding
                     }
                     onClick={handleAdd}

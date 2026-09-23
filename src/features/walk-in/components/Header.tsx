@@ -903,8 +903,7 @@ export function Header({
                             type="button"
                             variant="outline"
                             disabled={
-                                !activeOrderId ||
-                                !hasUnsavedItems
+                                !activeOrderId 
                             }
                             onClick={() =>
                                 setNoteOpen(
@@ -1320,6 +1319,7 @@ export function Header({
                                 )
                             }
                             type="order"
+                            
                         />
                     </>
                 )}

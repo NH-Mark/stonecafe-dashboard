@@ -75,6 +75,7 @@ interface CheckoutDialogProps {
     onClose: () => void;
 
     orderId?: number;
+    onBeforePayment?: () => Promise<void>;
 
     onPaymentComplete?: (
         result: {
@@ -105,6 +106,7 @@ export function CheckoutDialog({
     onClose,
 
     orderId,
+    onBeforePayment,
 
     onPaymentComplete,
 
@@ -761,6 +763,10 @@ export function CheckoutDialog({
             setError(
                 null
             );
+
+            if (onBeforePayment) {
+                await onBeforePayment();
+            }
 
 
             /*

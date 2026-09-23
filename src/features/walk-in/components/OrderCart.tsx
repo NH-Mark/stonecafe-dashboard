@@ -20,10 +20,12 @@ import { Separator } from "@base-ui/react";
 import {
     addItemsToOrder,
     createOrder,
+    updateOrder,
 } from "../order.service";
 
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useOrderMutation } from "../hooks/useOrderMutation";
 
 interface OrderCartProps {
     orderId?: string;
@@ -195,28 +197,40 @@ export function OrderCart({
     |--------------------------------------------------------------------------
     */
 
-    const allSavedLineIds =
-        new Set([
-            ...savedLineIds,
-            ...locallySavedLineIds,
-        ]);
+    // const allSavedLineIds =
+    //     new Set([
+    //         ...savedLineIds,
+    //         ...locallySavedLineIds,
+    //     ]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Unsaved items
-    |--------------------------------------------------------------------------
-    */
+    // /*
+    // |--------------------------------------------------------------------------
+    // | Unsaved items
+    // |--------------------------------------------------------------------------
+    // */
 
-    const unsavedItems =
-        cart.filter(
-            item =>
-                !allSavedLineIds.has(
-                    item.lineId
-                )
-        );
+    // const unsavedItems =
+    //     cart.filter(
+    //         item =>
+    //             !allSavedLineIds.has(
+    //                 item.lineId
+    //             )
+    //     );
+
+    // const hasUnsavedItems =
+    //     unsavedItems.length > 0;
+
+    const unsavedItems = cart.filter(
+        item => item.orderItemId == null
+    );
 
     const hasUnsavedItems =
         unsavedItems.length > 0;
+
+    const hasPendingChanges =
+        order.syncStatus === "pending";
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -286,6 +300,40 @@ export function OrderCart({
         orderId?.startsWith("new-") ??
         true;
 
+    const needsSave =
+        isDraft ||
+        hasPendingChanges;
+
+    const {
+        syncOrder,
+        updating
+    } = useOrderMutation(orderId);
+
+    async function handleSaveChanges() {
+        if (!orderId || orderId.startsWith("new-")) {
+            return;
+        }
+
+        try {
+            setSaving(true);
+
+            await syncOrder();
+
+            toast.success("Order updated successfully.");
+        } catch (error) {
+            console.error(
+                "Failed to update order:",
+                error
+            );
+
+            toast.error(
+                "Unable to update order."
+            );
+        } finally {
+            setSaving(false);
+        }
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Payment state
@@ -303,9 +351,21 @@ export function OrderCart({
     */
 
     const selectedOrderType =
-    mode === "dine-in"
-        ? "dine_in"
-        : orderType;
+        mode === "dine-in"
+            ? "dine_in"
+            : orderType;
+
+    const setOrderItemId =
+        useOrderStore(
+            state =>
+                state.setOrderItemId
+        );
+
+    const updateLocalOrder =
+        useOrderStore(
+            state =>
+                state.updateLocalOrder
+        );
 
     async function handleSendToKitchen() {
         if (cart.length === 0) {
@@ -355,7 +415,7 @@ export function OrderCart({
 
                 table_id: null,
 
-                order_type:selectedOrderType,
+                order_type: selectedOrderType,
 
                 items:
                     itemsToSend.map(
@@ -488,6 +548,7 @@ export function OrderCart({
                     );
                 }
 
+
                 /*
                 |--------------------------------------------------------------------------
                 | Get backend order ID
@@ -529,12 +590,37 @@ export function OrderCart({
                 |--------------------------------------------------------------------------
                 */
 
+
                 replaceOrderId(
                     orderId!,
                     String(
                         savedOrderId
                     )
                 );
+                const savedItems = savedOrder.items ?? [];
+
+                savedItems.forEach(
+                    (savedItem: {
+                        id: number;
+                    }, index: number) => {
+                        const localItem =
+                            itemsToSend[index];
+
+                        if (
+                            localItem &&
+                            savedItem.id
+                        ) {
+                            setOrderItemId(
+                                String(savedOrderId),
+                                localItem.lineId,
+                                Number(savedItem.id)
+                            );
+                        }
+                    }
+                );
+
+
+
 
                 /*
                 |--------------------------------------------------------------------------
@@ -580,34 +666,112 @@ export function OrderCart({
                     ),
                     "confirmed"
                 );
+
+                updateLocalOrder(
+                    String(savedOrderId),
+                    {
+                        syncStatus: "synced",
+                    }
+                );
             } else {
                 /*
                 |--------------------------------------------------------------------------
-                | ADD ITEMS TO EXISTING ORDER
+                | SYNC EXISTING ORDER
+                |--------------------------------------------------------------------------
+                |
+                | This handles BOTH:
+                |
+                | 1. Newly-added items
+                | 2. Changes to existing items
+                |
+                | First we create the new items so they receive backend IDs.
+                | Then we update the complete order so quantity, discounts,
+                | notes, modifiers, etc. are synchronized.
                 |--------------------------------------------------------------------------
                 */
 
-                await addItemsToOrder(
-                    Number(orderId),
-                    {
-                        items:
-                            payload.items,
-                    }
-                );
+                const currentOrder =
+                    useOrderStore.getState().orders[
+                    String(orderId)
+                    ];
+
+                if (!currentOrder) {
+                    throw new Error("Order not found.");
+                }
+
+                const hasNewItems =
+                    currentOrder.cart.some(
+                        item => item.orderItemId == null
+                    );
 
                 /*
                 |--------------------------------------------------------------------------
-                | Mark newly-added items as saved
+                | STEP 1: Create new items
+                |--------------------------------------------------------------------------
+                |
+                | POST /orders/{order}/items
+                |
+                | Only items without orderItemId are sent.
+                |
+                */
+
+                if (hasNewItems) {
+                    await syncOrder("new-items");
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | STEP 2: Update the complete order
+                |--------------------------------------------------------------------------
+                |
+                | At this point newly-added items should have their backend
+                | orderItemId assigned.
+                |
+                | syncOrder("changes") now sends:
+                |
+                | - old item quantity changes
+                | - old item discount changes
+                | - old item modifier changes
+                | - old item note changes
+                | - newly-created items
+                | - order discount
+                | - order note
+                |
+                */
+
+                const latestOrder =
+                    useOrderStore.getState().orders[
+                    String(orderId)
+                    ];
+
+                const hasUnsavedItems =
+                    latestOrder?.cart.some(
+                        item => item.orderItemId == null
+                    );
+                /*
+                |--------------------------------------------------------------------------
+                | Safety check
+                |--------------------------------------------------------------------------
+                |
+                | If a new item still does not have a backend ID, do not run
+                | the full update because updateOrder() expects a complete
+                | synchronized order.
+                |
+                */
+
+                if (hasUnsavedItems) {
+                    throw new Error(
+                        "Some new items could not be synchronized."
+                    );
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Update complete order
                 |--------------------------------------------------------------------------
                 */
 
-                markItemsSaved(
-                    String(orderId),
-                    itemsToSend.map(
-                        item =>
-                            item.lineId
-                    )
-                );
+                await syncOrder("changes");
 
                 /*
                 |--------------------------------------------------------------------------
@@ -619,6 +783,19 @@ export function OrderCart({
                     String(orderId),
                     "confirmed"
                 );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Everything is now synchronized
+                |--------------------------------------------------------------------------
+                */
+               
+                updateLocalOrder(
+                    String(orderId),
+                    {
+                        syncStatus: "synced",
+                    }
+                );
             }
 
             /*
@@ -628,9 +805,7 @@ export function OrderCart({
             */
 
             onOrderSaved?.(
-                String(
-                    savedOrderId
-                ),
+                String(savedOrderId),
                 savedOrderNo
             );
 
@@ -639,6 +814,13 @@ export function OrderCart({
                     ? "Order sent to kitchen"
                     : "New items sent to kitchen"
             );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Tell parent the real backend order ID + order number
+            |--------------------------------------------------------------------------
+            */
+
         } catch (error) {
             console.error(
                 "Failed to save order:",
@@ -651,6 +833,56 @@ export function OrderCart({
         } finally {
             setSaving(false);
         }
+    }
+
+
+
+    async function handleBeforePayment() {
+        if (!orderId || orderId.startsWith("new-")) {
+            throw new Error("Order has not been created yet.");
+        }
+
+        const orders = useOrderStore.getState().orders;
+
+        const currentOrder = orders[String(orderId)];
+
+
+        if (!currentOrder) {
+            throw new Error("Order could not be found.");
+        }
+
+        const items = currentOrder.cart.map(item => {
+
+            if (!item.orderItemId) {
+                throw new Error(
+                    `Missing order item ID for "${item.menuItem.name}".`
+                );
+            }
+
+            return {
+                id: item.orderItemId,
+                discounts: item.discount
+                    ? [
+                        {
+                            discount_id: item.discount.id,
+                            amount: getDiscountAmount(item),
+                        },
+                    ]
+                    : [],
+            };
+        });
+
+        // await updateOrder(Number(orderId), {
+        //     items,
+        //     discounts: currentOrder.orderDiscount
+        //         ? [
+        //             {
+        //                 discount_id: currentOrder.orderDiscount.id,
+        //                 amount: orderDiscountAmount,
+        //             },
+        //         ]
+        //         : [],
+        // });
     }
 
     /*
@@ -1045,7 +1277,7 @@ export function OrderCart({
 
                 {/* ACTION */}
                 <div>
-                    {cart.length === 0 ? (
+                    {/* {cart.length === 0 ? (
                         <Button
                             disabled
                             className="
@@ -1099,6 +1331,90 @@ export function OrderCart({
                                     ? "Order Cancelled"
                                     : "Payment"}
                         </Button>
+                    )} */}
+
+                    {cart.length === 0 ? (
+                        <Button
+                            disabled
+                            className="
+            h-12
+            w-full
+            rounded-xl
+            text-base
+        "
+                        >
+                            Add Items to Order
+                        </Button>
+                    ) : isDraft ? (
+                        <Button
+                            disabled={saving}
+                            onClick={handleSendToKitchen}
+                            className="
+            h-12
+            w-full
+            rounded-xl
+            text-base
+        "
+                        >
+                            {saving
+                                ? "Sending to Kitchen..."
+                                : "Send to Kitchen"}
+                        </Button>
+                    ) : hasUnsavedItems ? (
+                        <Button
+                            disabled={saving}
+                            onClick={handleSendToKitchen}
+                            className="
+            h-12
+            w-full
+            rounded-xl
+            text-base
+        "
+                        >
+                            {saving
+                                ? "Sending to Kitchen..."
+                                : "Save Changes"}
+                        </Button>
+                    ) : hasPendingChanges ? (
+                        <Button
+                            disabled={saving || updating}
+                            onClick={handleSaveChanges}
+                            className="
+            h-12
+            w-full
+            rounded-xl
+            text-base
+        "
+                        >
+                            {saving || updating
+                                ? "Saving Changes..."
+                                : "Save Changes"}
+                        </Button>
+                    ) : (
+                        <Button
+                            disabled={
+                                isPaymentDisabled ||
+                                !orderId ||
+                                orderId.startsWith("new-")
+                            }
+                            onClick={() =>
+                                setCheckoutOpen(true)
+                            }
+                            className="
+            h-12
+            w-full
+            rounded-xl
+            bg-green-900
+            text-base
+            hover:bg-green-800
+        "
+                        >
+                            {status === "completed"
+                                ? "Payment Completed"
+                                : status === "cancelled"
+                                    ? "Order Cancelled"
+                                    : "Payment"}
+                        </Button>
                     )}
                 </div>
 
@@ -1110,6 +1426,7 @@ export function OrderCart({
                             setCheckoutOpen(false)
                         }
                         orderId={Number(orderId)}
+                        onBeforePayment={handleBeforePayment}
                         onPaymentComplete={
                             handlePaymentComplete
                         }

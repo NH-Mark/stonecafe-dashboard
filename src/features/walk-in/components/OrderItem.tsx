@@ -17,7 +17,7 @@ import {
 import { CartItem } from "../cart.types";
 
 import {
-    getLineTotal,
+    getItemPrice,
 } from "../utils/cart-price";
 
 import {
@@ -32,6 +32,7 @@ import {
     DiscountDialog,
 } from "./discount/DiscountDialog";
 import { useOrderKitchenStatus } from "../hooks/useOrderKitchenStatus";
+import { useOrderMutation } from "../hooks/useOrderMutation";
 
 
 export function OrderItem({
@@ -136,7 +137,7 @@ export function OrderItem({
     */
 
     const total =
-        getLineTotal(
+        getItemPrice(
             item
         );
 
@@ -163,8 +164,13 @@ export function OrderItem({
     |--------------------------------------------------------------------------
     */
 
-    const canEditModifier =
-        !isSaved;
+    // const canEditModifier =
+    //     !isSaved;
+
+    const { syncOrder, updating } =
+    useOrderMutation(
+        activeOrderId ?? undefined
+    );
 
 
     /*
@@ -175,11 +181,11 @@ export function OrderItem({
 
     function handleEditModifier() {
 
-        if (
-            !canEditModifier
-        ) {
-            return;
-        }
+        // if (
+        //     !canEditModifier
+        // ) {
+        //     return;
+        // }
 
         openEditDialog(
             item
@@ -477,7 +483,7 @@ export function OrderItem({
                 >
 
                     <Button
-                        disabled={isKitchenLocked}
+                        disabled={updating}
                         size="icon"
 
                         variant="outline"
@@ -486,24 +492,18 @@ export function OrderItem({
                             rounded-xl
                         "
 
-                        onClick={() => {
-
-                            if (
-                                item.quantity === 1
-                            ) {
-
-                                removeItem(
-                                    item.lineId
-                                );
-
+                        onClick={async () => {
+                            if (item.quantity === 1) {
+                                removeItem(item.lineId);
                             } else {
-
-                                decreaseQty(
-                                    item.lineId
-                                );
-
+                                decreaseQty(item.lineId);
                             }
 
+                            // try {
+                            //     await syncOrder();
+                            // } catch (error) {
+                            //     console.error(error);
+                            // }
                         }}
 
                     >
@@ -543,7 +543,7 @@ export function OrderItem({
 
 
                     <Button
-                        disabled={isKitchenLocked}
+                        disabled={updating}
                         size="icon"
 
                         variant="outline"
@@ -552,12 +552,15 @@ export function OrderItem({
                             rounded-xl
                         "
 
-                        onClick={() =>
-                            increaseQty(
-                                item.lineId
-                            )
-                        }
+                           onClick={async () => {
+                                increaseQty(item.lineId);
 
+                                // try {
+                                //     await syncOrder();
+                                // } catch (error) {
+                                //     console.error(error);
+                                // }
+                            }}
                     >
 
                         <Plus
@@ -619,9 +622,9 @@ export function OrderItem({
 
                         variant="ghost"
 
-                        disabled={
-                            !canEditModifier
-                        }
+                        // disabled={
+                        //     !canEditModifier
+                        // }
 
                         className="
                             rounded-xl
@@ -639,25 +642,16 @@ export function OrderItem({
 
                     >
 
-                        {isSaved ? (
-
-                            <Lock
-                                className="
-                                    h-4
-                                    w-4
-                                "
-                            />
-
-                        ) : (
 
                             <Pencil
                                 className="
                                     h-4
+                                
+                                
                                     w-4
                                 "
                             />
 
-                        )}
 
                     </Button>
 

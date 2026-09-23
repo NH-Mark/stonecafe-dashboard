@@ -17,6 +17,94 @@ export async function createOrder(payload: any) {
 
 }
 
+// export interface UpdateOrderDiscountsPayload {
+//     items: {
+//         id: number;
+
+//         discounts: {
+//             discount_id: number;
+//             amount: number;
+//         }[];
+//     }[];
+
+//     discounts: {
+//         discount_id: number;
+//         amount: number;
+//     }[];
+// }
+
+// export async function updateOrder(
+//     orderId: number,
+//     payload: UpdateOrderDiscountsPayload
+// ) {
+//     return api.put(
+//         `/api/orders/${orderId}`,
+//         payload
+//     );
+// }
+
+
+export interface UpdateOrderItemPayload {
+    id?: number;
+
+    menu_item_id: number;
+
+    quantity: number;
+
+    unit_price: number;
+
+    total_price: number;
+
+    notes: string | null;
+
+    modifiers: {
+        modifier_id: number;
+        quantity: number;
+        price: number;
+    }[];
+
+    discounts: {
+        discount_id: number;
+        amount: number;
+    }[];
+}
+
+export interface UpdateOrderPayload {
+    items: UpdateOrderItemPayload[];
+
+    discounts: {
+        discount_id: number;
+        amount: number;
+    }[];
+
+    notes: string | null;
+
+    subtotal: number;
+
+    discount_amount: number;
+
+    tax_amount: number;
+
+    service_charge: number;
+
+    total_amount: number;
+
+    /**
+     * Optional optimistic locking.
+     */
+    version?: number;
+}
+
+export async function updateOrder(
+    orderId: number,
+    payload: UpdateOrderPayload
+) {
+    return api.put(
+        `/api/orders/${orderId}`,
+        payload
+    );
+}
+
 
 export async function addItemsToOrder(
     orderId: number,

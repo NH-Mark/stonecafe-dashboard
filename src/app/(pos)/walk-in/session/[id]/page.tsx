@@ -25,6 +25,7 @@ import {
 } from "@/features/walk-in/dining-session.service";
 
 import {
+    LocalOrder,
     useOrderStore,
 } from "@/features/walk-in/store/useOrderStore";
 
@@ -147,6 +148,11 @@ interface ApiOrderItem {
 | API Session Order
 |--------------------------------------------------------------------------
 */
+interface ApiSessionOrderDiscount {
+    id: number;
+    amount: number;
+    discount: Discount;
+}
 
 interface ApiSessionOrder {
     id: number;
@@ -171,9 +177,9 @@ interface ApiSessionOrder {
 
     items: ApiOrderItem[];
 
-    orderNote: string | null;
+    notes: string | null;
 
-    orderDiscount: any | null;
+    discounts?: ApiSessionOrderDiscount[];
 }
 
 /*
@@ -316,7 +322,7 @@ export default function DiningSessionPage() {
                 return {
                     lineId:
                         `db-${item.id}`,
-
+                    orderItemId: item.id,
                     menuItem:
                         item.menuItem,
 
@@ -765,8 +771,32 @@ export default function DiningSessionPage() {
     /*
     |--------------------------------------------------------------------------
     | Initial load
-    |--------------------------------------------------------------------------
+    |---
+    -----------------------------------------------------------------------
+    
     */
+    const mapOrderDiscount = useCallback(
+        (
+            order: ApiSessionOrder
+        ): LocalOrder["orderDiscount"] => {
+            const discount =
+                order.discounts?.[0]?.discount;
+
+            if (!discount) {
+                return null;
+            }
+
+            return {
+                id: discount.id,
+                name: discount.name,
+                type: discount.type,
+                value: Number(
+                    discount.value
+                ),
+            };
+        },
+        []
+    );
 
     useEffect(
         () => {
@@ -829,12 +859,13 @@ export default function DiningSessionPage() {
                             cart,
 
                             orderNote:
-                                order.orderNote ??
+                                order.notes ??
                                 "",
 
-                            orderDiscount:
-                                order.orderDiscount ??
-                                null,
+                             orderDiscount:
+                                mapOrderDiscount(
+                                    order
+                                ),
 
                             status:
                                 order.status,

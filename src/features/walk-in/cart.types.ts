@@ -31,6 +31,8 @@ export interface CartItem {
 
     lineId:string;
 
+    orderItemId?: number | null;
+
     menuItem:MenuItem;
 
     quantity:number;

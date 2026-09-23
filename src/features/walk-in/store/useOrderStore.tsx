@@ -26,6 +26,12 @@ export interface OrderDiscount {
     value: number;
 }
 
+export type OrderSyncStatus =
+    | "pending"
+    | "synced"
+    | "syncing"
+    | "error";
+
 export interface LocalOrder {
     id: string;
     orderNo: string | null;
@@ -41,6 +47,9 @@ export interface LocalOrder {
     isNew: boolean;
 
     savedLineIds: string[];
+
+    syncStatus: OrderSyncStatus;
+    version?: number;
 }
 
 interface OrderStore {
@@ -137,6 +146,17 @@ interface OrderStore {
     markItemsSaved: (
         orderId: string,
         lineIds: string[]
+    ) => void;
+
+    setOrderItemId: (
+        orderId: string,
+        lineId: string,
+        orderItemId: number
+    ) => void;
+
+    updateLocalOrder: (
+        orderId: string,
+        data: Partial<LocalOrder>
     ) => void;
 }
 
@@ -345,6 +365,10 @@ export const useOrderStore = create<OrderStore>(
                     savedLineIds:
                         initialData?.savedLineIds ??
                         [],
+
+                    syncStatus:
+                        initialData?.syncStatus ??
+                        "synced",
                 };
 
                 const shouldActivate =
@@ -497,7 +521,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -797,7 +821,7 @@ export const useOrderStore = create<OrderStore>(
                     nextActiveId =
                         remaining.length > 0
                             ? remaining[
-                                remaining.length - 1
+                            remaining.length - 1
                             ]
                             : null;
                 }
@@ -805,7 +829,7 @@ export const useOrderStore = create<OrderStore>(
                 const activeOrder =
                     nextActiveId
                         ? nextOrders[
-                            nextActiveId
+                        nextActiveId
                         ]
                         : null;
 
@@ -876,51 +900,45 @@ export const useOrderStore = create<OrderStore>(
         |--------------------------------------------------------------------------
         */
 
-        setOrderNote: (
-            note
-        ) => {
-
+        setOrderNote: (note) => {
             set(state => {
-
-                if (
-                    !state.activeOrderId
-                ) {
-
+                if (!state.activeOrderId) {
                     return {
-                        orderNote:
-                            note,
+                        orderNote: note,
                     };
                 }
 
                 const active =
-                    state.orders[
-                        state.activeOrderId
-                    ];
+                    state.orders[state.activeOrderId];
 
                 if (!active) {
-
                     return {
-                        orderNote:
-                            note,
+                        orderNote: note,
                     };
                 }
 
-                return {
+                const isPersistedOrder =
+                    !active.id.startsWith("new-");
 
-                    orderNote:
-                        note,
+                const updatedOrder: LocalOrder = {
+                    ...active,
+
+                    orderNote: note,
+
+                    syncStatus:
+                        isPersistedOrder
+                            ? "pending"
+                            : active.syncStatus,
+                };
+
+                return {
+                    orderNote: note,
 
                     orders: {
-
                         ...state.orders,
 
-                        [state.activeOrderId]: {
-
-                            ...active,
-
-                            orderNote:
-                                note,
-                        },
+                        [state.activeOrderId]:
+                            updatedOrder,
                     },
                 };
             });
@@ -932,51 +950,44 @@ export const useOrderStore = create<OrderStore>(
         |--------------------------------------------------------------------------
         */
 
-        applyOrderDiscount: (
-            discount
-        ) => {
-
+        applyOrderDiscount: (discount) => {
             set(state => {
-
-                if (
-                    !state.activeOrderId
-                ) {
-
+                if (!state.activeOrderId) {
                     return {
-                        orderDiscount:
-                            discount,
+                        orderDiscount: discount,
                     };
                 }
 
                 const active =
-                    state.orders[
-                        state.activeOrderId
-                    ];
+                    state.orders[state.activeOrderId];
 
                 if (!active) {
-
                     return {
-                        orderDiscount:
-                            discount,
+                        orderDiscount: discount,
                     };
                 }
 
-                return {
+                const isPersistedOrder =
+                    !active.id.startsWith("new-");
 
-                    orderDiscount:
-                        discount,
+                const updatedOrder: LocalOrder = {
+                    ...active,
+
+                    orderDiscount: discount,
+
+                    syncStatus: isPersistedOrder
+                        ? "pending"
+                        : active.syncStatus,
+                };
+
+                return {
+                    orderDiscount: discount,
 
                     orders: {
-
                         ...state.orders,
 
-                        [state.activeOrderId]: {
-
-                            ...active,
-
-                            orderDiscount:
-                                discount,
-                        },
+                        [state.activeOrderId]:
+                            updatedOrder,
                     },
                 };
             });
@@ -989,48 +1000,43 @@ export const useOrderStore = create<OrderStore>(
         */
 
         removeOrderDiscount: () => {
-
             set(state => {
-
-                if (
-                    !state.activeOrderId
-                ) {
-
+                if (!state.activeOrderId) {
                     return {
-                        orderDiscount:
-                            null,
+                        orderDiscount: null,
                     };
                 }
 
                 const active =
-                    state.orders[
-                        state.activeOrderId
-                    ];
+                    state.orders[state.activeOrderId];
 
                 if (!active) {
-
                     return {
-                        orderDiscount:
-                            null,
+                        orderDiscount: null,
                     };
                 }
 
-                return {
+                const isPersistedOrder =
+                    !active.id.startsWith("new-");
 
-                    orderDiscount:
-                        null,
+                const updatedOrder: LocalOrder = {
+                    ...active,
+
+                    orderDiscount: null,
+
+                    syncStatus: isPersistedOrder
+                        ? "pending"
+                        : active.syncStatus,
+                };
+
+                return {
+                    orderDiscount: null,
 
                     orders: {
-
                         ...state.orders,
 
-                        [state.activeOrderId]: {
-
-                            ...active,
-
-                            orderDiscount:
-                                null,
-                        },
+                        [state.activeOrderId]:
+                            updatedOrder,
                     },
                 };
             });
@@ -1042,82 +1048,81 @@ export const useOrderStore = create<OrderStore>(
         |--------------------------------------------------------------------------
         */
 
-        addItem: (
-            newItem
-        ) => {
-
+        addItem: (newItem) => {
             set(state => {
-
-                if (
-                    !state.activeOrderId
-                ) {
+                if (!state.activeOrderId) {
                     return state;
                 }
 
-                const active =
-                    state.orders[
-                        state.activeOrderId
-                    ];
+                const activeOrder =
+                    state.orders[state.activeOrderId];
 
-                if (!active) {
+                if (!activeOrder) {
                     return state;
                 }
 
-                const existing =
-                    active.cart.find(
+                const existingItem =
+                    activeOrder.cart.find(
                         item =>
                             item.menuItem.id ===
-                                newItem.menuItem.id &&
+                            newItem.menuItem.id &&
                             sameModifiers(
                                 item.modifiers,
                                 newItem.modifiers
                             ) &&
-                            item.note ===
-                                newItem.note
+                            item.note === newItem.note
                     );
 
                 let nextCart: CartItem[];
 
-                if (existing) {
+                if (existingItem) {
+                    nextCart = activeOrder.cart.map(
+                        item =>
+                            item.lineId ===
+                                existingItem.lineId
+                                ? {
+                                    ...item,
 
-                    nextCart =
-                        active.cart.map(
-                            item =>
-                                item.lineId ===
-                                existing.lineId
-                                    ? {
-                                        ...item,
+                                    quantity:
+                                        item.quantity +
+                                        newItem.quantity,
 
-                                        quantity:
-                                            item.quantity +
-                                            newItem.quantity,
-                                    }
-                                    : item
-                        );
-
+                                    // Keep the backend ID if
+                                    // this item already exists.
+                                    orderItemId:
+                                        item.orderItemId ??
+                                        newItem.orderItemId,
+                                }
+                                : item
+                    );
                 } else {
-
                     nextCart = [
-                        ...active.cart,
+                        ...activeOrder.cart,
                         newItem,
                     ];
                 }
 
-                return {
+                const hasUnsavedItems =
+                    nextCart.some(
+                        item =>
+                            item.orderItemId == null
+                    );
 
-                    cart:
-                        nextCart,
+                return {
+                    ...state,
 
                     orders: {
-
                         ...state.orders,
 
                         [state.activeOrderId]: {
+                            ...activeOrder,
 
-                            ...active,
+                            cart: nextCart,
 
-                            cart:
-                                nextCart,
+                            syncStatus:
+                                hasUnsavedItems
+                                    ? "pending"
+                                    : "pending",
                         },
                     },
                 };
@@ -1130,50 +1135,72 @@ export const useOrderStore = create<OrderStore>(
         |--------------------------------------------------------------------------
         */
 
-        removeItem: (
-            lineId
-        ) => {
-
+        removeItem: (lineId) => {
             set(state => {
-
-                if (
-                    !state.activeOrderId
-                ) {
+                if (!state.activeOrderId) {
                     return state;
                 }
 
                 const active =
-                    state.orders[
-                        state.activeOrderId
-                    ];
+                    state.orders[state.activeOrderId];
 
                 if (!active) {
+                    return state;
+                }
+
+                const itemToRemove =
+                    active.cart.find(
+                        item =>
+                            item.lineId === lineId
+                    );
+
+                if (!itemToRemove) {
                     return state;
                 }
 
                 const nextCart =
                     active.cart.filter(
                         item =>
-                            item.lineId !==
-                            lineId
+                            item.lineId !== lineId
                     );
 
-                return {
+                const nextSavedLineIds =
+                    active.savedLineIds.filter(
+                        id => id !== lineId
+                    );
 
-                    cart:
-                        nextCart,
+                /**
+                 * If the item already has a backend
+                 * orderItemId, removing it means the
+                 * existing order needs to be synced.
+                 *
+                 * A new local item does not need sync.
+                 */
+                const isPersistedItem =
+                    itemToRemove.orderItemId != null;
+
+                const updatedOrder: LocalOrder = {
+                    ...active,
+
+                    cart: nextCart,
+
+                    savedLineIds:
+                        nextSavedLineIds,
+
+                    syncStatus:
+                        isPersistedItem
+                            ? "pending"
+                            : active.syncStatus,
+                };
+
+                return {
+                    cart: nextCart,
 
                     orders: {
-
                         ...state.orders,
 
-                        [state.activeOrderId]: {
-
-                            ...active,
-
-                            cart:
-                                nextCart,
-                        },
+                        [state.activeOrderId]:
+                            updatedOrder,
                     },
                 };
             });
@@ -1185,58 +1212,62 @@ export const useOrderStore = create<OrderStore>(
         |--------------------------------------------------------------------------
         */
 
-        increaseQty: (
-            lineId
-        ) => {
-
+        increaseQty: (lineId) => {
             set(state => {
-
-                if (
-                    !state.activeOrderId
-                ) {
+                if (!state.activeOrderId) {
                     return state;
                 }
 
                 const active =
-                    state.orders[
-                        state.activeOrderId
-                    ];
+                    state.orders[state.activeOrderId];
 
                 if (!active) {
                     return state;
                 }
 
-                const nextCart =
-                    active.cart.map(
+                const targetItem =
+                    active.cart.find(
                         item =>
-                            item.lineId ===
-                            lineId
-                                ? {
-                                    ...item,
-
-                                    quantity:
-                                        item.quantity +
-                                        1,
-                                }
-                                : item
+                            item.lineId === lineId
                     );
 
-                return {
+                if (!targetItem) {
+                    return state;
+                }
 
-                    cart:
-                        nextCart,
+                const nextCart =
+                    active.cart.map(item =>
+                        item.lineId === lineId
+                            ? {
+                                ...item,
+                                quantity:
+                                    item.quantity + 1,
+                            }
+                            : item
+                    );
+
+                const isPersistedItem =
+                    targetItem.orderItemId != null;
+
+                const updatedOrder: LocalOrder = {
+                    ...active,
+
+                    cart: nextCart,
+
+                    syncStatus:
+                        isPersistedItem
+                            ? "pending"
+                            : active.syncStatus,
+                };
+
+                return {
+                    cart: nextCart,
 
                     orders: {
-
                         ...state.orders,
 
-                        [state.activeOrderId]: {
-
-                            ...active,
-
-                            cart:
-                                nextCart,
-                        },
+                        [state.activeOrderId]:
+                            updatedOrder,
                     },
                 };
             });
@@ -1248,63 +1279,67 @@ export const useOrderStore = create<OrderStore>(
         |--------------------------------------------------------------------------
         */
 
-        decreaseQty: (
-            lineId
-        ) => {
-
+        decreaseQty: (lineId) => {
             set(state => {
-
-                if (
-                    !state.activeOrderId
-                ) {
+                if (!state.activeOrderId) {
                     return state;
                 }
 
                 const active =
-                    state.orders[
-                        state.activeOrderId
-                    ];
+                    state.orders[state.activeOrderId];
 
                 if (!active) {
                     return state;
                 }
 
+                const targetItem =
+                    active.cart.find(
+                        item =>
+                            item.lineId === lineId
+                    );
+
+                if (!targetItem) {
+                    return state;
+                }
+
                 const nextCart =
                     active.cart
-                        .map(
-                            item =>
-                                item.lineId ===
-                                lineId
-                                    ? {
-                                        ...item,
-
-                                        quantity:
-                                            item.quantity -
-                                            1,
-                                    }
-                                    : item
+                        .map(item =>
+                            item.lineId === lineId
+                                ? {
+                                    ...item,
+                                    quantity:
+                                        item.quantity - 1,
+                                }
+                                : item
                         )
                         .filter(
                             item =>
                                 item.quantity > 0
                         );
 
-                return {
+                const isPersistedItem =
+                    targetItem.orderItemId != null;
 
-                    cart:
-                        nextCart,
+                const updatedOrder: LocalOrder = {
+                    ...active,
+
+                    cart: nextCart,
+
+                    syncStatus:
+                        isPersistedItem
+                            ? "pending"
+                            : active.syncStatus,
+                };
+
+                return {
+                    cart: nextCart,
 
                     orders: {
-
                         ...state.orders,
 
-                        [state.activeOrderId]: {
-
-                            ...active,
-
-                            cart:
-                                nextCart,
-                        },
+                        [state.activeOrderId]:
+                            updatedOrder,
                     },
                 };
             });
@@ -1316,117 +1351,124 @@ export const useOrderStore = create<OrderStore>(
         |--------------------------------------------------------------------------
         */
 
-        updateItem: (
-            lineId,
-            data
-        ) => {
-
+        updateItem: (lineId, updates) => {
             set(state => {
+                const activeOrderId =
+                    state.activeOrderId;
 
-                if (
-                    !state.activeOrderId
-                ) {
+                if (!activeOrderId) {
                     return state;
                 }
 
-                const active =
-                    state.orders[
-                        state.activeOrderId
-                    ];
+                const activeOrder =
+                    state.orders[activeOrderId];
 
-                if (!active) {
+                if (!activeOrder) {
                     return state;
                 }
 
-                const nextCart =
-                    active.cart.map(
-                        item =>
-                            item.lineId ===
-                            lineId
-                                ? {
-                                    ...item,
-                                    ...data,
-                                }
-                                : item
+                const cart =
+                    activeOrder.cart.map(item =>
+                        item.lineId === lineId
+                            ? {
+                                ...item,
+                                ...updates,
+                            }
+                            : item
                     );
 
+                const hasPersistedItem =
+                    activeOrder.cart.some(
+                        item =>
+                            item.lineId === lineId &&
+                            item.orderItemId != null
+                    );
+
+                const updatedOrder: LocalOrder = {
+                    ...activeOrder,
+                    cart,
+                    syncStatus:
+                        hasPersistedItem
+                            ? "pending"
+                            : activeOrder.syncStatus,
+                };
+
                 return {
-
-                    cart:
-                        nextCart,
-
                     orders: {
-
                         ...state.orders,
-
-                        [state.activeOrderId]: {
-
-                            ...active,
-
-                            cart:
-                                nextCart,
-                        },
+                        [activeOrderId]: updatedOrder,
                     },
+
+                    cart,
                 };
             });
         },
 
+
         /*
-        |--------------------------------------------------------------------------
-        | Apply item discount
-        |--------------------------------------------------------------------------
-        */
+|--------------------------------------------------------------------------
+| Apply item discount
+|--------------------------------------------------------------------------
+*/
 
         applyDiscount: (
             lineId,
             discount
         ) => {
-
             set(state => {
-
-                if (
-                    !state.activeOrderId
-                ) {
+                if (!state.activeOrderId) {
                     return state;
                 }
 
                 const active =
-                    state.orders[
-                        state.activeOrderId
-                    ];
+                    state.orders[state.activeOrderId];
 
                 if (!active) {
                     return state;
                 }
 
-                const nextCart =
-                    active.cart.map(
+                const targetItem =
+                    active.cart.find(
                         item =>
-                            item.lineId ===
-                            lineId
-                                ? {
-                                    ...item,
-                                    discount,
-                                }
-                                : item
+                            item.lineId === lineId
                     );
 
-                return {
+                if (!targetItem) {
+                    return state;
+                }
 
-                    cart:
-                        nextCart,
+                const nextCart =
+                    active.cart.map(item =>
+                        item.lineId === lineId
+                            ? {
+                                ...item,
+                                discount,
+                            }
+                            : item
+                    );
+
+                const isPersistedItem =
+                    targetItem.orderItemId != null;
+
+                const updatedOrder: LocalOrder = {
+                    ...active,
+
+                    cart: nextCart,
+
+                    syncStatus:
+                        isPersistedItem
+                            ? "pending"
+                            : active.syncStatus,
+                };
+
+                return {
+                    cart: nextCart,
 
                     orders: {
-
                         ...state.orders,
 
-                        [state.activeOrderId]: {
-
-                            ...active,
-
-                            cart:
-                                nextCart,
-                        },
+                        [state.activeOrderId]:
+                            updatedOrder,
                     },
                 };
             });
@@ -1441,57 +1483,64 @@ export const useOrderStore = create<OrderStore>(
         removeDiscount: (
             lineId
         ) => {
-
             set(state => {
-
-                if (
-                    !state.activeOrderId
-                ) {
+                if (!state.activeOrderId) {
                     return state;
                 }
 
                 const active =
-                    state.orders[
-                        state.activeOrderId
-                    ];
+                    state.orders[state.activeOrderId];
 
                 if (!active) {
                     return state;
                 }
 
-                const nextCart =
-                    active.cart.map(
+                const targetItem =
+                    active.cart.find(
                         item =>
-                            item.lineId ===
-                            lineId
-                                ? {
-                                    ...item,
-                                    discount: null,
-                                }
-                                : item
+                            item.lineId === lineId
                     );
 
-                return {
+                if (!targetItem) {
+                    return state;
+                }
 
-                    cart:
-                        nextCart,
+                const nextCart =
+                    active.cart.map(item =>
+                        item.lineId === lineId
+                            ? {
+                                ...item,
+                                discount: null,
+                            }
+                            : item
+                    );
+
+                const isPersistedItem =
+                    targetItem.orderItemId != null;
+
+                const updatedOrder: LocalOrder = {
+                    ...active,
+
+                    cart: nextCart,
+
+                    syncStatus:
+                        isPersistedItem
+                            ? "pending"
+                            : active.syncStatus,
+                };
+
+                return {
+                    cart: nextCart,
 
                     orders: {
-
                         ...state.orders,
 
-                        [state.activeOrderId]: {
-
-                            ...active,
-
-                            cart:
-                                nextCart,
-                        },
+                        [state.activeOrderId]:
+                            updatedOrder,
                     },
                 };
             });
         },
-
         /*
         |--------------------------------------------------------------------------
         | Clear active cart
@@ -1523,7 +1572,7 @@ export const useOrderStore = create<OrderStore>(
 
                 const active =
                     state.orders[
-                        state.activeOrderId
+                    state.activeOrderId
                     ];
 
                 if (!active) {
@@ -1624,6 +1673,97 @@ export const useOrderStore = create<OrderStore>(
                                 ),
                         },
                     },
+                };
+            });
+        },
+        setOrderItemId: (
+            orderId,
+            lineId,
+            orderItemId
+        ) =>
+            set(state => {
+                const order = state.orders[orderId];
+
+                if (!order) {
+                    console.warn(
+                        "setOrderItemId: order not found",
+                        {
+                            orderId,
+                            lineId,
+                            orderItemId,
+                        }
+                    );
+
+                    return state;
+                }
+
+                return {
+                    orders: {
+                        ...state.orders,
+                        [orderId]: {
+                            ...order,
+                            cart: order.cart.map(item =>
+                                item.lineId === lineId
+                                    ? {
+                                        ...item,
+                                        orderItemId,
+                                    }
+                                    : item
+                            ),
+                        },
+                    },
+                };
+            }),
+
+
+        updateLocalOrder: (
+            orderId,
+            data
+        ) => {
+            set(state => {
+                const existing =
+                    state.orders[orderId];
+
+                if (!existing) {
+                    return state;
+                }
+
+                const updatedOrder: LocalOrder = {
+                    ...existing,
+                    ...data,
+                };
+
+                const isActive =
+                    state.activeOrderId ===
+                    orderId;
+
+                return {
+                    orders: {
+                        ...state.orders,
+
+                        [orderId]:
+                            updatedOrder,
+                    },
+
+                    cart:
+                        isActive
+                            ? updatedOrder.cart
+                            : state.cart,
+
+                    orderNote:
+                        isActive
+                            ? updatedOrder.orderNote
+                            : state.orderNote,
+
+                    orderDiscount:
+                        isActive
+                            ? updatedOrder.orderDiscount
+                            : state.orderDiscount,
+
+                    status:
+                        isActive
+                            ? updatedOrder.status
+                            : state.status,
                 };
             });
         },

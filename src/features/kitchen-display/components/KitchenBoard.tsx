@@ -7,10 +7,10 @@ interface Props {
 }
 
 const columns = [
-    {
-        title: "Pending",
-        status: "pending",
-    },
+    // {
+    //     title: "Pending",
+    //     status: "pending",
+    // },
     {
         title: "Preparing",
         status: "preparing",
@@ -32,7 +32,7 @@ export function KitchenBoard({
                 h-full
                 grid-cols-1
                 gap-3
-                md:grid-cols-3
+                md:grid-cols-2
             "
         >
             {columns.map((column) => (
