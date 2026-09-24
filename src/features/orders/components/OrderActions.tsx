@@ -12,10 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Button } from "@/components/ui/button";
-import { CreditCard, Eye, MoreHorizontal, Package } from "lucide-react";
+import { CreditCard, Edit, Eye, MoreHorizontal, Package } from "lucide-react";
 import ChangePaymentStatusDialog from "./ReceivePaymentDialog";
 import OrderStatusDialog from "./OrderStatusDialog";
 import ReceivePaymentDialog from "./ReceivePaymentDialog";
+import { useRouter } from "next/navigation";
+import PermissionGuard from "@/components/guards/PermissionGuard";
 
 interface Props {
     order: Order;
@@ -29,6 +31,10 @@ export default function OrderActions({
     const [viewOpen, setViewOpen] = useState(false);
     const [changePaymentOpen, setChangePaymentOpen] = useState(false);
     const [orderStatusOpen, setOrderStatusOpen] = useState(false);
+    const router = useRouter()
+    function handleEdit() {
+        router.push(`/sales/orders/${order.id}/edit`)
+    }
 
     return (
         <>
@@ -48,6 +54,12 @@ export default function OrderActions({
                         <Eye className="mr-2 h-4 w-4" />
                         View
                     </DropdownMenuItem>
+                    <PermissionGuard permission="orders.update">
+                    <DropdownMenuItem onClick={handleEdit}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit Order
+                    </DropdownMenuItem>
+                    </PermissionGuard>
                       {/* <DropdownMenuItem
                         onClick={() => setOrderStatusOpen(true)}
                     >

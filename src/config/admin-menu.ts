@@ -67,7 +67,7 @@ export const adminMenu: AdminMenuItem[] = [
                 title: "Orders",
                 href: "/sales/orders",
                 icon: ShoppingCart,
-                permission: "sales.orders.view",
+                permission: "orders.view",
             },
             // {
             //     title: "Reports",

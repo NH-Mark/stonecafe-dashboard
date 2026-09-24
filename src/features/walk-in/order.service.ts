@@ -70,29 +70,56 @@ export interface UpdateOrderItemPayload {
 }
 
 export interface UpdateOrderPayload {
-    items: UpdateOrderItemPayload[];
-
-    discounts: {
-        discount_id: number;
-        amount: number;
-    }[];
-
-    notes: string | null;
-
-    subtotal: number;
-
-    discount_amount: number;
-
-    tax_amount: number;
-
-    service_charge: number;
-
-    total_amount: number;
-
-    /**
-     * Optional optimistic locking.
+    /*
+     * Order information
      */
-    version?: number;
+    order_no?: string
+    type?: string
+    order_type_id?: number
+    source?: string
+    order_source_id?: number | null
+
+    customer_id?: number | null
+    restaurant_table_id?: number | null
+    location_id?: number | null
+
+    number_plate?: string | null
+    dining_session_id?: number | null
+
+    status?: string
+    payment_status?: string
+    kitchen_status?: string
+
+    notes?: string | null
+
+    /*
+     * Order items
+     */
+    items: UpdateOrderItemPayload[]
+
+    /*
+     * Order discount
+     */
+    discounts: UpdateOrderDiscountPayload[]
+
+    /*
+     * Totals
+     */
+    subtotal: number
+    discount_amount: number
+    tax_amount: number
+    service_charge: number
+    total_amount: number
+
+    /*
+     * Optimistic locking
+     */
+    version?: number
+}
+
+export interface UpdateOrderDiscountPayload {
+    discount_id: number
+    amount: number
 }
 
 export async function updateOrder(

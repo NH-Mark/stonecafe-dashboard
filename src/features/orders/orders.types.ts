@@ -1,6 +1,7 @@
 import { RestaurantTable } from "../walk-in/components/tables/tables.service";
 
 export interface OrderItemModifier {
+    id?: number;
     modifier: string;
     quantity: number;
     price: number;
@@ -9,11 +10,14 @@ export interface OrderItemModifier {
 export interface OrderItemDiscount {
     id: number;
     name: string;
+    type: "percentage" | "fixed";
+    value: number;
     amount: number;
 }
 
 export interface OrderItem {
     id: number;
+    menu_item_id?: number;
     menu_item: string;
     quantity: number;
     unit_price: number;
@@ -39,13 +43,17 @@ export interface Order {
 
     type: string;
     order_type_code:string;
+    order_type_id?:number;
     source: string;
 
     customer?: string;
+    customer_id?:number;
     table?: string;
     restaurant_table:RestaurantTable;
+    restaurant_table_id: number | null;
     cashier?: string;
     location?: string;
+    location_id?: number | null;
 
     status: string;
     payment_status: string;
@@ -70,6 +78,9 @@ export interface Order {
 }
 
 export interface OrderDiscount {
+    id: number;
     name: string;
+    type: "percentage" | "fixed";
+    value: number;
     amount: number;
 }
