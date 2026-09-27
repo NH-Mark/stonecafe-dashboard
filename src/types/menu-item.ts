@@ -4,6 +4,7 @@ import { FoodSymbol } from "./food-symbol";
 import { MenuItemTag } from "./menu-item-tag";
 import { Modifier } from "./modifier";
 import { ModifierGroup } from "./modifier-group";
+import { Printer } from "./printer";
 
 export interface MenuItem {
 
@@ -64,4 +65,8 @@ export interface MenuItem {
     active: boolean;
 
     discount:Discount;
+
+    printer_id:number;
+
+    printer:Printer;
 }

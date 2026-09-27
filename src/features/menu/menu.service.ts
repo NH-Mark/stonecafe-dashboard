@@ -87,3 +87,8 @@ export async function updateMenuItemModifierGroup(
     );
 
 }
+
+export function getPrinters() {
+    return api.get("/api/printers");
+}
+

@@ -143,6 +143,9 @@ export default function MenuItemForm({
                     tag => tag.id
                 ) ?? [],
 
+           printer_id: menuItem?.printer_id
+            ? Number(menuItem.printer_id)
+            : null,
 
         },
 
@@ -190,6 +193,9 @@ export default function MenuItemForm({
 
             active:
                 menuItem.active ?? true,
+
+            printer_id:
+                menuItem.printer_id ?? true,
 
 
             modifier_groups:

@@ -96,6 +96,11 @@ export const menuItemSchema = z.object({
         z.boolean()
         .default(true),
 
+    printer_id: z
+        .number()
+        .nullable()
+        .optional(),
+
 });
 
 
