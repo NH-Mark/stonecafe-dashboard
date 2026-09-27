@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -142,8 +141,6 @@ export function useAdminOrderMutation() {
              * ==================================================
              * 1. Find new items
              * ==================================================
-             *
-             * New frontend items have id = 0.
              */
 
             const newItems =
@@ -157,15 +154,10 @@ export function useAdminOrderMutation() {
              * ==================================================
              * 2. Create new items first
              * ==================================================
-             *
-             * Map frontend item index -> database item ID.
              */
 
             const createdItemIds =
-                new Map<
-                    number,
-                    number
-                >()
+                new Map<number, number>()
 
             if (newItems.length > 0) {
                 const addItemsPayload: AddItemPayload[] =
@@ -188,11 +180,6 @@ export function useAdminOrderMutation() {
                                 )
 
                             return {
-                                /*
-                                 * We use the new item
-                                 * array index as the
-                                 * temporary reference.
-                                 */
                                 line_id:
                                     `new-item-${index}-${Date.now()}`,
 
@@ -308,11 +295,6 @@ export function useAdminOrderMutation() {
                     addResponse.data
                         ?.created_items ?? []
 
-                /*
-                 * Make sure Laravel returned
-                 * every newly created item.
-                 */
-
                 if (
                     createdItems.length !==
                     newItems.length
@@ -321,14 +303,6 @@ export function useAdminOrderMutation() {
                         "The server did not return all newly created order items."
                     )
                 }
-
-                /*
-                 * Match each new frontend item
-                 * with its new database ID.
-                 *
-                 * addItems() returns created_items
-                 * in the same order as request.items.
-                 */
 
                 createdItems.forEach(
                     (
@@ -470,19 +444,101 @@ export function useAdminOrderMutation() {
 
             /*
              * ==================================================
-             * 10. Build final item payload
+             * 10. Validate payments
              * ==================================================
-             *
-             * IMPORTANT:
-             *
-             * We loop through order.items so the
-             * original item order is preserved.
-             *
-             * Existing:
-             *     id = existing database ID
-             *
-             * New:
-             *     id = ID returned from addItems()
+             */
+
+            const payments =
+                (order.payments ?? []).map(
+                    payment => ({
+                        id:
+                            Number(
+                                payment.id
+                            ) > 0
+                                ? Number(
+                                      payment.id
+                                  )
+                                : undefined,
+
+                        payment_method_id:
+                            Number(
+                                payment.payment_method_id
+                            ),
+
+                        amount:
+                            Number(
+                                payment.amount ||
+                                    0
+                            ),
+
+                        reference:
+                            payment.reference ||
+                            null,
+
+                        paid_at:
+                            payment.paid_at ||
+                            null,
+                    })
+                )
+
+            /*
+             * Payment total
+             */
+
+            const paidAmount =
+                payments.reduce(
+                    (
+                        sum: number,
+                        payment
+                    ) =>
+                        sum +
+                        Number(
+                            payment.amount ||
+                                0
+                        ),
+                    0
+                )
+
+            /*
+             * Prevent payments from exceeding
+             * the order total.
+             */
+
+            if (
+                paidAmount >
+                total + 0.01
+            ) {
+                throw new Error(
+                    `Payment total (${paidAmount.toFixed(
+                        2
+                    )}) cannot exceed order total (${total.toFixed(
+                        2
+                    )}).`
+                )
+            }
+
+            /*
+             * Validate payment methods.
+             */
+
+            const invalidPayment =
+                payments.find(
+                    payment =>
+                        !payment.payment_method_id ||
+                        payment.payment_method_id <=
+                            0
+                )
+
+            if (invalidPayment) {
+                throw new Error(
+                    "Every payment must have a payment method."
+                )
+            }
+
+            /*
+             * ==================================================
+             * 11. Build final item payload
+             * ==================================================
              */
 
             let newItemIndex = 0
@@ -500,6 +556,7 @@ export function useAdminOrderMutation() {
                         /*
                          * New item
                          */
+
                         if (
                             itemId <= 0
                         ) {
@@ -633,7 +690,7 @@ export function useAdminOrderMutation() {
 
             /*
              * ==================================================
-             * 11. Complete order payload
+             * 12. Complete order payload
              * ==================================================
              */
 
@@ -699,6 +756,8 @@ export function useAdminOrderMutation() {
                           ]
                         : [],
 
+                payments,
+
                 subtotal,
 
                 discount_amount:
@@ -716,7 +775,7 @@ export function useAdminOrderMutation() {
 
             /*
              * ==================================================
-             * 12. Update complete order
+             * 13. Update complete order
              * ==================================================
              */
 

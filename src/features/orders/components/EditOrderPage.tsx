@@ -17,6 +17,7 @@ import OrderSummaryCard from "./edit-order/OrderSummaryCard"
 import OrderInformationCard from "./edit-order/OrderInformationCard"
 import { useAdminOrderMutation } from "../hooks/useAdminOrderMutation"
 import PermissionPageGuard from "@/components/guards/PermissionPageGuard"
+import OrderPaymentsCard from "./edit-order/OrderPaymentsCard"
 
 interface Props {
     orderId: string
@@ -154,6 +155,8 @@ export default function EditOrderPage({
                     order={order}
                     onChange={setOrder}
                 />
+             
+
 
                 {/* Order items */}
                 <OrderItemsCard
@@ -161,11 +164,13 @@ export default function EditOrderPage({
                     onChange={setOrder}
                 />
 
+
                 {/* Order notes */}
                 <OrderNotesCard
                     order={order}
                     onChange={setOrder}
                 />
+              
 
                 {/* Main content */}
                 <div className="grid gap-6 lg:grid-cols-3">
@@ -184,6 +189,10 @@ export default function EditOrderPage({
                         />
                     </div>
                 </div>
+                 <OrderPaymentsCard
+                    order={order}
+                    onChange={setOrder}
+                />
             </div>
 
             {/* Fixed actions */}

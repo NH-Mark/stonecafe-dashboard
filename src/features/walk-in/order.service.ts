@@ -69,6 +69,14 @@ export interface UpdateOrderItemPayload {
     }[];
 }
 
+export interface UpdatePaymentPayload {
+    id?: number;
+    payment_method_id: number;
+    amount: number;
+    reference: string | null;
+    paid_at: string | null;
+}
+
 export interface UpdateOrderPayload {
     /*
      * Order information
@@ -115,6 +123,7 @@ export interface UpdateOrderPayload {
      * Optimistic locking
      */
     version?: number
+    payments?: UpdatePaymentPayload[];
 }
 
 export interface UpdateOrderDiscountPayload {

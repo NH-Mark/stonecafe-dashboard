@@ -30,10 +30,11 @@ export interface OrderItem {
 
 export interface Payment {
     id: number;
-    method: string;
+    method: string | null;
+    payment_method_id?: number;
     amount: number;
     reference?: string;
-    received_by?: string;
+    received_by?: string | null;
     paid_at?: string;
 }
 
