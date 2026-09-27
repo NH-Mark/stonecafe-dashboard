@@ -51,9 +51,9 @@ function recalculateItemDiscounts(
                 (sum, modifier) =>
                     sum +
                     Number(modifier.price || 0) *
-                        Number(
-                            modifier.quantity || 1
-                        ),
+                    Number(
+                        modifier.quantity || 1
+                    ),
                 0
             )
         ) *
@@ -491,7 +491,7 @@ export default function OrderItemsCard({
         })
     }
 
-   function getModifierTotal(
+    function getModifierTotal(
         item: OrderItem
     ): number {
         return item.modifiers.reduce(
@@ -705,13 +705,11 @@ export default function OrderItemsCard({
                                             >
                                                 {/* ITEM */}
                                                 <td className="p-4">
-                                                    <div className="space-y-2">
+                                                    <div className="min-w-[240px] space-y-2">
                                                         <select
                                                             value={
                                                                 item.menu_item_id
-                                                                    ? String(
-                                                                        item.menu_item_id
-                                                                    )
+                                                                    ? String(item.menu_item_id)
                                                                     : ""
                                                             }
                                                             onChange={e =>
@@ -728,42 +726,37 @@ export default function OrderItemsCard({
                                                                     : "Select item"}
                                                             </option>
 
-                                                            {menuItems.map(
-                                                                menuItem => (
-                                                                    <option
-                                                                        key={
-                                                                            menuItem.id
-                                                                        }
-                                                                        value={String(
-                                                                            menuItem.id
-                                                                        )}
-                                                                    >
-                                                                        {
-                                                                            menuItem.name
-                                                                        }{" "}
-                                                                        -{" "}
-                                                                        {Number(
-                                                                            menuItem.price
-                                                                        ).toFixed(
-                                                                            2
-                                                                        )}
-                                                                    </option>
-                                                                )
-                                                            )}
+                                                            {menuItems.map(menuItem => (
+                                                                <option
+                                                                    key={menuItem.id}
+                                                                    value={String(menuItem.id)}
+                                                                >
+                                                                    {menuItem.name} -{" "}
+                                                                    {Number(menuItem.price).toFixed(2)}
+                                                                </option>
+                                                            ))}
                                                         </select>
 
-                                                        {/* {item.menu_item && (
-                                                            <p className="text-xs text-muted-foreground">
-                                                                {
-                                                                    item.menu_item
-                                                                }
-                                                            </p>
+                                                        {/* {item.menu_item_id && (
+            <div className="rounded-md bg-muted/50 px-3 py-2">
+                <p className="text-xs text-muted-foreground">
+                    Selected item
+                </p>
+
+                <p className="truncate text-sm font-semibold">
+                    {item.menu_item ||
+                        menuItems.find(
+                            menuItem =>
+                                menuItem.id ===
+                                item.menu_item_id
+                        )?.name ||
+                        "Selected item"}
+                </p>
+            </div>
                                                         )} */}
 
                                                         <p className="text-xs text-muted-foreground">
-                                                            Item #
-                                                            {itemIndex +
-                                                                1}
+                                                            Item #{itemIndex + 1}
                                                         </p>
                                                     </div>
                                                 </td>
