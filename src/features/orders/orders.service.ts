@@ -99,3 +99,7 @@ export async function updateOrderStatus(
         status,
     });
 }
+
+export async function getOrderHistory(id: number) {
+    return api.get(`/api/orders/${id}/history`);
+}

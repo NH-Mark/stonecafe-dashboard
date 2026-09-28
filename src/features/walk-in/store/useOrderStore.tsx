@@ -968,6 +968,7 @@ export const useOrderStore = create<OrderStore>(
                 }
 
                 const isPersistedOrder =
+                    typeof active.id === "number" ||
                     !active.id.startsWith("new-");
 
                 const updatedOrder: LocalOrder = {

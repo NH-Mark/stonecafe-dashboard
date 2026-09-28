@@ -217,7 +217,7 @@ export default function EditOrderPage({
                     variant="outline"
                     disabled={isSaving}
                     onClick={() =>
-                        router.push("/orders")
+                        router.push("/sales/orders")
                     }
                 >
                     Cancel
