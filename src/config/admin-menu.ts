@@ -20,6 +20,8 @@ import {
     BadgePercent,
     BadgeDollarSign,
     ChefHat,
+    Upload,
+    Import,
 } from "lucide-react";
 
 export const adminMenu: AdminMenuItem[] = [
@@ -175,6 +177,12 @@ export const adminMenu: AdminMenuItem[] = [
                 href: "/locations",
                 icon: MapPin,
                 permission: "locations.view",
+            },
+             {
+                title: "Import Data",
+                href: "/import-orders",
+                icon: Import,
+                permission: "orders.view",
             },
         ],
     },

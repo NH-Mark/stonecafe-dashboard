@@ -195,7 +195,7 @@ export default function MenuItemForm({
                 menuItem.active ?? true,
 
             printer_id:
-                menuItem.printer_id ?? true,
+                menuItem.printer_id ?? null,
 
 
             modifier_groups:
@@ -235,6 +235,8 @@ export default function MenuItemForm({
                 menuItem.menu_item_tags?.map(
                     tag => tag.id
                 ) ?? [],
+
+
 
         });
 
