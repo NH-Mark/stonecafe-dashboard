@@ -53,16 +53,20 @@ export default function ModifierManagement() {
     }
 
     return (
-        <div className="grid lg:grid-cols-4 gap-6">
+         <div className="grid min-w-0 gap-6 lg:grid-cols-4">
 
-            <ModifierGroupSidebar
-                groups={groups}
-                selectedGroup={selectedGroup}
-                onSelect={setSelectedGroup}
-                onRefresh={loadGroups}
-            />
+            <div className="min-w-0">
+                <ModifierGroupSidebar
+                    groups={groups}
+                    selectedGroup={selectedGroup}
+                    onSelect={setSelectedGroup}
+                    onRefresh={loadGroups}
+                />
+            </div>
 
-            <div className="lg:col-span-3">
+            
+
+            <div className="min-w-0 lg:col-span-3">
 
                 <div className="flex justify-between mb-5">
 

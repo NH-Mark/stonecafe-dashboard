@@ -31,9 +31,10 @@ export default function MenuManagement() {
     }, []);
 
     return (
-        <div className="grid lg:grid-cols-4 gap-6">
+        <div className="grid min-w-0 gap-6 lg:grid-cols-4">
 
-            <div>
+
+            <div className="min-w-0">
                 <CategorySidebar
                     categories={categories}
                     selectedCategory={selectedCategory}
@@ -42,7 +43,7 @@ export default function MenuManagement() {
                 />
             </div>
 
-            <div className="lg:col-span-3">
+            <div className="min-w-0 lg:col-span-3">
                 <MenuItemsTable
                     categories={categories}
                     selectedCategory={selectedCategory}
