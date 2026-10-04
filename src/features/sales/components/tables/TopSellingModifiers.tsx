@@ -128,7 +128,7 @@ export default function TopSellingModifiers({
                         )
                     }
                     {
-                        data.map((item,index)=>(
+                        data.slice(0, 5).map((item, index) => (
 
 
                             <div
