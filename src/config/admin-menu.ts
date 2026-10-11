@@ -178,7 +178,7 @@ export const adminMenu: AdminMenuItem[] = [
                 icon: MapPin,
                 permission: "locations.view",
             },
-             {
+            {
                 title: "Import Data",
                 href: "/import-orders",
                 icon: Import,
@@ -186,20 +186,21 @@ export const adminMenu: AdminMenuItem[] = [
             },
         ],
     },
+
     {
         title: "Events",
         href: "/events",
-        icon: Settings,
+        icon: CalendarDays,
         children: [
             {
                 title: "Registered List",
                 href: "/events/registered",
-                icon: Shapes,
+                icon: Users,
                 permission: "menu.view",
             },
         ],
     },
-   
+
     // {
     //     title: "Categories",
     //     href: "/categories",
