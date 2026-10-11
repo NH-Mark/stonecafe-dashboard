@@ -148,12 +148,8 @@ export default function TopSellingItems({
 
                     {
                         data.slice(0, 5).map((item, index) => (
-
-
                             <div
-
                                 key={item.name}
-
                                 className="
                                 flex
                                 items-center
@@ -165,10 +161,7 @@ export default function TopSellingItems({
                                 transition
                                 hover:bg-[#ddcfbe]
                                 "
-
                             >
-
-
                                 <div
                                     className="
                                     flex
@@ -176,8 +169,6 @@ export default function TopSellingItems({
                                     gap-3
                                     "
                                 >
-
-
                                     <span
                                         className="
                                         flex
@@ -194,10 +185,7 @@ export default function TopSellingItems({
                                     >
                                         {index + 1}
                                     </span>
-
-
-
-                                    <div>
+                                <div>
 
                                         <p
                                             className="

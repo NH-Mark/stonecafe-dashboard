@@ -186,6 +186,19 @@ export const adminMenu: AdminMenuItem[] = [
             },
         ],
     },
+    {
+        title: "Events",
+        href: "/events",
+        icon: Settings,
+        children: [
+            {
+                title: "Registered List",
+                href: "/events/registered",
+                icon: Shapes,
+                permission: "menu.view",
+            },
+        ],
+    },
    
     // {
     //     title: "Categories",
