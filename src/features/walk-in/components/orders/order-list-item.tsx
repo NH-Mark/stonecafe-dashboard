@@ -90,9 +90,12 @@ export default function OrderListItem({
 
                     <div className="flex items-center gap-2">
 
-                        <span className="font-semibold">
-                            #{order.order_no}
-                        </span>
+                            <span className="font-semibold">
+                                #{order.order_no} 
+                            </span>
+                             <span className="text-sm">
+                                {order.notes ?? ""} 
+                            </span>
 
                         <Badge
                             variant="secondary"

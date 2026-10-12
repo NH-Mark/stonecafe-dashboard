@@ -8,6 +8,7 @@ import {
     CheckCircle2,
     Printer,
     Table2,
+    ShoppingCart,
 } from "lucide-react"
 
 import {
@@ -30,11 +31,13 @@ import {
     updateOrderStatus,
 } from "../../orders.service"
 import { AssignTableDialog } from "./AssignTableDialog"
+import { Button } from "@/components/ui/button"
 
 
 interface OrderDetailsProps {
     order: Order | null
     onOrderUpdated?: (order: Order) => void
+    onGoToOrder: (order: Order) => void;
 }
 
 /*
@@ -109,6 +112,7 @@ function getFinalItemTotal(
 export default function OrderDetails({
     order,
     onOrderUpdated,
+    onGoToOrder
 }: OrderDetailsProps) {
 
     /*
@@ -549,6 +553,25 @@ export default function OrderDetails({
                                 gap-2
                             "
                         >
+                             {currentOrder.status
+                                ?.toLowerCase() ===
+                                "confirmed" &&
+                                currentOrder.payment_status
+                                    ?.toLowerCase() !==
+                                "paid" && (
+                                <Button
+                                    type="button"
+                                    onClick={() => {
+                                        if (currentOrder) {
+                                            onGoToOrder(currentOrder);
+                                        }
+                                    }}
+                                    disabled={!currentOrder}
+                                >
+                                    <ShoppingCart className="mr-2 h-4 w-4" />
+                                    Go to Order
+                                </Button>
+                             )}
 
                             {/* ================================================= */}
                             {/* ASSIGN TABLE */}

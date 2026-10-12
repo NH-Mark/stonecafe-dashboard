@@ -13,7 +13,7 @@ import { ModifierDialog } from "./components/modifier-dialog/ModifierDialog";
 
 import { Button } from "@/components/ui/button";
 
-import { useOrderStore } from "./store/useOrderStore";
+import { OrderDiscount, useOrderStore } from "./store/useOrderStore";
 
 import { getLineTotal } from "./utils/cart-price";
 
@@ -24,9 +24,14 @@ import {
 
 import { POSNav } from "./components/POSNav";
 import { useOrderKitchenSync } from "./hooks/useOrderKitchenSync";
+import { useSearchParams } from "next/navigation";
+import { getOrder } from "./orders.service";
+import { MenuItem } from "@/types/menu-item";
+import { listMenuItems } from "../menu/menu.service";
+import { CartItem } from "./cart.types";
 
 export function WalkInPOS() {
-     useOrderKitchenSync();
+    useOrderKitchenSync();
 
     const [categories, setCategories] =
         useState<any[]>([]);
@@ -87,6 +92,15 @@ export function WalkInPOS() {
         state => state.setActiveOrderNo
     );
 
+    const searchParams = useSearchParams();
+    const requestedOrderId = searchParams.get("orderId");
+
+    const [cartOrderId, setCartOrderId] =
+        useState<string | null>(null);
+
+    const [loadingRequestedOrder, setLoadingRequestedOrder] =
+        useState(false);
+    const displayedOrderId = cartOrderId ?? takeawayOrderId;
     /*
     |--------------------------------------------------------------------------
     | Create dedicated takeaway order
@@ -94,6 +108,7 @@ export function WalkInPOS() {
     */
 
     useEffect(() => {
+
         if (takeawayOrderId) {
             return;
         }
@@ -163,22 +178,166 @@ export function WalkInPOS() {
     */
 
     useEffect(() => {
-        if (!takeawayOrderId) {
-            return;
-        }
+        const targetOrderId = cartOrderId ?? takeawayOrderId;
 
-        if (
-            activeOrderId !==
-            takeawayOrderId
-        ) {
-            setActiveOrder(
-                takeawayOrderId
-            );
+        if (targetOrderId && activeOrderId !== targetOrderId) {
+            setActiveOrder(targetOrderId);
         }
     }, [
+        cartOrderId,
         takeawayOrderId,
         activeOrderId,
         setActiveOrder,
+    ]);
+
+
+    useEffect(() => {
+        if (!requestedOrderId) {
+            setCartOrderId(null);
+            return;
+        }
+
+        let cancelled = false;
+
+
+        async function loadRequestedOrder() {
+            try {
+                setLoadingRequestedOrder(true);
+
+                // Fetch the order and the full menu catalogue.
+                const [orderResponse, menuResponse] = await Promise.all([
+                    getOrder(Number(requestedOrderId)),
+                    listMenuItems(),
+                ]);
+
+                if (cancelled) return;
+
+                // Support APIs that return either { data: [...] } or { data: { data: [...] } }.
+                const order: any =
+                    (orderResponse as any).data?.data ??
+                    (orderResponse as any).data ??
+                    orderResponse;
+
+                const menuItems: MenuItem[] =
+                    (menuResponse as any).data?.data ??
+                    (menuResponse as any).data ??
+                    [];
+
+                console.log("Loaded menu items:", menuItems);
+                console.log("Loaded order:", order);
+
+
+                const cartItems: CartItem[] = (order.items ?? []).map((item: any) => {
+                    const menuItem = menuItems.find(
+                        (menu) => Number(menu.id) === Number(item.menu_item_id)
+                    );
+
+                    if (!menuItem) {
+                        throw new Error(
+                            `Menu item "${item.menu_item}" (ID: ${item.menu_item_id}) was not found.`
+                        );
+                    }
+
+                    const modifiers = (item.modifiers ?? []).map((modifier: any) => {
+                        const group = menuItem.modifier_groups?.find((g: any) =>
+                            g.modifiers?.some(
+                                (m: any) => Number(m.id) === Number(modifier.id)
+                            )
+                        );
+
+                        return {
+                            id: Number(modifier.id),
+                            groupId: group?.id ?? 0,
+                            groupName: group?.name ?? "",
+                            name: modifier.modifier,
+                            price: Number(modifier.price ?? 0),
+                        };
+                    });
+
+                    // Backend may return discounts as an array.
+                    const itemDiscounts = Array.isArray(item.discounts)
+                        ? item.discounts
+                        : item.discounts
+                            ? [item.discounts]
+                            : [];
+
+                    // Adapt this mapping to the actual Discount type used by your cart.
+                    const discount = itemDiscounts.length > 0
+                        ? {
+                            ...itemDiscounts[0],
+                            id: Number(itemDiscounts[0].id),
+                        }
+                        : null;
+
+                    return {
+                        lineId: `order-item-${item.id}`,
+                        orderItemId: Number(item.id),
+                        menuItem,
+                        quantity: Number(item.quantity ?? 1),
+                        modifiers,
+                        note: item.notes ?? "",
+                        discount,
+                        saved: true,
+                    };
+                });
+
+                const id = String(order.id);
+                const backendOrderDiscount = order.discounts?.[0];
+
+                const orderDiscount: OrderDiscount | null = backendOrderDiscount
+                    ? {
+                        id: Number(backendOrderDiscount.id),
+                        name: backendOrderDiscount.name,
+                        type: backendOrderDiscount.type,
+                        value: Number(backendOrderDiscount.value),
+                    }
+                    : null;
+
+                initializeOrder(id, {
+                    id,
+                    orderNo: order.order_no ?? null,
+                    cart: cartItems,
+                    orderNote: order.notes ?? "",
+                    orderDiscount,
+                    status: order.status as
+                        | "draft"
+                        | "pending"
+                        | "confirmed"
+                        | "completed"
+                        | "cancelled",
+                    isNew: false,
+                    savedLineIds: cartItems.map((item: CartItem) => item.lineId),
+                    syncStatus: "synced",
+                });
+
+                setActiveOrder(id);
+                setActiveOrderNo(order.order_no ?? "");
+                setCartOrderId(id);
+                // setShowCart(true);
+            } catch (error) {
+                if (!cancelled) {
+                    console.error("Failed to load existing order:", error);
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoadingRequestedOrder(false);
+                }
+            }
+        }
+
+        // Wait for categories/menu items before mapping backend items.
+        // if (categories.length > 0) {
+        void loadRequestedOrder();
+        // }
+
+        return () => {
+            cancelled = true;
+        };
+    }, [
+        requestedOrderId,
+        initializeOrder,
+        setActiveOrder,
+        setActiveOrderNo,
     ]);
 
     /*
@@ -217,22 +376,20 @@ export function WalkInPOS() {
         newOrderId: string,
         newOrderNo?: string | null
     ) {
-        setTakeawayOrderId(
-            newOrderId
-        );
+        const savedId = String(newOrderId);
 
-        setActiveOrder(
-            newOrderId
-        );
-         console.log("newOrderNo");
-        console.log(newOrderNo);
+        if (cartOrderId) {
+            setCartOrderId(savedId);
+        } else {
+            setTakeawayOrderId(savedId);
+        }
+
+        setActiveOrder(savedId);
+
         if (newOrderNo) {
-            setActiveOrderNo(
-                newOrderNo
-            );
+            setActiveOrderNo(newOrderNo);
         }
     }
-
     /*
     |--------------------------------------------------------------------------
     | Cart summary
@@ -266,17 +423,17 @@ export function WalkInPOS() {
                 bg-slate-100
             "
         >
-             <header className="shrink-0">
-                    <Header />
-                </header>
+            <header className="shrink-0">
+                <Header />
+            </header>
 
-                {/* ================================================= */}
-                {/* POS NAVIGATION */}
-                {/* ================================================= */}
+            {/* ================================================= */}
+            {/* POS NAVIGATION */}
+            {/* ================================================= */}
 
-                <nav className="shrink-0">
-                    <POSNav />
-                </nav>
+            <nav className="shrink-0">
+                <POSNav />
+            </nav>
 
             <main
                 className="
@@ -286,7 +443,7 @@ export function WalkInPOS() {
                     p-3
                 "
             >
-                
+
                 <div
                     className="
                         grid
@@ -346,19 +503,14 @@ export function WalkInPOS() {
                             lg:block
                         "
                     >
-                        {takeawayOrderId && (
+
+                        {displayedOrderId && (
                             <OrderCart
-                                orderId={
-                                    takeawayOrderId
-                                }
-                                activeOrderNo={
-                                    activeOrderNo ??
-                                    takeawayOrderId
-                                }
+                                key={displayedOrderId}
+                                orderId={displayedOrderId}
+                                activeOrderNo={activeOrderNo ?? undefined}
                                 mode="takeaway"
-                                onOrderSaved={
-                                    handleOrderSaved
-                                }
+                                onOrderSaved={handleOrderSaved}
                             />
                         )}
                     </aside>
@@ -532,19 +684,13 @@ export function WalkInPOS() {
                             e.stopPropagation()
                         }
                     >
-                        {takeawayOrderId && (
+                        {displayedOrderId && (
                             <OrderCart
-                                orderId={
-                                    takeawayOrderId
-                                }
-                                activeOrderNo={
-                                    activeOrderNo ??
-                                    undefined
-                                }
+                                key={displayedOrderId}
+                                orderId={displayedOrderId}
+                                activeOrderNo={activeOrderNo ?? undefined}
                                 mode="takeaway"
-                                onOrderSaved={
-                                    handleOrderSaved
-                                }
+                                onOrderSaved={handleOrderSaved}
                             />
                         )}
                     </div>

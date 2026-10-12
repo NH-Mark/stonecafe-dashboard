@@ -196,7 +196,7 @@ export const adminMenu: AdminMenuItem[] = [
                 title: "Registered List",
                 href: "/events/registered",
                 icon: Users,
-                permission: "menu.view",
+                permission: "event-registrations.view",
             },
         ],
     },

@@ -21,8 +21,10 @@ import OrdersList from "./order-list"
 import OrderDetails from "./order-details"
 import { Header } from "../Header"
 import { POSNav } from "../POSNav"
+import { useRouter } from "next/navigation"
 
 export default function OrdersPage() {
+    const router = useRouter();
     const [
         orders,
         setOrders,
@@ -94,6 +96,11 @@ export default function OrdersPage() {
         )
 
         setSelectedOrder(updatedOrder)
+    }
+    function handleGoToOrder(order: Order) {
+        if (!order) return; 
+        const orderId = String(order.id);
+        router.push(`/walk-in?orderId=${encodeURIComponent(orderId)}`); 
     }
 
     /*
@@ -399,6 +406,7 @@ export default function OrdersPage() {
                                                 selectedOrder
                                             }
                                             onOrderUpdated={handleOrderUpdated}
+                                            onGoToOrder={handleGoToOrder}
                                         />
                                     </div>
                                 </div>
