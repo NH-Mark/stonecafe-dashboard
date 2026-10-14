@@ -12,16 +12,18 @@ import {
     ShoppingCart,
     ArrowRightLeft,
     Home,
+    MapPin,
 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 import {
+    useEffect,
     useMemo,
     useState,
 } from "react";
-
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
 import {
@@ -50,6 +52,7 @@ import {
 
 import { toast } from "sonner";
 import { TransferTableDialog } from "./session/TransferTableDialog";
+import { getLocations, getLocationSelectors } from "@/features/locations/location.service";
 
 interface HeaderProps {
     /*
@@ -146,6 +149,37 @@ export function Header({
     onPaymentSuccess,
 }: HeaderProps) {
     const router = useRouter();
+
+    const [locationName, setLocationName] = useState("");
+
+    useEffect(() => {
+        async function loadActiveLocation() {
+            try {
+                const activeLocationId = Number(
+                    Cookies.get("active_location_id")
+                );
+
+                if (!activeLocationId || !Number.isFinite(activeLocationId)) {
+                    setLocationName("");
+                    return;
+                }
+
+                const locations = await getLocationSelectors();
+
+                const activeLocation = locations.find(
+                    (location) =>
+                        Number(location.id) === activeLocationId
+                );
+
+                setLocationName(activeLocation?.name ?? "");
+            } catch (error) {
+                console.error("Failed to load active location:", error);
+                setLocationName("");
+            }
+        }
+
+        loadActiveLocation();
+    }, []);
 
     /*
     |--------------------------------------------------------------------------
@@ -529,7 +563,7 @@ export function Header({
         | Normal POS
         |----------------------------------------------------------------------
         */
-       window.location.reload();
+        window.location.reload();
 
         //  clear();
 
@@ -679,8 +713,8 @@ export function Header({
                 {/* MAIN HEADER                                                */}
                 {/* ========================================================= */}
 
-            <div
-    className="
+                <div
+                    className="
         flex
         w-full
         flex-col
@@ -699,17 +733,17 @@ export function Header({
 
         lg:px-6
     "
->
-    {/* HOME */}
-    {!sessionMode && (
-        <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={() => router.push("/dashboard")}
-            aria-label="Go to dashboard"
-            title="Dashboard"
-            className="
+                >
+                    {/* HOME */}
+                    {!sessionMode && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => router.push("/dashboard")}
+                            aria-label="Go to dashboard"
+                            title="Dashboard"
+                            className="
                 h-10
                 w-10
                 shrink-0
@@ -720,110 +754,119 @@ export function Header({
                 shadow-none
                 hover:bg-[#faf9f7]
             "
-        >
-            <Home className="h-5 w-5" />
-        </Button>
-    )}
+                        >
+                            <Home className="h-5 w-5" />
+                        </Button>
+                    )}
 
-    {/* LEFT / TITLE */}
-    <div
-        className="
+                    {/* LEFT / TITLE */}
+                    <div
+                        className="
             flex
             min-w-0
             shrink-0
             items-center
             gap-3
         "
-    >
-        {sessionMode && (
-            <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="
+                    >
+                        {sessionMode && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="
                     h-9
                     w-9
                     shrink-0
                     rounded-xl
                 "
-                onClick={handleBack}
-            >
-                <ArrowLeft className="h-4 w-4" />
-            </Button>
-        )}
+                                onClick={handleBack}
+                            >
+                                <ArrowLeft className="h-4 w-4" />
+                            </Button>
+                        )}
 
-        <div className="min-w-0">
-            <h1
-                className="
+                        <div className="min-w-0">
+                            <h1
+                                className="
                     truncate
                     text-lg
                     font-bold
                     text-[#2f2924]
                     lg:text-xl
                 "
-            >
-                <span className="hidden sm:inline">
-                    Walk-In POS
-                </span>
+                            >
+                                <span className="hidden sm:inline">
+                                    Walk-In POS
+                                </span>
 
-                <span className="sm:hidden">
-                    POS
-                </span>
-            </h1>
+                                <span className="sm:hidden">
+                                    POS
+                                </span>
+                            </h1>
 
-            <p
-                className="
+                            <p
+                                className="
                     truncate
                     text-xs
                     text-[#81786f]
                     lg:text-sm
                 "
-            >
-                {sessionMode
-                    ? sessionName
-                    : "New Order"}
-            </p>
-        </div>
-    </div>
+                            >
+                                {sessionMode
+                                    ? sessionName
+                                    : "New Order"}
+                            </p>
+                        </div>
+                    </div>
+                    {/* ACTIVE LOCATION */}
+                        {locationName && (
+                            <div className="flex items-center gap-2 rounded-lg bg-[#a57653]/10 px-3 py-2 text-sm text-[#40332a]">
+                                <MapPin size={16} className="shrink-0 text-[#a57653]" />
 
-    {/* SESSION INFO */}
-    {sessionMode && (
-        <div
-            className="
+                                <span className="font-medium">
+                                    {locationName}
+                                </span>
+                            </div>
+                        )}      
+                    {/* SESSION INFO */}
+                    {sessionMode && (
+                        <div
+                            className="
                 hidden
                 shrink-0
                 items-center
                 gap-4
                 lg:flex
             "
-        >
-            <div className="h-8 w-px bg-[#e5e2dd]" />
+                        >
+                            <div className="h-8 w-px bg-[#e5e2dd]" />
 
-            <div>
-                <p className="text-[10px] uppercase tracking-wide text-[#81786f]">
-                    Session
-                </p>
+                            <div>
+                                <p className="text-[10px] uppercase tracking-wide text-[#81786f]">
+                                    Session
+                                </p>
 
-                <p className="text-sm font-semibold text-[#40332a]">
-                    #{session?.id}
-                </p>
-            </div>
+                                <p className="text-sm font-semibold text-[#40332a]">
+                                    #{session?.id}
+                                </p>
+                            </div>
 
-            <div>
-                <p className="text-[10px] uppercase tracking-wide text-[#81786f]">
-                    Total
-                </p>
+                            <div>
+                                <p className="text-[10px] uppercase tracking-wide text-[#81786f]">
+                                    Total
+                                </p>
 
-                <p className="text-sm font-bold text-[#40332a]">
-                    {Number(sessionTotal).toFixed(2)} QAR
-                </p>
-            </div>
-        </div>
-    )}
+                                <p className="text-sm font-bold text-[#40332a]">
+                                    {Number(sessionTotal).toFixed(2)} QAR
+                                </p>
+                            </div>
+                        </div>
+                    )}
 
-    {/* SEARCH */}
-    <div
-        className="
+                    {/* SEARCH */}
+                    <div
+                        className="
             relative
             w-full
             min-w-0
@@ -832,9 +875,9 @@ export function Header({
             md:max-w-xl
             lg:mx-auto
         "
-    >
-        <Search
-            className="
+                    >
+                        <Search
+                            className="
                 absolute
                 left-3
                 top-3
@@ -842,22 +885,22 @@ export function Header({
                 w-4
                 text-muted-foreground
             "
-        />
+                        />
 
-        <Input
-            value={search}
-            onChange={event =>
-                setSearch(event.target.value)
-            }
-            placeholder="Search menu..."
-            className="
+                        <Input
+                            value={search}
+                            onChange={event =>
+                                setSearch(event.target.value)
+                            }
+                            placeholder="Search menu..."
+                            className="
                 h-11
                 w-full
                 rounded-xl
                 pl-9
             "
-        />
-    </div>
+                        />
+                    </div>
 
                     {/* ===================================================== */}
                     {/* DESKTOP / HEADER ACTIONS                               */}
@@ -903,7 +946,7 @@ export function Header({
                             type="button"
                             variant="outline"
                             disabled={
-                                !activeOrderId 
+                                !activeOrderId
                             }
                             onClick={() =>
                                 setNoteOpen(
@@ -1226,7 +1269,7 @@ export function Header({
                 {/* TABLET / IPAD FOOTER                                      */}
                 {/* ========================================================= */}
 
-                
+
 
                 {/* ========================================================= */}
                 {/* TABLE PAYMENT                                             */}
@@ -1319,7 +1362,7 @@ export function Header({
                                 )
                             }
                             type="order"
-                            
+
                         />
                     </>
                 )}

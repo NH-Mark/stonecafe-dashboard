@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     CalendarDays,
     ChevronDown,
@@ -38,6 +38,8 @@ type Props = {
     locations: Location[];
     filters: SalesDashboardFilters;
     onChange: (filters: SalesDashboardFilters) => void;
+    activeLocationId?: number;
+    permittedLocationIds: number[];
 };
 
 export default function SalesFilters({
@@ -45,6 +47,8 @@ export default function SalesFilters({
     locations,
     filters,
     onChange,
+    activeLocationId,
+    permittedLocationIds
 }: Props) {
     /**
      * IMPORTANT:
@@ -106,20 +110,21 @@ export default function SalesFilters({
          * NO dashboard loading
          */
         console.log("DATE SELECTED", range);
-        if (!isSelectingEnd) { 
-            console.log( "FIRST DATE - DO NOT LOAD" ); 
-            setDate({ from: range?.from, to: undefined, }); 
-            setIsSelectingEnd(true); return; 
+        if (!isSelectingEnd) {
+            console.log("FIRST DATE - DO NOT LOAD");
+            setDate({ from: range?.from, to: undefined, });
+            setIsSelectingEnd(true); return;
         }
         console.log("CALLING PARENT?", !!range?.to);
-        if (!range?.from || !range?.to) { 
-            return; 
+        if (!range?.from || !range?.to) {
+            return;
         }
-        setDate(range); 
-        onChange({ ...filters, range: "custom",
-             start_date: format( range.from, "yyyy-MM-dd" ),
-              end_date: format( range.to, "yyyy-MM-dd" ),
-         });
+        setDate(range);
+        onChange({
+            ...filters, range: "custom",
+            start_date: format(range.from, "yyyy-MM-dd"),
+            end_date: format(range.to, "yyyy-MM-dd"),
+        });
         setIsSelectingEnd(false);
         setCustomMode(false);
         setCalendarOpen(false);
@@ -228,6 +233,37 @@ export default function SalesFilters({
         customMode ||
         filters.range === "custom";
 
+
+    const permittedLocations = locations.filter(
+        (location) =>
+            permittedLocationIds.includes(location.id)
+    );
+
+    useEffect(() => {
+        // Keep the user's existing selection.
+        if (filters.location_id !== undefined) {
+            return;
+        }
+
+        // Select the active location if permitted.
+        const defaultLocation = permittedLocations.find(
+            (location) => location.id === activeLocationId
+        );
+
+        if (defaultLocation) {
+            onChange({
+                ...filters,
+                location_id: defaultLocation.id,
+            });
+        }
+    }, [
+        activeLocationId,
+        permittedLocationIds,
+        locations,
+        filters,
+        onChange,
+    ]);
+
     return (
         <div
             className="
@@ -248,9 +284,9 @@ export default function SalesFilters({
                     const isActive =
                         item.value === "custom"
                             ? customMode ||
-                              filters.range === "custom"
+                            filters.range === "custom"
                             : filters.range ===
-                              item.value;
+                            item.value;
 
                     return (
                         <button
@@ -265,10 +301,9 @@ export default function SalesFilters({
                                 rounded-lg px-4 py-2
                                 text-sm font-medium transition
 
-                                ${
-                                    isActive
-                                        ? "bg-white shadow text-[#40332a]"
-                                        : "text-muted-foreground hover:text-foreground"
+                                ${isActive
+                                    ? "bg-white shadow text-[#40332a]"
+                                    : "text-muted-foreground hover:text-foreground"
                                 }
                             `}
                         >
@@ -313,16 +348,16 @@ export default function SalesFilters({
                             align="end"
                             className="w-auto p-0"
                         >
-                                <Calendar
-                                    mode="range"
-                                    numberOfMonths={2}
-                                    selected={date}
-                                    onSelect={handleDateSelect}
-                                    autoFocus
-                                    captionLayout="dropdown"
-                                    // fromYear={2020}
-                                    // toYear={new Date().getFullYear() + 5}
-                                />
+                            <Calendar
+                                mode="range"
+                                numberOfMonths={2}
+                                selected={date}
+                                onSelect={handleDateSelect}
+                                autoFocus
+                                captionLayout="dropdown"
+                            // fromYear={2020}
+                            // toYear={new Date().getFullYear() + 5}
+                            />
                         </PopoverContent>
                     </Popover>
                 )}
@@ -331,10 +366,8 @@ export default function SalesFilters({
 
                 <SelectCustom
                     value={
-                        filters.location_id
-                            ? String(
-                                  filters.location_id
-                              )
+                        filters.location_id != null
+                            ? String(filters.location_id)
                             : ""
                     }
                     onChange={(value) =>
@@ -345,16 +378,11 @@ export default function SalesFilters({
                                 : undefined,
                         })
                     }
-                    placeholder="All Locations"
-                    options={locations.map(
-                        (location) => ({
-                            label:
-                                location.name,
-                            value: String(
-                                location.id
-                            ),
-                        })
-                    )}
+                    placeholder="Select Location"
+                    options={permittedLocations.map((location) => ({
+                        label: location.name,
+                        value: String(location.id),
+                    }))}
                 />
 
                 {/* Order Type */}
@@ -363,8 +391,8 @@ export default function SalesFilters({
                     value={
                         filters.order_type
                             ? String(
-                                  filters.order_type
-                              )
+                                filters.order_type
+                            )
                             : ""
                     }
                     onChange={(value) =>

@@ -1,50 +1,37 @@
 import { z } from "zod";
 
-
 export const staffSchema = z.object({
+name: z
+.string()
+.min(2, "Name is required"),
 
-    name: z
-        .string()
-        .min(2, "Name is required"),
+email: z
+.string()
+.email("Invalid email address"),
 
+password: z
+.string()
+.min(8, "Password must be at least 8 characters")
+.optional()
+.or(z.literal("")),
 
-    email: z
-        .string()
-        .email("Invalid email address"),
+role_id: z
+.number()
+.min(1, "Please select a role"),
 
-
-    password: z
-        .string()
-        .min(8, "Password must be at least 8 characters")
-        .optional()
-        .or(z.literal("")),
-
-
-
-    role_id: z
-        .number()
-        .min(1, "Please select a role"),
-
-    location_id: z
-        .number()
-        .min(1, "Please select a location"),
-
+location_ids: z
+.array(z.number())
+.min(1, "Please select at least one location"),
 });
 
-export const createStaffSchema =
-    staffSchema.extend({
-
-        password:z
-            .string()
-            .min(
-                8,
-                "Password must be at least 8 characters"
-            )
-
-    });
+export const createStaffSchema = staffSchema.extend({
+password: z
+.string()
+.min(8, "Password must be at least 8 characters"),
+});
 
 export type StaffFormValues =
-    z.infer<typeof staffSchema>;
+z.infer<typeof staffSchema>;
 
 export type CreateStaffFormValues =
-    z.infer<typeof createStaffSchema>;
+z.infer<typeof createStaffSchema>;

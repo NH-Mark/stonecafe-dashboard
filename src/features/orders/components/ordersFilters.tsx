@@ -26,12 +26,12 @@ import { OrderType } from "@/types/order-type";
 
 export interface OrdersFiltersState {
     range:
-        | "today"
-        | "yesterday"
-        | "this_week"
-        | "this_month"
-        | "last_month"
-        | "custom";
+    | "today"
+    | "yesterday"
+    | "this_week"
+    | "this_month"
+    | "last_month"
+    | "custom";
 
     start_date?: string;
     end_date?: string;
@@ -43,12 +43,9 @@ export interface OrdersFiltersState {
 interface Props {
     locations: Location[];
     orderTypes: OrderType[];
-
     filters: OrdersFiltersState;
-
-    onChange: (
-        filters: OrdersFiltersState
-    ) => void;
+    onChange: (filters: OrdersFiltersState) => void;
+    activeLocationId?: number;
 }
 
 const ranges = [
@@ -83,6 +80,7 @@ export default function OrdersFilters({
     orderTypes,
     filters,
     onChange,
+    activeLocationId
 }: Props) {
     const [date, setDate] =
         useState<DateRange | undefined>();
@@ -202,11 +200,10 @@ export default function OrdersFilters({
             range: "today",
             start_date: undefined,
             end_date: undefined,
-            location_id: undefined,
+            location_id: activeLocationId,
             order_type: undefined,
         });
     }
-
     /**
      * Calendar button text.
      */
@@ -272,10 +269,10 @@ export default function OrdersFilters({
                     const isActive =
                         item.value === "custom"
                             ? customMode ||
-                              filters.range ===
-                                  "custom"
+                            filters.range ===
+                            "custom"
                             : filters.range ===
-                              item.value;
+                            item.value;
 
                     return (
                         <button
@@ -291,10 +288,9 @@ export default function OrdersFilters({
                                 text-sm font-medium
                                 transition
 
-                                ${
-                                    isActive
-                                        ? "bg-white shadow text-[#40332a]"
-                                        : "text-muted-foreground hover:text-foreground"
+                                ${isActive
+                                    ? "bg-white shadow text-[#40332a]"
+                                    : "text-muted-foreground hover:text-foreground"
                                 }
                             `}
                         >
@@ -355,30 +351,25 @@ export default function OrdersFilters({
 
                 <SelectCustom
                     value={
-                        filters.location_id
-                            ? String(
-                                  filters.location_id
-                              )
-                            : ""
+                        filters.location_id != null
+                            ? String(filters.location_id)
+                            : activeLocationId != null
+                                ? String(activeLocationId)
+                                : ""
                     }
                     onChange={(value) => {
+                        if (!value) return;
+
                         onChange({
                             ...filters,
-                            location_id: value
-                                ? Number(value)
-                                : undefined,
+                            location_id: Number(value),
                         });
                     }}
-                    placeholder="All Locations"
-                    options={locations.map(
-                        (location) => ({
-                            label:
-                                location.name,
-                            value: String(
-                                location.id
-                            ),
-                        })
-                    )}
+                    placeholder="Select Location"
+                    options={locations.map((location) => ({
+                        label: location.name,
+                        value: String(location.id),
+                    }))}
                 />
 
                 {/* Order Type */}
@@ -387,8 +378,8 @@ export default function OrdersFilters({
                     value={
                         filters.order_type
                             ? String(
-                                  filters.order_type
-                              )
+                                filters.order_type
+                            )
                             : ""
                     }
                     onChange={(value) => {

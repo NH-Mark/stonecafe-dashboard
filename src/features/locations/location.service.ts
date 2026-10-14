@@ -4,6 +4,7 @@ import { ColumnFiltersState } from "@tanstack/react-table";
 import {
     LocationFormValues
 } from "./location.schema";
+import { Location } from "@/types/location";
 
 
 export interface GetLocationsParams {
@@ -30,7 +31,12 @@ export function getLocations(
     });
 }
 
-
+export async function getLocationSelectors(): Promise<Location[]> 
+{ 
+    const response = await api.get("/api/locations-selectors"); 
+    const result = response.data.data ?? response.data; 
+    return result; 
+}
 
 
 export async function createLocation(
@@ -44,7 +50,10 @@ export async function createLocation(
 
 }
 
-
+export async function selectLocation(locationId: number) {
+    const response = await api.post("/api/active-location",{ location_id: locationId, });
+    return response.data; 
+}
 
 export async function updateLocation(
     id:number,
@@ -57,8 +66,6 @@ export async function updateLocation(
     );
 
 }
-
-
 
 export async function deleteLocation(
     id:number

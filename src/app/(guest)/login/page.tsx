@@ -25,6 +25,8 @@ import {
 import Image from "next/image";
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
 import Cookies from "js-cookie";
+import { getLocations, getLocationSelectors } from "@/features/locations/location.service";
+
 
 export default function LoginPage() {
 
@@ -58,9 +60,49 @@ export default function LoginPage() {
                     sameSite: "strict",
                 }
             );
+            console.log("logged in")
+           
             await refreshUser();
 
-            router.push("/dashboard");
+            const locations = await getLocationSelectors();
+            console.log("selected loc");
+            console.log(locations);
+            if (locations.length === 1) {
+
+                console.log("inside")
+                const cookieOptions = {
+                    expires: 7,
+                    sameSite: "strict" as const,
+                    secure: window.location.protocol === "https:",
+                };
+
+                // Store the active location ID and display name.
+                Cookies.set(
+                    "active_location_id",
+                    String(locations[0].id),
+                    cookieOptions
+                );
+
+                Cookies.set(
+                    "active_location_name",
+                    locations[0].name,
+                    cookieOptions
+                );
+
+                // Cookies.set(
+                //     "active_location_id",
+                //     String(locations[0].id),
+                //     {
+                //         expires: 7,
+                //         secure: process.env.NODE_ENV === "production",
+                //         sameSite: "strict",
+                //     }
+                // );
+
+                router.replace("/dashboard");
+            } else {
+                router.replace("/select-location");
+            }
 
         } catch (error) {
             setError("Invalid email or password");

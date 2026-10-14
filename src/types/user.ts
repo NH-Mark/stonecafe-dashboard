@@ -11,7 +11,7 @@ export interface User {
 
     email:string;
     
-    location:Location;
+    locations: Location[];
 
 
     roles:Role[];

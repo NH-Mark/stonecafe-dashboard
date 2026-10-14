@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OrderItem } from "./OrderItem";
 import { CheckoutDialog } from "./payment/CheckoutDialog";
-
+import Cookies from "js-cookie";
 import { useOrderStore } from "../store/useOrderStore";
 
 import {
@@ -390,6 +390,16 @@ export function OrderCart({
         try {
             setSaving(true);
 
+             const activeLocationId = Number(
+                Cookies.get("active_location_id")
+            );
+
+            if (!activeLocationId || !Number.isFinite(activeLocationId)) {
+                toast.error("No active location selected.");
+                router.replace("/select-location");
+                return;
+            }
+
             const itemsToSend =
                 isDraft
                     ? cart
@@ -402,7 +412,7 @@ export function OrderCart({
             */
 
             const payload = {
-                location_id: 1,
+                location_id: activeLocationId,
 
                 dining_session_id:
                     mode === "dine-in"

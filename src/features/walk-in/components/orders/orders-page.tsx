@@ -22,6 +22,7 @@ import OrderDetails from "./order-details"
 import { Header } from "../Header"
 import { POSNav } from "../POSNav"
 import { useRouter } from "next/navigation"
+import { getEcho } from "@/lib/echo";
 
 export default function OrdersPage() {
     const router = useRouter();
@@ -86,6 +87,81 @@ export default function OrdersPage() {
         void loadOrders()
     }, [])
 
+    useEffect(() => {
+        let mounted = true;
+
+        const echo = getEcho();
+
+        if (!echo) {
+            return;
+        }
+
+        const channel = echo.channel("orders");
+
+        channel.listen(
+            ".order.created",
+            async (event: { order_id: number }) => {
+                if (!event.order_id) {
+                    return;
+                }
+
+                try {
+                    // Fetch the latest list, including the new order.
+                    const latestOrders = await getTodayOrders();
+
+                    if (!mounted) {
+                        return;
+                    }
+
+                    setOrders((previousOrders) => {
+                        const mergedOrders = [...previousOrders];
+
+                        for (const order of latestOrders) {
+                            const exists = mergedOrders.some(
+                                (item) => item.id === order.id
+                            );
+
+                            if (!exists) {
+                                mergedOrders.push(order);
+                            }
+                        }
+
+                        // Preserve existing order details while refreshing
+                        // orders already present in the list.
+                        return mergedOrders.map((order) => {
+                            const latest = latestOrders.find(
+                                (item) => item.id === order.id
+                            );
+
+                            return latest ?? order;
+                        });
+                    });
+
+                    // Select the newly created order if it is in today's list.
+                    const newOrder = latestOrders.find(
+                        (order) => order.id === event.order_id
+                    );
+
+                    if (newOrder) {
+                        setSelectedOrder(newOrder);
+                    }
+                } catch (error) {
+                    console.error(
+                        "Failed to refresh orders after broadcast:",
+                        error
+                    );
+                }
+            }
+        );
+
+        return () => {
+            mounted = false;
+            channel.stopListening(".order.created");
+            echo.leave("orders");
+        };
+    }, []);
+
+
     function handleOrderUpdated(updatedOrder: Order) {
         setOrders((prevOrders) =>
             prevOrders.map((order) =>
@@ -98,9 +174,9 @@ export default function OrdersPage() {
         setSelectedOrder(updatedOrder)
     }
     function handleGoToOrder(order: Order) {
-        if (!order) return; 
+        if (!order) return;
         const orderId = String(order.id);
-        router.push(`/walk-in?orderId=${encodeURIComponent(orderId)}`); 
+        router.push(`/walk-in?orderId=${encodeURIComponent(orderId)}`);
     }
 
     /*
@@ -121,17 +197,17 @@ export default function OrdersPage() {
                 bg-[#f5f5f3]
             "
         >
-             <header className="shrink-0">
-                    <Header />
-                </header>
+            <header className="shrink-0">
+                <Header />
+            </header>
 
-                {/* ================================================= */}
-                {/* POS NAVIGATION */}
-                {/* ================================================= */}
+            {/* ================================================= */}
+            {/* POS NAVIGATION */}
+            {/* ================================================= */}
 
-                <nav className="shrink-0">
-                    <POSNav />
-                </nav>
+            <nav className="shrink-0">
+                <POSNav />
+            </nav>
             <div
                 className="
                     mx-auto

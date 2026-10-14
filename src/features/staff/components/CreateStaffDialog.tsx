@@ -75,12 +75,13 @@ export default function CreateStaffDialog({
                 email: "",
                 password: "",
                 role_id: undefined,
-                location_id: undefined
+                location_ids: [],
             }
 
         });
 
-
+    const selectedLocationIds =
+        form.watch("location_ids") ?? [];
 
     async function submit(
         values: CreateStaffFormValues
@@ -103,8 +104,8 @@ export default function CreateStaffDialog({
                 form,
                 error
             );
-             toast.error(
-            (error as any)?.message ?? "Failed to create staff."
+            toast.error(
+                (error as any)?.message ?? "Failed to create staff."
             );
 
         }
@@ -131,7 +132,7 @@ export default function CreateStaffDialog({
                     }
                 />
             </PermissionGuard>
-            
+
 
 
 
@@ -218,48 +219,64 @@ export default function CreateStaffDialog({
 
 
 
-                        <select
-                            className="border rounded-md p-2 w-full"
-                            {...form.register("location_id", {
-                                setValueAs: (value) =>
-                                    value === "" ? undefined : Number(value),
-                                })}
-                        >
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">
+                                Assign Locations
+                            </label>
 
-                            <option value="">
-                                Select Location
-                            </option>
+                            <div className="max-h-48 space-y-2 overflow-y-auto rounded-md border p-3">
+                                {locations.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground">
+                                        No locations available.
+                                    </p>
+                                ) : (
+                                    locations.map((location) => {
+                                        const checked = selectedLocationIds.includes(
+                                            location.id
+                                        );
 
+                                        return (
+                                            <label
+                                                key={location.id}
+                                                className="flex cursor-pointer items-center gap-3 rounded-md p-2 hover:bg-muted"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={checked}
+                                                    onChange={(event) => {
+                                                        const nextIds = event.target.checked
+                                                            ? [...selectedLocationIds, location.id]
+                                                            : selectedLocationIds.filter(
+                                                                (id) => id !== location.id
+                                                            );
 
-                            {
-                                locations.map(location => (
+                                                        form.setValue("location_ids", nextIds, {
+                                                            shouldValidate: true,
+                                                            shouldDirty: true,
+                                                        });
+                                                    }}
+                                                    className="h-4 w-4"
+                                                />
 
-                                    <option
-                                        key={location.id}
-                                        value={location.id}
-                                    >
+                                                <span className="text-sm">
+                                                    {location.name}
+                                                </span>
+                                            </label>
+                                        );
+                                    })
+                                )}
 
-                                        {location.name}
+                            </div>
 
-                                    </option>
+                            {form.formState.errors.location_ids && (<p className="text-sm text-destructive">
+                                {form.formState.errors.location_ids.message} </p>
+                            )}
 
-                                ))
-                            }
+                            <p className="text-xs text-muted-foreground">
+                                Select all locations this staff member is allowed to access.
+                            </p>
+                        </div>
 
-
-                        </select>
-
-                        {
-                            form.formState.errors.location_id && (
-
-                                <p className="text-sm text-destructive">
-                                    {
-                                        form.formState.errors.location_id.message
-                                    }
-                                </p>
-
-                            )
-                        }
 
 
                         <div className="space-y-2">
@@ -267,8 +284,8 @@ export default function CreateStaffDialog({
                             <select
                                 className="border rounded-md p-2 w-full"
                                 {...form.register("role_id", {
-                                setValueAs: (value) =>
-                                    value === "" ? undefined : Number(value),
+                                    setValueAs: (value) =>
+                                        value === "" ? undefined : Number(value),
                                 })}
                             >
 

@@ -20,11 +20,22 @@ export default function GuestRoute({
 
     const router = useRouter();
 
+   
     useEffect(() => {
         if (!loading && user) {
-            router.replace("/dashboard");
+            const locations = user.locations ?? [];
+
+            router.replace(
+                locations.length === 1
+                    ? "/dashboard"
+                    : "/select-location"
+            );
         }
     }, [loading, user, router]);
+
+    if (loading || user) {
+        return <PageLoader />;
+    }
 
     if (loading) {
          return <PageLoader />;

@@ -50,10 +50,10 @@ return [
 },
 
 
-{
-    accessorKey:"location.name",
-    header:"Location"
-},
+// {
+//     accessorKey:"location.name",
+//     header:"Location"
+// },
 
 
 {
