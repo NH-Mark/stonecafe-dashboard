@@ -49,7 +49,7 @@ export default function AccountManagement() {
             form.reset({
                 name: user.name,
                 email: user.email,
-                location_id: user.location ? user.location.id : 0,
+                // location_id: user.location ? user.location.id : 0,
                 currentPassword: "",
                 newPassword: "",
                 confirmPassword: "",
@@ -64,7 +64,7 @@ export default function AccountManagement() {
             await updateProfile({
                 name: values.name,
                 email: values.email,
-                location_id: Number(values.location_id),
+                // location_id: Number(values.location_id),
             });
 
             toast.success("Profile updated successfully.");

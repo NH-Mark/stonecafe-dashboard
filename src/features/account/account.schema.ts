@@ -6,7 +6,7 @@ export const accountSchema = z
 
     email: z.string().email("Invalid email address"),
 
-    location_id: z.number().min(1, "Please select a location"),
+    // location_id: z.number().min(1, "Please select a location"),
 
     currentPassword: z.string().optional(),
 
@@ -66,9 +66,9 @@ export const updateProfileSchema = z.object({
         .string()
         .email("Invalid email address"),
 
-    location_id: z
-        .number()
-        .min(1, "Please select a location"),
+    // location_id: z
+    //     .number()
+    //     .min(1, "Please select a location"),
 });
 
 export type UpdateProfileInput =

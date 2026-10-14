@@ -50,7 +50,7 @@ export default function AccountSettings({ locations }: Props) {
                 </div>
 
 
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
 
                     <Label>Location</Label>
 
@@ -80,7 +80,7 @@ export default function AccountSettings({ locations }: Props) {
                     <p className="text-sm text-destructive">
                         {errors.location_id?.message}
                     </p>
-                </div>
+                </div> */}
             </CardContent>
         </Card>
     );
