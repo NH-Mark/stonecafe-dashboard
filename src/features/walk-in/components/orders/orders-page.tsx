@@ -101,6 +101,8 @@ export default function OrdersPage() {
         channel.listen(
             ".customer.order.created",
             async (event: { order_id: number }) => {
+                 console.log("CUSTOMER ORDER EVENT RECEIVED:", event);
+
                 if (!event.order_id) {
                     return;
                 }
@@ -153,6 +155,10 @@ export default function OrdersPage() {
                 }
             }
         );
+
+        channel.subscribed(() => {
+            console.log("Subscribed to orders channel");
+        });
 
         return () => {
             mounted = false;
