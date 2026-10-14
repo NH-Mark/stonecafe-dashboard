@@ -101,7 +101,7 @@ export default function OrdersPage() {
         channel.listen(
             ".customer.order.created",
             async (event: { order_id: number }) => {
-                 console.log("CUSTOMER ORDER EVENT RECEIVED:", event);
+                console.log("CUSTOMER ORDER EVENT RECEIVED:", event);
 
                 if (!event.order_id) {
                     return;
@@ -116,27 +116,31 @@ export default function OrdersPage() {
                     }
 
                     setOrders((previousOrders) => {
-                        const mergedOrders = [...previousOrders];
+                        const orderMap = new Map<number, (typeof latestOrders)[number]>();
 
-                        for (const order of latestOrders) {
-                            const exists = mergedOrders.some(
-                                (item) => item.id === order.id
-                            );
+                        // Keep existing orders first as the base.
+                        previousOrders.forEach((order) => {
+                            orderMap.set(order.id, order);
+                        });
 
-                            if (!exists) {
-                                mergedOrders.push(order);
-                            }
+                        // Refresh existing orders with the latest data.
+                        latestOrders.forEach((order) => {
+                            orderMap.set(order.id, order);
+                        });
+
+                        const mergedOrders = Array.from(orderMap.values());
+
+                        // Put the newly created order at the beginning.
+                        const newOrderIndex = mergedOrders.findIndex(
+                            (order) => order.id === event.order_id
+                        );
+
+                        if (newOrderIndex > 0) {
+                            const [newOrder] = mergedOrders.splice(newOrderIndex, 1);
+                            mergedOrders.unshift(newOrder);
                         }
 
-                        // Preserve existing order details while refreshing
-                        // orders already present in the list.
-                        return mergedOrders.map((order) => {
-                            const latest = latestOrders.find(
-                                (item) => item.id === order.id
-                            );
-
-                            return latest ?? order;
-                        });
+                        return mergedOrders;
                     });
 
                     // Select the newly created order if it is in today's list.
