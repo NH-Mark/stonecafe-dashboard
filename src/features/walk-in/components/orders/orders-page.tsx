@@ -99,7 +99,7 @@ export default function OrdersPage() {
         const channel = echo.channel("orders");
 
         channel.listen(
-            ".order.created",
+            ".customer.order.created",
             async (event: { order_id: number }) => {
                 if (!event.order_id) {
                     return;
@@ -156,7 +156,7 @@ export default function OrdersPage() {
 
         return () => {
             mounted = false;
-            channel.stopListening(".order.created");
+            channel.stopListening(".customer.order.created");
             echo.leave("orders");
         };
     }, []);
