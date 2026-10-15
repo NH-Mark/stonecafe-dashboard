@@ -122,7 +122,7 @@ export function SessionMainLayout({
                 p-2
                 pb-[76px]
                 sm:p-3
-                lg:pb-3
+                xl:pb-3
             "
         >
 
@@ -279,7 +279,7 @@ export function SessionMainLayout({
                     shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
                     backdrop-blur
 
-                    lg:hidden
+                    xl:hidden
                 "
             >
                 <div
@@ -367,7 +367,7 @@ export function SessionMainLayout({
                         z-50
                         bg-black/30
                         backdrop-blur-[1px]
-                        lg:hidden
+                        xl:hidden
                     "
                     onClick={
                         closeDrawers
@@ -392,7 +392,7 @@ export function SessionMainLayout({
                     shadow-2xl
                     transition-transform
                     duration-200
-                    lg:hidden
+                    xl:hidden
 
                     ${
                         categoryOpen
@@ -499,7 +499,7 @@ export function SessionMainLayout({
                     shadow-2xl
                     transition-transform
                     duration-200
-                    lg:hidden
+                    xl:hidden
 
                     ${
                         orderOpen &&
