@@ -23,7 +23,7 @@ import TopGrossingModifiers from "./tables/TopGrossingModifiers";
 import TopGrossingItems from "./tables/TopGrossingItems";
 import SalesByPaymentMethod, { PaymentMethodSale } from "./tables/SalesByPaymentMethod";
 import SalesByCategory, { SalesByCategoryItem } from "./tables/SalesByCategory";
-import SalesByDiscount,{ SalesByDiscountItem } from "./tables/SalesByDiscount";
+import SalesByDiscount, { SalesByDiscountItem } from "./tables/SalesByDiscount";
 
 
 export default function SalesDashboard() {

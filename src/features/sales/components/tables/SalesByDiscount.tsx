@@ -1,7 +1,7 @@
 
 "use client";
 
-type SalesByDiscountItem = {
+export type SalesByDiscountItem = {
   discount_id: number | null;
   discount_name: string;
   qty: number;
