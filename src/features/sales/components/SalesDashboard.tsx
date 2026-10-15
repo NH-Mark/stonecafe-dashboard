@@ -19,6 +19,11 @@ import DailyEmailSummary from "./DailyEmailSummary";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/useAuth";
+import TopGrossingModifiers from "./tables/TopGrossingModifiers";
+import TopGrossingItems from "./tables/TopGrossingItems";
+import SalesByPaymentMethod, { PaymentMethodSale } from "./tables/SalesByPaymentMethod";
+import SalesByCategory, { SalesByCategoryItem } from "./tables/SalesByCategory";
+import SalesByDiscount,{ SalesByDiscountItem } from "./tables/SalesByDiscount";
 
 
 export default function SalesDashboard() {
@@ -29,7 +34,12 @@ export default function SalesDashboard() {
     const [salesOrderTypes, setSalesOrderTypes] = useState<OrderTypeSales[]>([]);
     const [topSellingItems, setTopSellingItems] = useState<TopItem[]>([]);
     const [topSellingModifiers, setTopSellingModifiers] = useState<TopModifier[]>([]);
+    const [topGrossingModifiers, setTopGrossingModifiers] = useState<TopModifier[]>([]);
+    const [topGrossingItems, setTopGrossingItems] = useState<TopItem[]>([]);
     const [hourlyBreakdown, setHourlyBreakdown] = useState<HourlyBreakdown[]>([]);
+    const [salesByPaymentMethod, setSalesByPaymentMethod] = useState<PaymentMethodSale[]>([]);
+    const [salesByCategory, setSalesByCategory] = useState<SalesByCategoryItem[]>([]);
+    const [salesByDiscount, setSalesByDiscount] = useState<SalesByDiscountItem[]>([]);
 
     const [activeLocationId, setActiveLocationId] =
         useState<number | undefined>(undefined);
@@ -153,13 +163,24 @@ export default function SalesDashboard() {
 
             try {
                 const response = await getSalesDashboard(filters);
-
+                console.log("Sales dashboard response:", response.data);
                 setStats(response.data.stats);
                 setTrend(response.data.sales_trend);
                 setSalesOrderTypes(response.data.sales_by_order_type);
                 setTopSellingItems(response.data.top_selling_items);
                 setTopSellingModifiers(response.data.top_selling_modifiers);
+                setTopGrossingModifiers(response.data.top_grossing_modifiers);
                 setHourlyBreakdown(response.data.hourly_breakdown);
+                setSalesByPaymentMethod(response.data.sales_by_payment_method);
+                setTopGrossingItems(
+                    response.data.top_grossing_items ?? []
+                );
+                setSalesByCategory(
+                    response.data.sales_by_category ?? []
+                );
+                setSalesByDiscount(
+                    response.data.sales_by_discount ?? []
+                );
             } catch (error) {
                 console.error("Failed to load sales dashboard:", error);
             } finally {
@@ -215,8 +236,34 @@ export default function SalesDashboard() {
             ">
 
                 <TopSellingItems data={topSellingItems} />
-
+                <TopGrossingItems data={topGrossingItems} />
+               
+            </div>
+            <div className="
+            grid
+            gap-6
+            xl:grid-cols-3
+            ">
                 <TopSellingModifiers data={topSellingModifiers} />
+
+                <SalesByDiscount
+                    data={salesByDiscount}
+                />
+                <TopGrossingModifiers data={topGrossingModifiers} />
+
+            </div>
+             <div className="
+            grid
+            gap-6
+            xl:grid-cols-2
+            ">
+
+                <SalesByPaymentMethod
+                    data={salesByPaymentMethod}
+                />
+                <SalesByCategory
+                    data={salesByCategory}
+                />
             </div>
 
 

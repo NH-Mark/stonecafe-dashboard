@@ -53,22 +53,29 @@ export type OrderTypeSales = {
 };
 
 
-export type TopItem = {
-    name: string;
-    qty: number;
-    sales: number;
-    cogs: number;
-    profitability: {
-        percentage: number;
-        amount: number;
-    };
-};
+export interface TopItem {
+  menu_item_id: number;
+  name: string;
+  category_id: number | null;
+  category_name: string | null;
+  qty: number;
+  sales: number;
+  cogs: number;
+  profitability: {
+    percentage: number;
+    amount: number;
+  };
+}
 
 export type TopModifier = {
+    modifier_id:number;
     name: string;
     qty: number;
     sales: number;
     menu_item:string;
+    price:number;
+    category_id: number | null;
+    category_name: string | null;
 };
 
 export type HourlyBreakdown = {
