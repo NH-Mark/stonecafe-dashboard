@@ -820,7 +820,7 @@ export function Header({
                         </div>
                     </div>
                     {/* ACTIVE LOCATION */}
-                        {locationName && (
+                        {/* {locationName && (
                             <div className="flex items-center gap-2 rounded-lg bg-[#a57653]/10 px-3 py-2 text-sm text-[#40332a]">
                                 <MapPin size={16} className="shrink-0 text-[#a57653]" />
 
@@ -828,7 +828,7 @@ export function Header({
                                     {locationName}
                                 </span>
                             </div>
-                        )}      
+                        )}       */}
                     {/* SESSION INFO */}
                     {sessionMode && (
                         <div
