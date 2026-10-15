@@ -137,7 +137,7 @@ export function SessionMainLayout({
                     min-h-0
                     gap-3
 
-                    lg:grid-cols-12
+                    xl:grid-cols-12
                 "
             >
 
@@ -151,8 +151,8 @@ export function SessionMainLayout({
                         min-h-0
                         overflow-hidden
 
-                        lg:col-span-2
-                        lg:block
+                        xl:col-span-2
+                        xl:block
                     "
                 >
                     <div
@@ -192,7 +192,7 @@ export function SessionMainLayout({
                         min-h-0
                         overflow-hidden
 
-                        lg:col-span-7
+                        xl:col-span-7
                     "
                 >
                     <MenuGrid
@@ -212,8 +212,8 @@ export function SessionMainLayout({
                         min-h-0
                         overflow-hidden
 
-                        lg:col-span-3
-                        lg:block
+                        xl:col-span-3
+                        xl:block
                     "
                 >
                     <div
