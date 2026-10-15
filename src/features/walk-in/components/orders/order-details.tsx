@@ -553,25 +553,22 @@ export default function OrderDetails({
                                 gap-2
                             "
                         >
-                             {currentOrder.status
-                                ?.toLowerCase() ===
-                                "confirmed" &&
-                                currentOrder.payment_status
-                                    ?.toLowerCase() !==
-                                "paid" && (
-                                <Button
-                                    type="button"
-                                    onClick={() => {
-                                        if (currentOrder) {
-                                            onGoToOrder(currentOrder);
-                                        }
-                                    }}
-                                    disabled={!currentOrder}
-                                >
-                                    <ShoppingCart className="mr-2 h-4 w-4" />
-                                    Go to Order
-                                </Button>
-                             )}
+                            {currentOrder.status?.toLowerCase() === "confirmed" &&
+                                currentOrder.payment_status?.toLowerCase() !== "paid" &&
+                                currentOrder.order_type_code?.toLowerCase() != "dine_in" && (
+                                    <Button
+                                        type="button"
+                                        onClick={() => {
+                                            if (currentOrder) {
+                                                onGoToOrder(currentOrder);
+                                            }
+                                        }}
+                                        disabled={!currentOrder}
+                                    >
+                                        <ShoppingCart className="mr-2 h-4 w-4" />
+                                        Go to Order
+                                    </Button>
+                                )}
 
                             {/* ================================================= */}
                             {/* ASSIGN TABLE */}
