@@ -69,13 +69,14 @@ export function AssignTableDialog({
                 const result =
                     await getTables();
 
-                setTables(
-                    result.filter(
-                        table =>
-                            table.status ===
-                            "available"
-                    )
-                );
+                // setTables(
+                //     result.filter(
+                //         table =>
+                //             table.status ===
+                //             "available"
+                //     )
+                // );
+                setTables(result);
             } catch (error) {
                 console.error(
                     "Failed to load available tables:",
