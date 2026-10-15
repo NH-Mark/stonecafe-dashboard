@@ -12,12 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Button } from "@/components/ui/button";
-import { CreditCard, Edit, Eye, MoreHorizontal, Package } from "lucide-react";
+import { Ban, CreditCard, Edit, Eye, MoreHorizontal, Package } from "lucide-react";
 import ChangePaymentStatusDialog from "./ReceivePaymentDialog";
 import OrderStatusDialog from "./OrderStatusDialog";
 import ReceivePaymentDialog from "./ReceivePaymentDialog";
 import { useRouter } from "next/navigation";
 import PermissionGuard from "@/components/guards/PermissionGuard";
+import CancelOrderDialog from "./CancelOrderDialog";
 
 interface Props {
     order: Order;
@@ -31,6 +32,12 @@ export default function OrderActions({
     const [viewOpen, setViewOpen] = useState(false);
     const [changePaymentOpen, setChangePaymentOpen] = useState(false);
     const [orderStatusOpen, setOrderStatusOpen] = useState(false);
+
+    const [cancelOpen, setCancelOpen] = useState(false);
+
+    function handleCancel() {
+        setCancelOpen(true);
+    }
     const router = useRouter()
     function handleEdit() {
         router.push(`/sales/orders/${order.id}/edit`)
@@ -59,6 +66,16 @@ export default function OrderActions({
                         <Edit className="mr-2 h-4 w-4" />
                         Edit Order
                     </DropdownMenuItem>
+                    </PermissionGuard>
+                     <PermissionGuard permission="orders.delete">
+                        <DropdownMenuItem
+                            onClick={() => setCancelOpen(true)}
+                            disabled={order.status == "cancelled" || order.payment_status != "unpaid"}
+                            className="text-destructive focus:text-destructive"
+                        >
+                            <Ban className="mr-2 h-4 w-4" />
+                            Cancel Order
+                        </DropdownMenuItem>
                     </PermissionGuard>
                       {/* <DropdownMenuItem
                         onClick={() => setOrderStatusOpen(true)}
@@ -92,6 +109,12 @@ export default function OrderActions({
             <OrderStatusDialog
                 open={orderStatusOpen}
                 onOpenChange={setOrderStatusOpen}
+                order={order}
+                onSuccess={onSuccess}
+            />
+            <CancelOrderDialog
+                open={cancelOpen}
+                onOpenChange={setCancelOpen}
                 order={order}
                 onSuccess={onSuccess}
             />

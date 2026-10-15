@@ -56,6 +56,8 @@ interface SessionMainLayoutProps {
 
     onOrderSaved:
         (orderId: string) => void;
+
+    onOrderCancelled: (orderId: string) => void;
 }
 
 export function SessionMainLayout({
@@ -66,6 +68,7 @@ export function SessionMainLayout({
     activeOrderId,
     activeOrderNo,
     onOrderSaved,
+    onOrderCancelled
 }: SessionMainLayoutProps) {
     useOrderKitchenSync();
 
@@ -245,6 +248,7 @@ export function SessionMainLayout({
                                 onOrderSaved={
                                     onOrderSaved
                                 }
+                                 onOrderCancelled={onOrderCancelled}
                             />
                         ) : (
                             <EmptyActiveOrder />
@@ -589,6 +593,7 @@ export function SessionMainLayout({
                             onOrderSaved={
                                 onOrderSaved
                             }
+                             onOrderCancelled={onOrderCancelled}
                         />
                     ) : (
                         <EmptyActiveOrder />

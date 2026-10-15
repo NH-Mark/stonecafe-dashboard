@@ -19,6 +19,7 @@ import { Separator } from "@base-ui/react";
 
 import {
     addItemsToOrder,
+    cancelConfirmedOrder,
     createOrder,
     updateOrder,
 } from "../order.service";
@@ -26,6 +27,7 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useOrderMutation } from "../hooks/useOrderMutation";
+import { CancelOrderDialog } from "./CancelOrderDialog";
 
 interface OrderCartProps {
     orderId?: string;
@@ -53,6 +55,8 @@ interface OrderCartProps {
      * Cart mode.
      */
     mode?: "dine-in" | "takeaway";
+    onOrderCancelled?: (orderId: string) => void;
+    
 }
 
 export function OrderCart({
@@ -61,11 +65,15 @@ export function OrderCart({
     sessionId,
     onOrderSaved,
     mode = "dine-in",
+    onOrderCancelled
 }: OrderCartProps) {
     const [checkoutOpen, setCheckoutOpen] =
         useState(false);
 
     const [saving, setSaving] =
+        useState(false);
+
+    const [cancelDialogOpen, setCancelDialogOpen] =
         useState(false);
 
     const [orderType, setOrderType] = useState<
@@ -309,6 +317,8 @@ export function OrderCart({
         updating
     } = useOrderMutation(orderId);
 
+    
+
     async function handleSaveChanges() {
         if (!orderId || orderId.startsWith("new-")) {
             return;
@@ -390,7 +400,7 @@ export function OrderCart({
         try {
             setSaving(true);
 
-             const activeLocationId = Number(
+            const activeLocationId = Number(
                 Cookies.get("active_location_id")
             );
 
@@ -799,7 +809,7 @@ export function OrderCart({
                 | Everything is now synchronized
                 |--------------------------------------------------------------------------
                 */
-               
+
                 updateLocalOrder(
                     String(orderId),
                     {
@@ -1411,13 +1421,13 @@ export function OrderCart({
                                 setCheckoutOpen(true)
                             }
                             className="
-            h-12
-            w-full
-            rounded-xl
-            bg-green-900
-            text-base
-            hover:bg-green-800
-        "
+                                h-12
+                                w-full
+                                rounded-xl
+                                bg-green-900
+                                text-base
+                                hover:bg-green-800
+                            "
                         >
                             {status === "completed"
                                 ? "Payment Completed"
@@ -1426,6 +1436,22 @@ export function OrderCart({
                                     : "Payment"}
                         </Button>
                     )}
+
+                     {status === "confirmed" &&
+                        !isDraft &&
+                        orderId &&
+                        !orderId.startsWith("new-") && (
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                disabled={saving || updating}
+                                onClick={() => setCancelDialogOpen(true)}
+                                className="mt-2 mb-2 h-11 w-full rounded-xl"
+                            >
+                                Cancel Order
+                            </Button>
+                        )}
+                   
                 </div>
 
                 {/* CHECKOUT */}
@@ -1440,6 +1466,24 @@ export function OrderCart({
                         onPaymentComplete={
                             handlePaymentComplete
                         }
+                    />
+                )}
+
+                {orderId && !orderId.startsWith("new-") && (
+                    <CancelOrderDialog
+                        open={cancelDialogOpen}
+                        onOpenChange={setCancelDialogOpen}
+                        orderId={orderId}
+                        onCancelled={() => {
+                            updateOrderStatus(String(orderId), "cancelled");
+
+                            updateLocalOrder(String(orderId), {
+                                syncStatus: "synced",
+                            });
+
+                            // Notify the parent component that this order was cancelled.
+                            onOrderCancelled?.(String(orderId));
+                        }}
                     />
                 )}
             </div>

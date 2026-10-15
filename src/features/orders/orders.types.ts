@@ -76,6 +76,8 @@ export interface Order {
     number_plate: string;
     dining_session_id:number;
     order_source_id:number;
+    cancelled_at:string;
+    cancellation_reason:string;
 }
 
 export interface OrderDiscount {

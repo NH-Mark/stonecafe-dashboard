@@ -345,7 +345,8 @@ export default function OrderPaymentsCard({
                     onClick={addPayment}
                     disabled={
                         loadingMethods ||
-                        remainingAmount <= 0
+                        remainingAmount <= 0 ||
+                        order.status == 'cancelled'
                     }
                 >
                     <Plus className="mr-2 h-4 w-4" />

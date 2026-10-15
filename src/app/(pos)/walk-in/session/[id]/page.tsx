@@ -485,7 +485,13 @@ export default function DiningSessionPage() {
                 */
 
                 const databaseOrders =
-                    dbOrders.map(
+                    dbOrders
+                        .filter(
+                            order =>
+                                order.status !== "cancelled" &&
+                                storeOrders[String(order.id)]?.status !== "cancelled"
+                        )
+                        .map(
                         order => {
                             const orderId =
                                 String(
@@ -948,6 +954,23 @@ export default function DiningSessionPage() {
             createNewOrder,
         ]
     );
+    const handleOrderCancelled = useCallback(
+        (orderId: string) => {
+            removeOrder(orderId);
+
+            setSession(current => {
+                if (!current) return current;
+
+                return {
+                    ...current,
+                    orders: (current.orders ?? []).filter(
+                        order => String(order.id) !== orderId
+                    ),
+                };
+            });
+        },
+        [removeOrder]
+    );
 
     /*
     |--------------------------------------------------------------------------
@@ -1251,6 +1274,7 @@ export default function DiningSessionPage() {
                 onOrderSaved={
                     handleOrderSaved
                 }
+                onOrderCancelled={handleOrderCancelled}
             />
 
             <SessionMobileActions

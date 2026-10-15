@@ -177,3 +177,13 @@ export async function createTablePayment(
         payload
     );
 }
+
+export async function cancelConfirmedOrder(
+    orderId: number,
+    reason: string
+) {
+    return api.patch(
+        `/api/orders/${orderId}/cancel-confirmed`,
+        { reason }
+    );
+}

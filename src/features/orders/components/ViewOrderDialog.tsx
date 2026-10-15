@@ -653,7 +653,64 @@ export default function ViewOrderDialog({
                                     </p>
                                 </div>
                             )}
+
+                              {order.status === "cancelled" && (
+                            <div className="rounded-xl border border-red-200 bg-red-50/50 p-5 dark:border-red-900 dark:bg-red-950/20">
+                                <div className="mb-4 flex items-center gap-2">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40">
+                                        <Clock className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                    </div>
+
+                                    <div>
+                                        <h3 className="font-semibold text-red-900 dark:text-red-300">
+                                            Order Cancellation
+                                        </h3>
+
+                                        <p className="text-xs text-muted-foreground">
+                                            Cancellation details and reason
+                                        </p>
+                                    </div>
+
+                                    <Badge variant="destructive" className="ml-auto">
+                                        Cancelled
+                                    </Badge>
+                                </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="rounded-lg border border-red-200/70 bg-background p-3 dark:border-red-900">
+                                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                            Cancelled At
+                                        </p>
+
+                                        <p className="mt-2 text-sm font-semibold">
+                                            {order.cancelled_at
+                                                ? new Date(
+                                                    order.cancelled_at
+                                                ).toLocaleString()
+                                                : "Not available"}
+                                        </p>
+                                    </div>
+
+                                    <div className="rounded-lg border border-red-200/70 bg-background p-3 dark:border-red-900">
+                                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                            Cancellation Reason
+                                        </p>
+
+                                        <p className="mt-2 whitespace-pre-wrap text-sm">
+                                            {order.cancellation_reason?.trim() ||
+                                                "No reason provided"}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         </div>
+
+                        {/* ================================================== */}
+                        {/* CANCELLATION DETAILS */}
+                        {/* ================================================== */}
+
+                      
                     </TabsContent>
 
                     {/* ================================================== */}
