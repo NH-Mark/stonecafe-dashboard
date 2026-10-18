@@ -387,7 +387,7 @@ export default function SalesFilters({
 
                 {/* Order Type */}
 
-                <SelectCustom
+                {/* <SelectCustom
                     value={
                         filters.order_type
                             ? String(
@@ -412,7 +412,7 @@ export default function SalesFilters({
                             ),
                         })
                     )}
-                />
+                /> */}
 
                 {/* Reset */}
 

@@ -21,10 +21,10 @@ export function TopSellingItemsColumns(): ColumnDef<TopItem>[] {
             accessorKey: "sales",
             header: "Total Amount"
         },
-        {
-            accessorKey: "cogs",
-            header: "Total Cogs"
-        },
+        // {
+        //     accessorKey: "cogs",
+        //     header: "Total Cogs"
+        // },
         {
             accessorKey: "profitability.percentage",
             header: "Profitability"
