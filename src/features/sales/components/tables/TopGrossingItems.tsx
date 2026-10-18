@@ -53,7 +53,6 @@ export default function TopGrossingItems({ data }: Props) {
                                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-semibold text-[#40332a]">
                                     {index + 1}
                                 </span>
-
                                 <div>
                                     <p className="font-medium text-[#40332a]">
                                         {item.name}
@@ -63,7 +62,6 @@ export default function TopGrossingItems({ data }: Props) {
                                     </p>
                                 </div>
                             </div>
-
                             <div className="text-right">
                                 <p className="font-semibold text-[#40332a]">
                                     QAR {Number(item.sales ?? 0).toFixed(2)}

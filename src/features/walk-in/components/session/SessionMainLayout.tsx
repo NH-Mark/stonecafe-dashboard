@@ -122,7 +122,7 @@ export function SessionMainLayout({
                 p-2
                 pb-[76px]
                 sm:p-3
-                xl:pb-3
+                lg:pb-3
             "
         >
 
@@ -137,7 +137,7 @@ export function SessionMainLayout({
                     min-h-0
                     gap-3
 
-                    xl:grid-cols-12
+                    lg:grid-cols-12
                 "
             >
 
@@ -151,8 +151,8 @@ export function SessionMainLayout({
                         min-h-0
                         overflow-hidden
 
-                        xl:col-span-2
-                        xl:block
+                        lg:col-span-2
+                        lg:block
                     "
                 >
                     <div
@@ -192,7 +192,7 @@ export function SessionMainLayout({
                         min-h-0
                         overflow-hidden
 
-                        xl:col-span-7
+                        lg:col-span-7
                     "
                 >
                     <MenuGrid
@@ -212,8 +212,8 @@ export function SessionMainLayout({
                         min-h-0
                         overflow-hidden
 
-                        xl:col-span-3
-                        xl:block
+                        lg:col-span-3
+                        lg:block
                     "
                 >
                     <div
@@ -279,7 +279,7 @@ export function SessionMainLayout({
                     shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
                     backdrop-blur
 
-                    xl:hidden
+                    lg:hidden
                 "
             >
                 <div
@@ -367,7 +367,7 @@ export function SessionMainLayout({
                         z-50
                         bg-black/30
                         backdrop-blur-[1px]
-                        xl:hidden
+                        lg:hidden
                     "
                     onClick={
                         closeDrawers
@@ -392,7 +392,7 @@ export function SessionMainLayout({
                     shadow-2xl
                     transition-transform
                     duration-200
-                    xl:hidden
+                    lg:hidden
 
                     ${
                         categoryOpen
@@ -499,7 +499,7 @@ export function SessionMainLayout({
                     shadow-2xl
                     transition-transform
                     duration-200
-                    xl:hidden
+                    lg:hidden
 
                     ${
                         orderOpen &&

@@ -11,7 +11,6 @@ type Props = {
 };
 
 export default function TopGrossingModifiers({ data }: Props) {
-    // Rank by revenue in case the API response is not already sorted.
     const sortedData = [...data].sort((a, b) => b.sales - a.sales);
 
     return (

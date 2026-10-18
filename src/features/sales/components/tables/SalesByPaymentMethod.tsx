@@ -198,4 +198,3 @@ export default function SalesByPaymentMethod({ data }: Props) {
         </div>
     );
 }
-``
