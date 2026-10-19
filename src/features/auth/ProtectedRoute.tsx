@@ -30,34 +30,26 @@ export default function ProtectedRoute({ children }: Props) {
 
     // Automatically select the only permitted location.
     if (locations.length === 1) {
-        const location = locations[0];
-        console.log("location");
-        console.log(location);
+      const location = locations[0];
 
-        const cookieOptions = {
-          expires: 7,
-          sameSite: "strict" as const,
-          secure: window.location.protocol === "https:",
-        };
+      const cookieOptions = {
+        expires: 7,
+        sameSite: "strict" as const,
+        secure: window.location.protocol === "https:",
+      };
 
-        // Store the active location ID and display name.
-        Cookies.set(
-          "active_location_id",
-          String(location.id),
-          cookieOptions
-        );
+      const nextLocationId = String(location.id);
 
-        Cookies.set(
-          "active_location_name",
-          location.name,
-          cookieOptions
-        );
+      if (activeLocationId !== nextLocationId) {
+        Cookies.set("active_location_id", nextLocationId, cookieOptions);
+        Cookies.set("active_location_name", location.name, cookieOptions);
+      }
 
-        if (pathname === "/select-location") {
-          router.replace("/dashboard");
-        }
+      if (pathname === "/select-location") {
+        router.replace("/dashboard");
+      }
 
-        return;
+      return;
     }
 
     // Multiple or no permitted locations require selection.
@@ -81,19 +73,11 @@ export default function ProtectedRoute({ children }: Props) {
     return null;
   }
 
-  // Prevent rendering protected content before location resolution.
-  if (
-    locations.length === 1 &&
-    !Cookies.get("active_location_id")
-  ) {
-    return <PageLoader />;
+  if (locations.length === 1) {
+    return <>{children}</>;
   }
 
-  if (
-    locations.length !== 1 &&
-    !Cookies.get("active_location_id") &&
-    pathname !== "/select-location"
-  ) {
+  if (!Cookies.get("active_location_id") && pathname !== "/select-location") {
     return <PageLoader />;
   }
 
