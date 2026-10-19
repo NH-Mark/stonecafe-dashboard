@@ -56,7 +56,7 @@ export default function LoginPage() {
                 response.token,
                 {
                     expires: 7,
-                    secure: true,
+                    secure: window.location.protocol === "https:",
                     sameSite: "strict",
                 }
             );

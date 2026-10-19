@@ -56,24 +56,23 @@ export default function AdminHeader() {
 
       <div className="flex items-center gap-3">
         <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                className="flex items-center gap-2 text-gray-700 hover:text-[#40332a]"
-              >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#a57653]/10 text-[#40332a]">
-                  <User size={16} />
+          <DropdownMenuTrigger>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 text-gray-700 hover:text-[#40332a]"
+              type="button"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#a57653]/10 text-[#40332a]">
+                <User size={16} />
+              </div>
+              <div className="hidden text-left sm:block">
+                <div className="text-sm font-medium text-[#40332a]">
+                  {user?.name ?? "My Account"}
                 </div>
-                <div className="hidden text-left sm:block">
-                  <div className="text-sm font-medium text-[#40332a]">
-                    {user?.name ?? "My Account"}
-                  </div>
-                </div>
-                <ChevronDown size={16} />
-              </Button>
-            }
-          />
+              </div>
+              <ChevronDown size={16} />
+            </Button>
+          </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end" className="w-64 p-2">
             <div className="px-2 py-2">
