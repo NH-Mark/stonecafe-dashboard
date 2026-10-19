@@ -19,4 +19,6 @@ export interface User {
 
     permissions:string[];
 
+    status?: boolean;
+
 }

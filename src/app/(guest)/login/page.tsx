@@ -104,8 +104,23 @@ export default function LoginPage() {
                 router.replace("/select-location");
             }
 
-        } catch (error) {
-            setError("Invalid email or password");
+        } catch (error: unknown) {
+            const message =
+                typeof error === "object" && error !== null
+                    ? (
+                        "message" in error && typeof error.message === "string"
+                            ? error.message
+                            : "response" in error &&
+                                typeof error.response === "object" &&
+                                error.response !== null &&
+                                "data" in error.response &&
+                                typeof (error.response as { data?: { message?: string } }).data?.message === "string"
+                                ? (error.response as { data?: { message?: string } }).data!.message
+                                : ""
+                    )
+                    : "";
+
+            setError(message || "Invalid email or password");
         } finally {
             setLoading(false);
         }

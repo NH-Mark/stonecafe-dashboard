@@ -22,6 +22,7 @@ import {
     ChefHat,
     Upload,
     Import,
+    Clock3,
 } from "lucide-react";
 
 export const adminMenu: AdminMenuItem[] = [
@@ -183,6 +184,12 @@ export const adminMenu: AdminMenuItem[] = [
                 href: "/import-orders",
                 icon: Import,
                 permission: "orders.view",
+            },
+            {
+                title: "Employee Logs",
+                href: "/employee-logs",
+                icon: Clock3,
+                permission: "users.view",
             },
         ],
     },

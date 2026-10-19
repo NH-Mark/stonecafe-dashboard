@@ -20,8 +20,9 @@ export interface CreateStaffPayload extends StaffPayload {
 password: string;
 }
 
-export interface UpdateStaffPayload extends StaffPayload {
+export interface UpdateStaffPayload extends Partial<StaffPayload> {
 password?: string;
+status?: boolean;
 }
 
 export function getStaff(params: GetStaffParams = {}) {
@@ -47,19 +48,31 @@ export async function updateStaff(
 id: number,
 data: UpdateStaffPayload
 ) {
-const response = await api.put(
-`/api/users/${id}`,
-data
-);
 
-return response.data;
+
+    const response = await api.put(
+    `/api/users/${id}`,
+    data
+    );
+
+    return response.data;
 }
 
 export async function deleteStaff(id: number) {
-const response = await api.delete(`/api/users/${id}`);
-return response.data;
+    const response = await api.delete(`/api/users/${id}`);
+    return response.data;
+}
+
+export async function suspendStaff(id: number) {
+    const response = await api.put(`/api/employee-logs/${id}/suspend`);
+    return response.data;
+}
+
+export async function restoreStaff(id: number) {
+    const response = await api.put(`/api/employee-logs/${id}/restore`);
+    return response.data;
 }
 
 export function getPermissions() {
-return api.get("/api/permissions");
+    return api.get("/api/permissions");
 }
