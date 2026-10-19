@@ -330,11 +330,16 @@ export function CheckoutDialog({
     |--------------------------------------------------------------------------
     */
 
+    const isZeroTotal = total <= 0;
+
     const isFullyPaid =
-        total > 0 &&
-        Math.abs(
-            remainingAmount
-        ) < 0.01;
+        isZeroTotal ||
+        (
+            total > 0 &&
+            Math.abs(
+                remainingAmount
+            ) < 0.01
+        );
 
 
     /*
@@ -711,25 +716,10 @@ export function CheckoutDialog({
         }
 
 
-        if (total <= 0) {
-
-            toast.error(
-                "Order total must be greater than zero."
-            );
-
-            return;
-
-        }
-
-
         /*
         |--------------------------------------------------------------------------
-        | IMPORTANT
+        | Zero-total orders are considered fully paid automatically.
         |--------------------------------------------------------------------------
-        |
-        | Payment is allowed ONLY when the entire order
-        | has been allocated to payments.
-        |
         */
 
         if (!isFullyPaid) {
@@ -743,7 +733,7 @@ export function CheckoutDialog({
         }
 
 
-        if (payments.length === 0) {
+        if (!isZeroTotal && payments.length === 0) {
 
             toast.error(
                 "Please add at least one payment."
@@ -781,24 +771,26 @@ export function CheckoutDialog({
                     {
                         order_source_id: orderSourceId,
                         payments:
-                            payments.map(
-                                payment => ({
-                                    payment_method_id:
-                                        payment.paymentMethodId,
+                            isZeroTotal
+                                ? []
+                                : payments.map(
+                                    payment => ({
+                                        payment_method_id:
+                                            payment.paymentMethodId,
 
-                                    amount:
-                                        Number(
-                                            payment.amount.toFixed(2)
-                                        ),
+                                        amount:
+                                            Number(
+                                                payment.amount.toFixed(2)
+                                            ),
 
-                                    ...(payment.reference
-                                        ? {
-                                            reference:
-                                                payment.reference,
-                                        }
-                                        : {}),
-                                })
-                            ),
+                                        ...(payment.reference
+                                            ? {
+                                                reference:
+                                                    payment.reference,
+                                            }
+                                            : {}),
+                                    })
+                                ),
                     }
                 );
 
@@ -812,7 +804,7 @@ export function CheckoutDialog({
             const paymentResult = {
 
                 order_paid:
-                    response?.data?.order_paid === true,
+                    isZeroTotal || response?.data?.order_paid === true,
 
                 session_closed:
                     response?.data?.session_closed === true,
@@ -1373,7 +1365,7 @@ export function CheckoutDialog({
                                             }
 
                                             disabled={
-                                                loading
+                                                loading || isZeroTotal
                                             }
 
                                             onClick={() =>
@@ -1510,6 +1502,7 @@ export function CheckoutDialog({
 
                             disabled={
                                 loading ||
+                                isZeroTotal ||
                                 !selectedPaymentMethodId ||
                                 remainingAmount <= 0 ||
                                 !amountInput
@@ -1871,9 +1864,8 @@ export function CheckoutDialog({
                         disabled={
                             loading ||
                             !orderId ||
-                            total <= 0 ||
-                            payments.length === 0 ||
-                            !isFullyPaid
+                            !isFullyPaid ||
+                            (!isZeroTotal && payments.length === 0)
                         }
 
                         onClick={
@@ -1913,6 +1905,12 @@ export function CheckoutDialog({
                                     remainingAmount.toFixed(2)
                                 }{" "}
                                 QAR
+                            </>
+
+                        ) : isZeroTotal ? (
+
+                            <>
+                                Mark as Paid
                             </>
 
                         ) : (
