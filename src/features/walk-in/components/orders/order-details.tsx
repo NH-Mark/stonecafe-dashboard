@@ -25,11 +25,9 @@ import OrderPayments from "./order-payment"
 
 import { Order } from "@/features/orders/orders.types"
 
-import {
-    getOrder,
-    printOrder,
-    updateOrderStatus,
-} from "../../orders.service"
+import { getOrder, printOrder, updateOrderStatus } from "../../orders.service"
+import { createPayment } from "@/features/orders/orders.service"
+import { updateOrder } from "@/features/walk-in/order.service"
 import { AssignTableDialog } from "./AssignTableDialog"
 import { Button } from "@/components/ui/button"
 
@@ -1243,6 +1241,114 @@ export default function OrderDetails({
                     <section>
 
                         <div className="mt-3">
+                            <div className="mb-4 flex justify-end">
+                                {Number(currentOrder.total || 0) === 0 &&
+                                    currentOrder.payment_status?.toLowerCase() !== "paid" && (
+                                        <Button
+                                            type="button"
+                                            onClick={async () => {
+                                                if (!currentOrder?.id) return
+
+                                                try {
+                                                    await createPayment(
+                                                        currentOrder.id,
+                                                        {
+                                                            order_source_id:
+                                                                currentOrder.order_source_id ?? null,
+                                                            payments: [],
+                                                        }
+                                                    )
+
+                                                    const nextStatus =
+                                                        currentOrder.status === "confirmed"
+                                                            ? "completed"
+                                                            : currentOrder.status
+
+                                                    await updateOrder(
+                                                        currentOrder.id,
+                                                        {
+                                                            order_no: currentOrder.order_no,
+                                                            type: currentOrder.type,
+                                                            order_type_id: currentOrder.order_type_id,
+                                                            source: currentOrder.source,
+                                                            order_source_id: currentOrder.order_source_id ?? null,
+                                                            customer_id: currentOrder.customer_id ?? null,
+                                                            restaurant_table_id: currentOrder.restaurant_table_id ?? null,
+                                                            location_id: currentOrder.location_id ?? null,
+                                                            number_plate: currentOrder.number_plate ?? null,
+                                                            dining_session_id: currentOrder.dining_session_id ?? null,
+                                                            status: nextStatus,
+                                                            payment_status: "paid",
+                                                            kitchen_status: "ready",
+                                                            notes: currentOrder.notes ?? null,
+                                                            items: currentOrder.items.map((item) => ({
+                                                                id: item.id,
+                                                                menu_item_id: item.menu_item_id ?? 0,
+                                                                quantity: Number(item.quantity || 0),
+                                                                unit_price: Number(item.unit_price || 0),
+                                                                total_price: Number(item.total_price || 0),
+                                                                notes: item.notes ?? null,
+                                                                modifiers: item.modifiers.map((modifier) => ({
+                                                                    modifier_id: Number(modifier.id ?? 0),
+                                                                    quantity: Number(modifier.quantity || 0),
+                                                                    price: Number(modifier.price || 0),
+                                                                })),
+                                                                discounts: item.discounts?.map((discount) => ({
+                                                                    discount_id: Number(discount.id || 0),
+                                                                    amount: Number(discount.amount || 0),
+                                                                })) ?? [],
+                                                            })),
+                                                            discounts: (currentOrder.discounts ?? []).map((discount) => ({
+                                                                discount_id: Number(discount.id || 0),
+                                                                amount: Number(discount.amount || 0),
+                                                            })),
+                                                            subtotal: Number(currentOrder.subtotal || 0),
+                                                            discount_amount: Number(currentOrder.discount_amount || 0),
+                                                            tax_amount: Number(currentOrder.tax_amount || 0),
+                                                            service_charge: Number(currentOrder.service_charge || 0),
+                                                            total_amount: Number(currentOrder.total || 0),
+                                                            payments: currentOrder.payments.map((payment) => ({
+                                                                id: payment.id,
+                                                                payment_method_id: payment.payment_method_id ?? 0,
+                                                                amount: Number(payment.amount || 0),
+                                                                reference: payment.reference ?? null,
+                                                                paid_at: payment.paid_at ?? null,
+                                                            })),
+                                                        }
+                                                    )
+
+                                                    const refreshedOrder =
+                                                        await getOrder(
+                                                            currentOrder.id
+                                                        )
+
+                                                    setCurrentOrder(
+                                                        refreshedOrder
+                                                    )
+                                                    onOrderUpdated?.(
+                                                        refreshedOrder
+                                                    )
+                                                    toast.success(
+                                                        "Order marked as paid."
+                                                    )
+                                                } catch (error) {
+                                                    console.error(
+                                                        "Failed to mark order as paid:",
+                                                        error
+                                                    )
+
+                                                    toast.error(
+                                                        error instanceof Error
+                                                            ? error.message
+                                                            : "Failed to mark order as paid."
+                                                    )
+                                                }
+                                            }}
+                                        >
+                                            Mark as Paid
+                                        </Button>
+                                    )}
+                            </div>
 
                             <OrderPayments
                                 order={
