@@ -70,7 +70,7 @@ export default function OrderActions({
                      <PermissionGuard permission="orders.delete">
                         <DropdownMenuItem
                             onClick={() => setCancelOpen(true)}
-                            disabled={order.status == "cancelled" || order.payment_status != "unpaid"}
+                            disabled={order.status == "cancelled"}
                             className="text-destructive focus:text-destructive"
                         >
                             <Ban className="mr-2 h-4 w-4" />

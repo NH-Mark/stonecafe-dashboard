@@ -39,10 +39,10 @@ const orderStatuses = [
         value: "completed",
         label: "Completed",
     },
-    {
-        value: "cancelled",
-        label: "Cancelled",
-    },
+    // {
+    //     value: "cancelled",
+    //     label: "Cancelled",
+    // },
 ]
 
 const paymentStatuses = [
