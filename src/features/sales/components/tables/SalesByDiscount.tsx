@@ -38,7 +38,7 @@ export default function SalesByDiscount({
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-            Sales by Discount
+            Discount Usage
           </h3>
           <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
             Discount usage and value
