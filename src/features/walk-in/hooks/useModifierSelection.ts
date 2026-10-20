@@ -56,16 +56,41 @@ export function useModifierSelection(
 
     function selectSingle(
         groupId: number,
-        modifierId: number
+        modifierId: number | null
     ) {
 
-        setSelected(prev => ({
-            ...prev,
+        setSelected(prev => {
+            const groupConfig =
+                item?.modifier_groups?.find(
+                    group => group.id === groupId
+                )?.pivot ?? {
+                    required:
+                        item?.modifier_groups?.find(
+                            group => group.id === groupId
+                        )?.required,
+                    selection_type:
+                        item?.modifier_groups?.find(
+                            group => group.id === groupId
+                        )?.selection_type,
+                };
 
-            [groupId]: [
-                modifierId
-            ]
-        }));
+            const isOptionalSingle =
+                groupConfig.selection_type === "single" &&
+                !groupConfig.required;
+
+            if (modifierId === null && isOptionalSingle) {
+                const next = { ...prev };
+                delete next[groupId];
+                return next;
+            }
+
+            return {
+                ...prev,
+                [groupId]: [
+                    modifierId as number
+                ]
+            };
+        });
 
     }
 

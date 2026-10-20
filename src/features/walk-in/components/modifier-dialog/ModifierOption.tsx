@@ -14,6 +14,8 @@ interface Props {
 
     onChange?: () => void;
 
+    onClick?: () => void;
+
 }
 
 
@@ -25,7 +27,8 @@ export function ModifierOption({
 
     checked = false,
 
-    onChange
+    onChange,
+    onClick
 
 }: Props) {
 
@@ -42,6 +45,7 @@ export function ModifierOption({
                 bg-white
                 p-3
             "
+            onClick={onClick}
         >
 
 

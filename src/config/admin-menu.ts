@@ -32,7 +32,6 @@ export const adminMenu: AdminMenuItem[] = [
         icon: LayoutDashboard,
         permission: "sales.view",
     },
-
     {
         title: "Menu Management",
         href: "/",

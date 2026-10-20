@@ -18,7 +18,7 @@ interface Props {
 
     selectSingle: (
         groupId:number,
-        modifierId:number
+        modifierId:number | null
     ) => void;
 
 }
@@ -43,7 +43,10 @@ export function ModifierGroupCard({
         selection_type: "multiple"
     };
 
-
+    const currentSingleValue = selected[group.id]?.[0]?.toString() ?? "";
+    const isOptionalSingle =
+        config.selection_type === "single" &&
+        !config.required;
 
     return (
 
@@ -92,17 +95,21 @@ p-5
 
                     <RadioGroup
 
-                        value={
-                            selected[group.id]?.[0]?.toString() ?? ""
-                        }
+                        value={currentSingleValue}
 
-                        onValueChange={
-                            (value) =>
-                                selectSingle(
-                                    group.id,
-                                    Number(value)
-                                )
-                        }
+                        onValueChange={(value) => {
+                            const nextValue = value ? Number(value) : null;
+
+                            if (
+                                isOptionalSingle &&
+                                currentSingleValue === value
+                            ) {
+                                selectSingle(group.id, null);
+                                return;
+                            }
+
+                            selectSingle(group.id, nextValue);
+                        }}
 
 
                         className="space-y-3"
@@ -121,6 +128,18 @@ p-5
                                         modifier={modifier}
 
                                         type="single"
+
+                                        onClick={() => {
+                                            if (
+                                                isOptionalSingle &&
+                                                selected[group.id]?.[0] === modifier.id
+                                            ) {
+                                                selectSingle(group.id, null);
+                                                return;
+                                            }
+
+                                            selectSingle(group.id, modifier.id);
+                                        }}
 
                                     />
 
