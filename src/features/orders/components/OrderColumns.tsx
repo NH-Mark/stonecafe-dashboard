@@ -79,9 +79,11 @@ export function OrderColumns({
 },
     {
       id: "payment_method",
+      accessorFn: (row) =>
+        row.payments?.map((p) => p.method).join(", ") || "-",
       header: "Payment Method",
+      enableColumnFilter: true,
       cell: ({ row }) => {
-
         return row.original.payments
           ?.map((p) => p.method)
           .join(", ") || "-";

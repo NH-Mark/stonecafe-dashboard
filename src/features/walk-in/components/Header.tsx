@@ -1239,24 +1239,38 @@ export function Header({
                             </Button>
                         )}
                         {!sessionMode && (
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() =>
-                                    router.push(
-                                        "/dashboard"
-                                    )
-                                }
-                            >
-                                <LayoutDashboard
-                                    className="
-                                        mr-2
-                                        h-4
-                                        w-4
-                                    "
-                                />
+                            <>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-10 w-10 rounded-xl"
+                                    onClick={handleNewOrder}
+                                    aria-label="Create new order"
+                                    title="New Order"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() =>
+                                        router.push(
+                                            "/dashboard"
+                                        )
+                                    }
+                                    size="icon"
+                                    className="h-10 w-10 rounded-xl"
+                                    aria-label="Go to dashboard"
+                                    title="Dashboard"
+                                >
+                                    <LayoutDashboard
+                                        className="h-4 w-4"
+                                    />
+                                </Button>
 
-                            </Button>
+                                
+                            </>
                         )}
                     </div>
                 </div>
