@@ -281,7 +281,7 @@ function DetailItem({
                 {label}
             </div>
 
-            <div className="truncate text-sm font-medium">
+            <div className="break-words text-sm font-medium">
                 {value ?? "-"}
             </div>
         </div>
@@ -305,7 +305,7 @@ function MetadataItem({
                 {label}
             </div>
 
-            <div className="truncate text-sm font-medium">
+            <div className="break-words text-sm font-medium">
                 {formatValue(value)}
             </div>
         </div>

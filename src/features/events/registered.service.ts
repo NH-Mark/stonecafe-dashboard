@@ -52,6 +52,10 @@ export async function updateRegistrationSelectionStatus(
     );
 }
 
+export async function deleteRegistration(id: number) {
+    return api.delete(`/api/event-registrations/${id}`);
+}
+
 export async function exportRegisteredList(params: {
     search?: string;
     filters?: unknown[];

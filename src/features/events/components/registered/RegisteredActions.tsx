@@ -10,6 +10,7 @@ import {
     CheckCircle,
     XCircle,
     ListChecks,
+    Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,7 +28,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import RegisteredDetailsDialog from "./RegisteredDetailsDialog";
-import { updateRegistrationSelectionStatus } from "../../registered.service";
+import {
+    deleteRegistration,
+    updateRegistrationSelectionStatus,
+} from "../../registered.service";
 
 type SelectionStatus =
     | "pending"
@@ -82,6 +86,23 @@ export default function RegisteredActions({
         }
     }
 
+    async function handleDelete() {
+        if (!window.confirm(`Delete registration for ${registration.full_name}?`)) {
+            return;
+        }
+
+        try {
+            setUpdating(true);
+            await deleteRegistration(registration.id);
+            toast.success("Registration deleted.");
+            await onSuccess();
+        } catch {
+            toast.error("Failed to delete registration.");
+        } finally {
+            setUpdating(false);
+        }
+    }
+
     return (
         <>
             <DropdownMenu>
@@ -131,6 +152,15 @@ export default function RegisteredActions({
                             })}
                         </DropdownMenuSubContent>
                     </DropdownMenuSub>
+
+                    <DropdownMenuItem
+                        variant="destructive"
+                        disabled={updating}
+                        onClick={handleDelete}
+                    >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                    </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
 
