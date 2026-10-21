@@ -22,6 +22,17 @@ export interface RegisteredTimeSlot {
     is_active: boolean;
 }
 
+export interface RegisteredMailLog {
+    id: number;
+    email_type: string;
+    recipient_email: string;
+    status: string;
+    queued_at: string | null;
+    sent_at: string | null;
+    failed_at: string | null;
+    error_message: string | null;
+}
+
 export interface Registered {
     id: number;
 
@@ -60,6 +71,8 @@ export interface Registered {
     seat_count: number;
 
     metadata: Record<string, unknown> | null;
+    mail_status?: string | null;
+    mail_logs?: RegisteredMailLog[];
 
     created_at: string;
     updated_at: string;

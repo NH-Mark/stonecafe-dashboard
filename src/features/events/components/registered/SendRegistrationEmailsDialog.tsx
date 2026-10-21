@@ -105,13 +105,34 @@ export default function SendRegistrationEmailsDialog({
         (item) => item.value === group
     );
 
+    function hasSentEmailForGroup(
+        registration: Registered,
+        emailGroup: RegistrationEmailGroup
+    ) {
+        return (registration.mail_logs ?? []).some((log) => {
+            const normalizedType = String(log.email_type ?? "")
+                .trim()
+                .toLowerCase();
+            const normalizedGroup = emailGroup.toLowerCase();
+            const normalizedStatus = String(log.status ?? "")
+                .trim()
+                .toLowerCase();
+
+            return (
+                normalizedType === normalizedGroup &&
+                ["sent", "queued"].includes(normalizedStatus)
+            );
+        });
+    }
+
     // This is a preview of registrations currently loaded in the table,
     // not a guaranteed server-wide count.
     const recipientCount = registrations.filter(
         (registration) =>
             String(registration.event_id) === eventId &&
             registration.selection_status === group &&
-            Boolean(registration.email)
+            Boolean(registration.email) &&
+            !hasSentEmailForGroup(registration, group)
     ).length;
 
     async function handleSend() {
@@ -246,8 +267,7 @@ export default function SendRegistrationEmailsDialog({
                             </p>
 
                             <p className="mt-1 text-xs text-muted-foreground">
-                                The final recipient count must be calculated
-                                by the backend across all matching registrations.
+                                Excludes members already sent for this email type.
                             </p>
                         </div>
 

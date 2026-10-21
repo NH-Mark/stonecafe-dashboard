@@ -37,10 +37,11 @@ export default function RegisteredDetailsDialog({
     registration,
 }: Props) {
     const metadata = registration.metadata ?? {};
+    const mailLogs = registration.mail_logs ?? [];
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="!max-w-3xl p-0">
+            <DialogContent className="max-w-3xl! p-0">
                 <DialogHeader className="border-b px-5 py-4">
                     <div className="flex items-center justify-between gap-4 pr-6">
                         <div>
@@ -225,6 +226,87 @@ export default function RegisteredDetailsDialog({
                             </CompactSection>
                         </>
                     )}
+
+                    {mailLogs.length > 0 && (
+                        <>
+                            <Separator className="my-5" />
+
+                            <CompactSection
+                                icon={<Mail className="h-4 w-4" />}
+                                title="Email Logs"
+                            >
+                                <div className="space-y-3">
+                                    {mailLogs.map((log) => (
+                                        <div
+                                            key={log.id}
+                                            className="rounded-xl border bg-muted/20 p-3 shadow-sm"
+                                        >
+                                            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                                <div className="font-medium text-foreground">
+                                                    {formatText(log.email_type)}
+                                                </div>
+
+                                                <Badge
+                                                    variant={
+                                                        log.status === "sent"
+                                                            ? "default"
+                                                            : log.status === "failed"
+                                                                ? "destructive"
+                                                                : "secondary"
+                                                    }
+                                                    className="text-[10px]"
+                                                >
+                                                    {formatText(log.status)}
+                                                </Badge>
+                                            </div>
+
+                                            <div className="space-y-1 text-sm text-muted-foreground">
+                                                <div>
+                                                    <span className="font-medium text-foreground">
+                                                        To:
+                                                    </span>{" "}
+                                                    {log.recipient_email}
+                                                </div>
+
+                                                {/* {log.queued_at && (
+                                                    <div>
+                                                        <span className="font-medium text-foreground">
+                                                            Queued:
+                                                        </span>{" "}
+                                                        {new Date(log.queued_at).toLocaleString()}
+                                                    </div>
+                                                )} */}
+
+                                                {log.sent_at && (
+                                                    <div>
+                                                        <span className="font-medium text-foreground">
+                                                            Sent:
+                                                        </span>{" "}
+                                                        {new Date(log.sent_at).toLocaleString()}
+                                                    </div>
+                                                )}
+
+                                                {log.failed_at && (
+                                                    <div>
+                                                        <span className="font-medium text-foreground">
+                                                            Failed:
+                                                        </span>{" "}
+                                                        {new Date(log.failed_at).toLocaleString()}
+                                                    </div>
+                                                )}
+
+                                                {log.error_message && (
+                                                    <div className="rounded-md border border-red-200 bg-red-50 p-2 text-red-700">
+                                                        {log.error_message}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CompactSection>
+                        </>
+                    )}
                 </div>
             </DialogContent>
         </Dialog>
@@ -281,7 +363,7 @@ function DetailItem({
                 {label}
             </div>
 
-            <div className="break-words text-sm font-medium">
+            <div className="wrap-break-word text-sm font-medium">
                 {value ?? "-"}
             </div>
         </div>
@@ -305,7 +387,7 @@ function MetadataItem({
                 {label}
             </div>
 
-            <div className="break-words text-sm font-medium">
+            <div className="wrap-break-word text-sm font-medium">
                 {formatValue(value)}
             </div>
         </div>
