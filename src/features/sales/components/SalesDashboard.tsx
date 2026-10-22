@@ -23,7 +23,10 @@ import TopGrossingModifiers from "./tables/TopGrossingModifiers";
 import TopGrossingItems from "./tables/TopGrossingItems";
 import SalesByPaymentMethod, { PaymentMethodSale } from "./tables/SalesByPaymentMethod";
 import SalesByCategory, { SalesByCategoryItem } from "./tables/SalesByCategory";
-import SalesByDiscount, { SalesByDiscountItem } from "./tables/SalesByDiscount";
+import SalesByDiscount, {
+    SalesByDiscountDetail,
+    SalesByDiscountSummary,
+} from "./tables/SalesByDiscount";
 
 
 export default function SalesDashboard() {
@@ -39,7 +42,8 @@ export default function SalesDashboard() {
     const [hourlyBreakdown, setHourlyBreakdown] = useState<HourlyBreakdown[]>([]);
     const [salesByPaymentMethod, setSalesByPaymentMethod] = useState<PaymentMethodSale[]>([]);
     const [salesByCategory, setSalesByCategory] = useState<SalesByCategoryItem[]>([]);
-    const [salesByDiscount, setSalesByDiscount] = useState<SalesByDiscountItem[]>([]);
+    const [salesByDiscount, setSalesByDiscount] = useState<SalesByDiscountSummary[]>([]);
+    const [salesByDiscountDetail, setSalesByDiscountDetail] = useState<SalesByDiscountDetail[]>([]);
 
     const [activeLocationId, setActiveLocationId] =
         useState<number | undefined>(undefined);
@@ -178,8 +182,19 @@ export default function SalesDashboard() {
                 setSalesByCategory(
                     response.data.sales_by_category ?? []
                 );
+
+                const discountDetail =
+                    response.data.discountdetail ??
+                    response.data.discount_detail ??
+                    response.data.sales_by_discount ??
+                    [];
+
                 setSalesByDiscount(
-                    response.data.sales_by_discount ?? []
+                    response.data.sales_by_discount ??
+                    discountDetail
+                );
+                setSalesByDiscountDetail(
+                    discountDetail
                 );
             } catch (error) {
                 console.error("Failed to load sales dashboard:", error);
@@ -248,6 +263,7 @@ export default function SalesDashboard() {
 
                 <SalesByDiscount
                     data={salesByDiscount}
+                    detailData={salesByDiscountDetail}
                 />
                 <TopGrossingModifiers data={topGrossingModifiers} />
 

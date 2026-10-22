@@ -18,6 +18,7 @@ import {
     Table,
     TableBody,
     TableCell,
+    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
@@ -27,6 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 import {
+    ReactNode,
     useEffect,
     useRef,
     useState,
@@ -59,6 +61,7 @@ interface DataTableProps<TData, TValue> {
     from?: number | null;
     to?: number | null;
 
+    footer?: ReactNode | ((rows: TData[]) => ReactNode);
     loading?: boolean;
 
     /**
@@ -111,6 +114,7 @@ export function DataTable<TData, TValue>({
     from,
     to,
 
+    footer,
     loading = false,
 
     onPaginationChange,
@@ -571,6 +575,14 @@ export function DataTable<TData, TValue>({
                   clientRows.length
               );
 
+    const visibleRows =
+        table.getRowModel().rows.map((row) => row.original);
+
+    const footerContent =
+        typeof footer === "function"
+            ? footer(visibleRows)
+            : footer;
+
     return (
         <div className="space-y-4">
             {/* Search */}
@@ -733,6 +745,12 @@ export function DataTable<TData, TValue>({
                             </TableRow>
                         )}
                     </TableBody>
+
+                    {footerContent && (
+                        <TableFooter>
+                            {footerContent}
+                        </TableFooter>
+                    )}
                 </Table>
             </div>
 

@@ -1,15 +1,37 @@
 
 "use client";
 
-export type SalesByDiscountItem = {
+import SalesByDiscountDialog from "../dialogs/SalesByDiscountDialog";
+
+export type SalesByDiscountSummary = {
   discount_id: number | null;
   discount_name: string;
   qty: number;
   value: number;
 };
 
+export type SalesByDiscountDetail = {
+  date: string;
+  order_no: string | number;
+  order_type: string;
+  by?: string;
+  user_name?: string;
+  discount_name: string;
+  scope?: string;
+  discount_type?: string;
+  discount_amount?: number;
+  amount?: number;
+  value?: number;
+  qty?: number;
+};
+
+export type SalesByDiscountItem =
+  | SalesByDiscountSummary
+  | SalesByDiscountDetail;
+
 type SalesByDiscountProps = {
-  data: SalesByDiscountItem[];
+  data: SalesByDiscountSummary[];
+  detailData?: SalesByDiscountItem[];
 };
 
 const formatCurrency = (value: number) =>
@@ -26,6 +48,7 @@ const formatNumber = (value: number) =>
 
 export default function SalesByDiscount({
   data = [],
+  detailData = [],
 }: SalesByDiscountProps) {
   const totalQty = data.reduce((sum, item) => sum + (item.qty || 0), 0);
   const totalValue = data.reduce(
@@ -45,9 +68,12 @@ export default function SalesByDiscount({
           </p>
         </div>
 
-        <span className="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-          {data.length} discounts
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+            {data.length} discounts
+          </span>
+          <SalesByDiscountDialog data={detailData} />
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -64,17 +90,17 @@ export default function SalesByDiscount({
             {data.length > 0 ? (
               data.map((item, index) => (
                 <tr
-                  key={`${item.discount_id ?? "unknown"}-${index}`}
+                  key={`${item.discount_id ?? item.discount_name ?? "unknown"}-${index}`}
                   className="text-gray-700 dark:text-gray-200"
                 >
                   <td className="max-w-[180px] truncate py-2 pr-3">
                     {item.discount_name || "Unnamed discount"}
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums">
-                    {formatNumber(item.qty)}
+                    {formatNumber(item.qty ?? 0)}
                   </td>
                   <td className="whitespace-nowrap py-2 pl-3 text-right font-medium tabular-nums">
-                    {formatCurrency(item.value)}
+                    {formatCurrency(item.value ?? 0)}
                   </td>
                 </tr>
               ))

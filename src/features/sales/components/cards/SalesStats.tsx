@@ -13,7 +13,8 @@ import {
     Users,
     BadgePercent,
     RotateCcw,
-    Banknote
+    Banknote,
+    Sparkles
 } from "lucide-react";
 
 import { SalesStat } from "../../sales.types";
@@ -28,7 +29,8 @@ const icons: any = {
     average: ReceiptText,
     customers: Users,
     discount: BadgePercent,
-    refund: RotateCcw
+    refund: RotateCcw,
+    modifiers: Sparkles,
 
 };
 

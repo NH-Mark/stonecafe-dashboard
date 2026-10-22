@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import { ColumnFiltersState } from "@tanstack/react-table";
 
 import { DataTable } from "@/components/data-table/data-table";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { OrderColumns } from "./OrderColumns";
 import { Order } from "../orders.types";
 import { getOrders } from "../orders.service";
@@ -247,6 +248,16 @@ async function handleSuccess() {
     setRefreshKey((current) => current + 1);
 }
 
+const orderColumns = OrderColumns({
+    onSuccess: handleSuccess,
+});
+
+const totalSum = orders.reduce(
+    (sum, order) =>
+        sum + Number(order.total || 0),
+    0
+);
+
 return (
     <div className="space-y-4">
         <OrdersFilters
@@ -259,9 +270,7 @@ return (
 
         <DataTable
             serverPagination={true}
-            columns={OrderColumns({
-                onSuccess: handleSuccess,
-            })}
+            columns={orderColumns}
             data={orders}
             searchKey="order_no"
             placeholder="Search Order..."
@@ -276,6 +285,16 @@ return (
             total={pagination.total}
             from={pagination.from}
             to={pagination.to}
+            footer={
+                <TableRow className="bg-muted/50 font-semibold">
+                    <TableCell
+                        colSpan={orderColumns.length}
+                        className="text-right"
+                    >
+                        Total: QAR {totalSum.toFixed(2)}
+                    </TableCell>
+                </TableRow>
+            }
             loading={loading || !locationsReady}
             onServerStateChange={handleServerStateChange}
         />
