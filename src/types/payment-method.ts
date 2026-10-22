@@ -3,4 +3,5 @@ export interface PaymentMethod {
     name:string;
     code:string;
     status:boolean;
+    sort_order?: number;
 }

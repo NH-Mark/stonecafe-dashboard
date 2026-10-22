@@ -40,7 +40,11 @@ import {
     toast,
 } from "sonner";
 import { PaymentMethod } from "@/types/payment-method";
-import { PaymentMethodFormValues, paymentMethodSchema } from "../payment-method.schema";
+import {
+    PaymentMethodFormInput,
+    PaymentMethodFormValues,
+    paymentMethodSchema,
+} from "../payment-method.schema";
 import { updatePaymentMethod } from "../payment-method.service";
 
 interface Props {
@@ -61,7 +65,11 @@ export default function EditPaymentMethodDialog({
     paymentMethod,
     onSuccess,
 }: Props) {
-    const form = useForm<PaymentMethodFormValues>({
+    const form = useForm<
+        PaymentMethodFormInput,
+        any,
+        PaymentMethodFormValues
+    >({
         resolver: zodResolver(
             paymentMethodSchema
         ),
@@ -69,6 +77,7 @@ export default function EditPaymentMethodDialog({
         defaultValues: {
             name: "",
             status: true,
+            sort_order: 0,
         },
     });
 
@@ -97,6 +106,8 @@ export default function EditPaymentMethodDialog({
 
             status:
                 Boolean(paymentMethod.status) ?? true,
+            sort_order:
+                Number(paymentMethod.sort_order ?? 0),
         });
     }, [
         open,
@@ -124,6 +135,7 @@ export default function EditPaymentMethodDialog({
         reset({
             name: "",
             status: true,
+            sort_order: 0,
         });
 
     } catch (error) {
@@ -192,6 +204,27 @@ function handleInvalidSubmit(errors: typeof form.formState.errors) {
                             )}
                         </div>
 
+
+                        {/* Sort Order */}
+
+                        <div className="space-y-2">
+                            <Label>
+                                Sort Order
+                            </Label>
+
+                            <Input
+                                type="number"
+                                min={0}
+                                step={1}
+                                {...register("sort_order")}
+                            />
+
+                            {errors.sort_order && (
+                                <p className="text-sm text-destructive">
+                                    {errors.sort_order.message}
+                                </p>
+                            )}
+                        </div>
 
                         {/* Status */}
 

@@ -9,10 +9,21 @@ export interface GetPaymentmethodParams {
     filters?: ColumnFiltersState;
 }
 
-export function getPaymentMethods(
+function sortPaymentMethodsByOrder<T extends { sort_order?: number | string | null }>(
+    items: T[] = []
+) {
+    return [...items].sort((a, b) => {
+        const first = Number(a.sort_order ?? 0);
+        const second = Number(b.sort_order ?? 0);
+
+        return first - second;
+    });
+}
+
+export async function getPaymentMethods(
     params: GetPaymentmethodParams = {}
 ) {
-    return api.get("/api/payment-methods", {
+    const response = await api.get("/api/payment-methods", {
         params: {
             page: params.page,
             per_page: params.per_page,
@@ -23,6 +34,12 @@ export function getPaymentMethods(
                     : undefined,
         },
     });
+
+    if (Array.isArray(response.data?.data)) {
+        response.data.data = sortPaymentMethodsByOrder(response.data.data);
+    }
+
+    return response;
 }
 
 
@@ -65,5 +82,19 @@ export async function deletePaymentMethod(
   }
 
 export async function listPaymentMethods() {
-  return api.get("/api/list-payment-methods");
+  const response = await api.get("/api/list-payment-methods");
+
+  const items = response.data?.data ?? response.data ?? [];
+
+  if (Array.isArray(items)) {
+    const sorted = sortPaymentMethodsByOrder(items);
+
+    if (response.data?.data) {
+      response.data.data = sorted;
+    } else {
+      response.data = sorted;
+    }
+  }
+
+  return response;
 }

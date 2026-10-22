@@ -153,7 +153,6 @@ export default function TopGrossingItemsDialog({ data }: Props) {
                                 <Filter className="h-4 w-4" />
                                 Filter by category
                             </div>
-
                             <select
                                 value={selectedCategory}
                                 onChange={(event) =>

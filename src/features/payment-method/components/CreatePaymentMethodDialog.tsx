@@ -39,7 +39,11 @@ import {
 import {
     toast,
 } from "sonner";
-import { PaymentMethodFormValues, paymentMethodSchema } from "../payment-method.schema";
+import {
+    PaymentMethodFormInput,
+    PaymentMethodFormValues,
+    paymentMethodSchema,
+} from "../payment-method.schema";
 import { createPaymentMethod } from "../payment-method.service";
 import PermissionGuard from "@/components/guards/PermissionGuard";
 
@@ -53,12 +57,17 @@ export default function CreatePaymentMethodDialog({
 }: Props) {
     const [open, setOpen] = useState(false);
 
-    const form = useForm<PaymentMethodFormValues>({
+    const form = useForm<
+        PaymentMethodFormInput,
+        any,
+        PaymentMethodFormValues
+    >({
         resolver: zodResolver(paymentMethodSchema),
 
         defaultValues: {
             name: "",
             status: true,
+            sort_order: 0,
         },
     });
 
@@ -74,7 +83,11 @@ export default function CreatePaymentMethodDialog({
 
             await onSuccess();
 
-            form.reset();
+            form.reset({
+                name: "",
+                status: true,
+                sort_order: 0,
+            });
 
             setOpen(false);
         } catch (error) {
@@ -150,6 +163,28 @@ export default function CreatePaymentMethodDialog({
                         </div>
 
                        
+
+                        {/* Sort Order */}
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">
+                                Sort Order
+                            </label>
+
+                            <Input
+                                type="number"
+                                min={0}
+                                step={1}
+                                placeholder="0"
+                                {...form.register("sort_order")}
+                            />
+
+                            {form.formState.errors.sort_order && (
+                                <p className="text-sm text-destructive">
+                                    {form.formState.errors.sort_order.message}
+                                </p>
+                            )}
+                        </div>
 
                         {/* Active */}
 

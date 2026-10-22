@@ -24,6 +24,11 @@ return [
     header:"Code"
 },
 {
+    accessorKey: "sort_order",
+    header: "Sort Order",
+    cell: ({ row }) => row.original.sort_order ?? 0,
+},
+{
     accessorKey: "status",
 
     header: "Status",
