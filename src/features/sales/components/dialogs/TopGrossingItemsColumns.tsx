@@ -24,14 +24,14 @@ export function TopGrossingItemsColumns(): ColumnDef<TopItem>[] {
         //     cell: ({ row }) =>
         //         `QAR ${Number(row.original.cogs ?? 0).toFixed(2)}`,
         // },
-        {
-            id: "profitability",
-            accessorFn: (row) => row.profitability?.percentage ?? 0,
-            header: "Profitability",
-            cell: ({ row }) =>
-                `${Number(
-                    row.original.profitability?.percentage ?? 0
-                ).toFixed(2)}%`,
-        },
+        // {
+        //     id: "profitability",
+        //     accessorFn: (row) => row.profitability?.percentage ?? 0,
+        //     header: "Profitability",
+        //     cell: ({ row }) =>
+        //         `${Number(
+        //             row.original.profitability?.percentage ?? 0
+        //         ).toFixed(2)}%`,
+        // },
     ];
 }

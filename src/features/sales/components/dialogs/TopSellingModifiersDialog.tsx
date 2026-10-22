@@ -105,7 +105,7 @@ export default function TopSellingModifiersDialog({ data }: Props) {
                     bg-white p-0 shadow-2xl
                 "
             >
-                <div className="flex h-full flex-col">
+                <div className="flex h-full min-h-0 flex-col">
                     <DialogHeader
                         className="
                             relative overflow-hidden border-b
@@ -144,7 +144,7 @@ export default function TopSellingModifiersDialog({ data }: Props) {
                         </div>
                     </DialogHeader>
 
-                    <div className="flex-1 overflow-auto bg-[#fafafa] p-6">
+                    <div className="flex-1 min-h-0 overflow-y-auto bg-[#fafafa] p-6">
                         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-2 text-sm font-medium text-[#40332a]">
                                 <Filter className="h-4 w-4" />

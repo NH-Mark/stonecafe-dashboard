@@ -86,7 +86,7 @@ export default function TopGrossingModifiersDialog({
                     border-[#d9d9d8] bg-white p-0 shadow-2xl
                 "
             >
-                <div className="flex h-full flex-col">
+                <div className="flex h-full min-h-0 flex-col">
                     <DialogHeader
                         className="
                             relative overflow-hidden border-b
@@ -120,7 +120,7 @@ export default function TopGrossingModifiersDialog({
                         </div>
                     </DialogHeader>
 
-                    <div className="flex-1 overflow-auto bg-[#fafafa] p-6">
+                    <div className="flex-1 min-h-0 overflow-y-auto bg-[#fafafa] p-6">
                         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                             <label
                                 htmlFor="modifier-category-filter"
