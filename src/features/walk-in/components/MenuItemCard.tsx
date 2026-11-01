@@ -10,6 +10,7 @@ import { Loader2, Plus } from "lucide-react";
 import { useOrderStore } from "../store/useOrderStore";
 import { useModifierDialog } from "../store/useModifierDialog";
 import { useOrderKitchenStatus } from "../hooks/useOrderKitchenStatus";
+import { useMenuSearch } from "../store/useMenuSearch";
 
 export function MenuItemCard({
     item,
@@ -28,6 +29,10 @@ export function MenuItemCard({
 
     const activeOrderId = useOrderStore(
         (state) => state.activeOrderId
+    );
+
+    const setSearch = useMenuSearch(
+        (state) => state.setSearch
     );
 
     const kitchenStatus =
@@ -56,6 +61,8 @@ export function MenuItemCard({
                 modifiers: [],
                 note: "",
             });
+
+            setSearch("");
 
             // Keep loader visible briefly so the user
             // gets visual feedback.

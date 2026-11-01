@@ -13,6 +13,7 @@ import { useModifierDialog } from "../../store/useModifierDialog";
 import { useOrderStore } from "../../store/useOrderStore";
 
 import { useModifierSelection } from "../../hooks/useModifierSelection";
+import { useMenuSearch } from "../../store/useMenuSearch";
 
 import { ModifierGroupCard } from "./ModifierGroupCard";
 import { OrderNotes } from "./OrderNotes";
@@ -39,6 +40,11 @@ export function ModifierDialog() {
     const updateItem =
         useOrderStore(
             state => state.updateItem
+        );
+
+    const setSearch =
+        useMenuSearch(
+            state => state.setSearch
         );
 
 
@@ -191,6 +197,8 @@ export function ModifierDialog() {
                 note
 
             });
+
+            setSearch("");
 
 
         }
