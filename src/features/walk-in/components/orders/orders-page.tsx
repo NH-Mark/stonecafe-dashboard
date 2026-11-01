@@ -23,9 +23,15 @@ import { Header } from "../Header"
 import { POSNav } from "../POSNav"
 import { useRouter } from "next/navigation"
 import { getEcho } from "@/lib/echo";
+import Cookies from "js-cookie";
+import { getLocationSelectors } from "@/features/locations/location.service";
 
 export default function OrdersPage() {
     const router = useRouter();
+    const [
+        activeLocationId,
+        setActiveLocationId,
+    ] = useState<number | undefined>(undefined)
     const [
         orders,
         setOrders,
@@ -55,13 +61,59 @@ export default function OrdersPage() {
     */
 
     useEffect(() => {
+        async function initializeLocation() {
+            try {
+                const locations = await getLocationSelectors();
+
+                const storedId = Number(Cookies.get("active_location_id"));
+                const permittedLocation = locations.find(
+                    (location) => Number(location.id) === storedId
+                );
+
+                const selectedLocation =
+                    locations.length === 1
+                        ? locations[0]
+                        : permittedLocation;
+
+                if (!selectedLocation) {
+                    router.replace("/select-location");
+                    return;
+                }
+
+                const selectedLocationId = Number(selectedLocation.id);
+                Cookies.set("active_location_id", String(selectedLocationId), {
+                    expires: 7,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict",
+                });
+
+                setActiveLocationId(selectedLocationId);
+            } catch (error) {
+                console.error("Failed to initialize active location:", error);
+                setError(
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to load orders."
+                );
+                setLoading(false);
+            }
+        }
+
+        void initializeLocation();
+    }, [router]);
+
+    useEffect(() => {
+        if (!activeLocationId) {
+            return;
+        }
+
         async function loadOrders() {
             try {
                 setLoading(true)
                 setError(null)
 
                 const data =
-                    await getTodayOrders()
+                    await getTodayOrders(activeLocationId)
 
                 setOrders(data)
 
@@ -85,7 +137,7 @@ export default function OrdersPage() {
         }
 
         void loadOrders()
-    }, [])
+    }, [activeLocationId])
 
     useEffect(() => {
         let mounted = true;
@@ -109,7 +161,7 @@ export default function OrdersPage() {
 
                 try {
                     // Fetch the latest list, including the new order.
-                    const latestOrders = await getTodayOrders();
+                    const latestOrders = await getTodayOrders(activeLocationId);
 
                     if (!mounted) {
                         return;
@@ -169,7 +221,7 @@ export default function OrdersPage() {
             channel.stopListening(".customer.order.created");
             echo.leave("orders");
         };
-    }, []);
+    }, [activeLocationId]);
 
 
     function handleOrderUpdated(updatedOrder: Order) {

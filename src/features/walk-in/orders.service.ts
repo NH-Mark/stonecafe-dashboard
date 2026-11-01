@@ -43,9 +43,11 @@ export async function getOrder(
     }
 }
 
-export async function getTodayOrders(): Promise<Order[]> {
+export async function getTodayOrders(locationId?: number): Promise<Order[]> {
     try {
-        const response = await api.get("/api/today-orders")
+        const response = await api.get("/api/today-orders", {
+            params: locationId ? { location_id: locationId } : undefined,
+        })
 
         return response.data.data ?? response.data
     } catch (error: any) {

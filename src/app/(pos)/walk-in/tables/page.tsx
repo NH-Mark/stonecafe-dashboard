@@ -29,7 +29,9 @@ import {
 import { SessionHeader } from "@/features/walk-in/components/session/SessionHeader";
 import { POSNav } from "@/features/walk-in/components/POSNav";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 import { Header } from "@/features/walk-in/components/Header";
+import { getLocationSelectors } from "@/features/locations/location.service";
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +99,11 @@ export default function TablesPage() {
 
     const router = useRouter();
     const [
+        activeLocationId,
+        setActiveLocationId,
+    ] = useState<number | undefined>(undefined);
+
+    const [
         filter,
         setFilter,
     ] = useState<TableFilter>("all");
@@ -132,6 +139,10 @@ export default function TablesPage() {
             async (
                 showRefresh = false
             ) => {
+                if (!activeLocationId) {
+                    return;
+                }
+
                 try {
                     if (showRefresh) {
                         setRefreshing(true);
@@ -142,7 +153,7 @@ export default function TablesPage() {
                     setError(null);
 
                     const data =
-                        await getTables();
+                        await getTables(activeLocationId);
 
                     setTables(data);
                 } catch (error) {
@@ -161,7 +172,7 @@ export default function TablesPage() {
                     setRefreshing(false);
                 }
             },
-            []
+            [activeLocationId]
         );
 
     /*
@@ -171,8 +182,52 @@ export default function TablesPage() {
     */
 
     useEffect(() => {
+        async function initializeLocation() {
+            try {
+                const locations = await getLocationSelectors();
+                const storedId = Number(Cookies.get("active_location_id"));
+                const permittedLocation = locations.find(
+                    (location) => Number(location.id) === storedId
+                );
+
+                const selectedLocation =
+                    locations.length === 1
+                        ? locations[0]
+                        : permittedLocation;
+
+                if (!selectedLocation) {
+                    router.replace("/select-location");
+                    return;
+                }
+
+                const locationId = Number(selectedLocation.id);
+                Cookies.set("active_location_id", String(locationId), {
+                    expires: 7,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict",
+                });
+
+                setActiveLocationId(locationId);
+            } catch (error) {
+                console.error("Failed to initialize active location:", error);
+                setError(
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to load tables."
+                );
+            }
+        }
+
+        void initializeLocation();
+    }, [router]);
+
+    useEffect(() => {
+        if (!activeLocationId) {
+            return;
+        }
+
         void loadTables();
-    }, [loadTables]);
+    }, [activeLocationId, loadTables]);
 
     /*
     |--------------------------------------------------------------------------
