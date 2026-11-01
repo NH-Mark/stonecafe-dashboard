@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/features/auth/AuthProvider";
+import { OrderPushNotification } from "@/components/common/OrderPushNotification";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -32,7 +33,12 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col"><AuthProvider>{children}</AuthProvider></body>
+      <body className="min-h-full flex flex-col">
+        <AuthProvider>
+          <OrderPushNotification />
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }
