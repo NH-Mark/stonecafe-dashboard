@@ -109,6 +109,29 @@ export async function printOrder(orderId: number) {
     }
 }
 
+export async function downloadOrderReceipt(orderId: number) {
+    try {
+        const response = await api.get(
+            `/api/orders/${orderId}/receipt`,
+            {
+                responseType: "blob",
+            }
+        )
+
+        return response
+    } catch (error: any) {
+        console.error(
+            "Failed to download order receipt:",
+            error.response?.data || error.message
+        )
+
+        throw new Error(
+            error.response?.data?.message ||
+            "Failed to download order receipt"
+        )
+    }
+}
+
 export async function assignOrderTable(
     orderId: number,
     tableId: number

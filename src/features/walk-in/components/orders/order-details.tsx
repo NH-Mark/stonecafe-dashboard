@@ -7,8 +7,10 @@ import {
     XCircle,
     CheckCircle2,
     Printer,
+    Download,
     Table2,
     ShoppingCart,
+    ChevronDown,
 } from "lucide-react"
 
 import {
@@ -25,11 +27,22 @@ import OrderPayments from "./order-payment"
 
 import { Order } from "@/features/orders/orders.types"
 
-import { getOrder, printOrder, updateOrderStatus } from "../../orders.service"
+import {
+    downloadOrderReceipt,
+    getOrder,
+    printOrder,
+    updateOrderStatus,
+} from "../../orders.service"
 import { createPayment } from "@/features/orders/orders.service"
 import { updateOrder } from "@/features/walk-in/order.service"
 import { AssignTableDialog } from "./AssignTableDialog"
 import { Button } from "@/components/ui/button"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 
 interface OrderDetailsProps {
@@ -123,6 +136,9 @@ export default function OrderDetails({
         useState(false)
 
     const [printing, setPrinting] =
+        useState(false)
+
+    const [downloadingReceipt, setDownloadingReceipt] =
         useState(false)
 
     const [currentOrder, setCurrentOrder] =
@@ -247,6 +263,81 @@ export default function OrderDetails({
         } finally {
 
             setPrinting(false)
+
+        }
+    }
+
+    async function handleDownloadReceipt() {
+
+        if (
+            !currentOrder?.id ||
+            downloadingReceipt
+        ) {
+            return
+        }
+
+        try {
+
+            setDownloadingReceipt(true)
+
+            const response = await downloadOrderReceipt(
+                currentOrder.id
+            )
+
+            const contentTypeHeader =
+                response.headers[
+                    "content-type"
+                ]
+
+            const contentType =
+                typeof contentTypeHeader ===
+                "string"
+                    ? contentTypeHeader
+                    : "application/pdf"
+
+            const blob = new Blob(
+                [response.data],
+                {
+                    type: contentType,
+                }
+            )
+
+            const url =
+                window.URL.createObjectURL(blob)
+
+            const link =
+                document.createElement("a")
+
+            link.href = url
+            link.download =
+                `order-receipt-${currentOrder.order_no || currentOrder.id}.pdf`
+
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+
+            window.URL.revokeObjectURL(url)
+
+            toast.success(
+                "Order receipt downloaded."
+            )
+
+        } catch (error) {
+
+            console.error(
+                "Failed to download order receipt:",
+                error
+            )
+
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to download order receipt."
+            )
+
+        } finally {
+
+            setDownloadingReceipt(false)
 
         }
     }
@@ -614,7 +705,7 @@ export default function OrderDetails({
                             )}
 
                             {/* ================================================= */}
-                            {/* PRINT */}
+                            {/* FILE OPTIONS */}
                             {/* ================================================= */}
 
                             {currentOrder.status
@@ -624,47 +715,60 @@ export default function OrderDetails({
                                     ?.toLowerCase() ===
                                 "paid" && (
 
-                                    <button
-                                        type="button"
-                                        disabled={
-                                            printing
-                                        }
-                                        onClick={
-                                            handlePrint
-                                        }
-                                        className="
-                                            inline-flex
-                                            h-9
-                                            items-center
-                                            gap-1.5
-                                            rounded-lg
-                                            border
-                                            border-[#e1ddd8]
-                                            bg-white
-                                            px-3
-                                            text-sm
-                                            font-medium
-                                            text-[#40332a]
-                                            shadow-sm
-                                            transition-colors
-                                            hover:bg-[#faf9f7]
-                                            disabled:pointer-events-none
-                                            disabled:opacity-50
-                                        "
-                                    >
+                                    <DropdownMenu>
 
-                                        <Printer
-                                            className="
-                                                h-4
-                                                w-4
-                                            "
+                                        <DropdownMenuTrigger
+                                            render={
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    className="h-9"
+                                                >
+                                                    <FileText className="mr-2 h-4 w-4" />
+                                                    File
+                                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                                </Button>
+                                            }
                                         />
 
-                                        {printing
-                                            ? "Printing..."
-                                            : "Print Order"}
+                                        <DropdownMenuContent
+                                            align="end"
+                                            className="w-56"
+                                        >
 
-                                    </button>
+                                            <DropdownMenuItem
+                                                onClick={() => {
+                                                    void handlePrint()
+                                                }}
+                                                disabled={
+                                                    printing ||
+                                                    downloadingReceipt
+                                                }
+                                            >
+                                                <Printer className="mr-2 h-4 w-4" />
+                                                {printing
+                                                    ? "Printing Order..."
+                                                    : "Print Order"}
+                                            </DropdownMenuItem>
+
+                                            <DropdownMenuItem
+                                                onClick={() => {
+                                                    void handleDownloadReceipt()
+                                                }}
+                                                disabled={
+                                                    printing ||
+                                                    downloadingReceipt
+                                                }
+                                            >
+                                                <Download className="mr-2 h-4 w-4" />
+                                                {downloadingReceipt
+                                                    ? "Downloading Receipt..."
+                                                    : "Download Order Receipt"}
+                                            </DropdownMenuItem>
+
+                                        </DropdownMenuContent>
+
+                                    </DropdownMenu>
 
                                 )}
 

@@ -83,8 +83,6 @@ export function ModifierOption({
 
                 }
 
-
-
                 <Label>
 
                     {modifier.name}
