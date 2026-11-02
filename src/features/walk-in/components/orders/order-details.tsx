@@ -642,17 +642,35 @@ export default function OrderDetails({
                                 gap-2
                             "
                         >
-                            {currentOrder.status?.toLowerCase() === "confirmed" &&
+                            {(currentOrder.status?.toLowerCase() === "pending" || currentOrder.status?.toLowerCase() === "confirmed") &&
                                 currentOrder.payment_status?.toLowerCase() !== "paid" &&
                                 currentOrder.order_type_code?.toLowerCase() != "dine_in" && (
                                     <Button
                                         type="button"
+                                        size="lg"
+                                        variant="default"
                                         onClick={() => {
                                             if (currentOrder) {
                                                 onGoToOrder(currentOrder);
                                             }
                                         }}
                                         disabled={!currentOrder}
+                                        className="
+                                            h-10
+                                            rounded-xl
+                                            bg-[#a57653]
+                                            px-3.5
+                                            text-sm
+                                            font-semibold
+                                            text-white
+                                            ring-0
+                                            transition-all
+                                            hover:-translate-y-px
+                                            hover:bg-[#8f6245]
+                                            hover:shadow-[0_12px_26px_rgba(165,118,83,0.34)]
+                                            focus-visible:ring-2
+                                            focus-visible:ring-[#d9d9d8]
+                                        "
                                     >
                                         <ShoppingCart className="mr-2 h-4 w-4" />
                                         Go to Order
