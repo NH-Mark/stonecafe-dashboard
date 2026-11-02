@@ -106,6 +106,8 @@ export default function MenuItemForm({
             active:
                 menuItem?.active ?? true,
 
+            location_statuses:
+                menuItem?.location_statuses ?? [],
 
             modifier_groups:
                 menuItem?.modifier_groups?.map(group => ({
@@ -193,6 +195,9 @@ export default function MenuItemForm({
 
             active:
                 menuItem.active ?? true,
+
+            location_statuses:
+                menuItem.location_statuses ?? [],
 
             printer_id:
                 menuItem.printer_id ?? null,

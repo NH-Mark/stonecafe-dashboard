@@ -96,6 +96,15 @@ export const menuItemSchema = z.object({
         z.boolean()
         .default(true),
 
+    location_statuses: z
+        .array(
+            z.object({
+                location_id: z.number(),
+                active: z.boolean(),
+            })
+        )
+        .default([]),
+
     printer_id: z
         .number()
         .nullable()

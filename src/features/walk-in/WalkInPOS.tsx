@@ -1,5 +1,6 @@
 "use client";
 
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 import { CategorySidebar } from "./components/CategorySidebar";
@@ -94,6 +95,7 @@ export function WalkInPOS() {
 
     const searchParams = useSearchParams();
     const requestedOrderId = searchParams.get("orderId");
+    const activeLocationId = Number(Cookies.get("active_location_id"));
 
     const [cartOrderId, setCartOrderId] =
         useState<string | null>(null);
@@ -207,7 +209,7 @@ export function WalkInPOS() {
                 // Fetch the order and the full menu catalogue.
                 const [orderResponse, menuResponse] = await Promise.all([
                     getOrder(Number(requestedOrderId)),
-                    listMenuItems(),
+                    listMenuItems(undefined, activeLocationId || undefined),
                 ]);
 
                 if (cancelled) return;
@@ -348,12 +350,12 @@ export function WalkInPOS() {
 
     useEffect(() => {
         loadCategories();
-    }, []);
+    }, [activeLocationId]);
 
     async function loadCategories() {
         try {
             const response =
-                await getActiveMenuCategories();
+                await getActiveMenuCategories(activeLocationId || undefined);
 
             setCategories(
                 response.data.data

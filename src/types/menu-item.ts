@@ -63,6 +63,10 @@ export interface MenuItem {
 
 
     active: boolean;
+    location_statuses?: {
+        location_id: number;
+        active: boolean;
+    }[];
 
     discount:Discount;
 

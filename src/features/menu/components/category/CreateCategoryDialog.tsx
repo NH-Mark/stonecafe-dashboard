@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
@@ -29,8 +29,10 @@ import {
 import { applyApiErrors } from "@/lib/form-errors";
 import { CategoryFormValues, categorySchema } from "../../category.schema";
 import { Category } from "@/types/category";
+import { Location } from "@/types/location";
 import ImageUploader from "@/components/common/ImageUploader";
 import PermissionGuard from "@/components/guards/PermissionGuard";
+import { getLocationSelectors } from "@/features/locations/location.service";
 
 interface Props {
     onSuccess: () => Promise<void>;
@@ -42,6 +44,22 @@ export default function CreateCategoryDialog({
     categories
 }: Props) {
     const [open, setOpen] = useState(false);
+    const [locations, setLocations] = useState<Location[]>([]);
+
+    useEffect(() => {
+        async function loadLocations() {
+            try {
+                const response = await getLocationSelectors();
+                setLocations(response);
+            } catch (error) {
+                console.error("Failed to load locations:", error);
+            }
+        }
+
+        if (open) {
+            void loadLocations();
+        }
+    }, [open]);
 
     const form = useForm<CategoryFormValues>({
         resolver: zodResolver(categorySchema),
@@ -53,8 +71,30 @@ export default function CreateCategoryDialog({
             image: "",
             parent_id: null,
             active: true,
+            location_statuses: [],
         }
     });
+
+    useEffect(() => {
+        if (locations.length === 0) {
+            return;
+        }
+
+        const existing = form.getValues("location_statuses") ?? [];
+
+        if (existing.length > 0) {
+            return;
+        }
+
+        form.setValue(
+            "location_statuses",
+            locations.map((location) => ({
+                location_id: Number(location.id),
+                active: true,
+            })),
+            { shouldDirty: true, shouldValidate: true }
+        );
+    }, [locations, form]);
 
     async function submit(values: CategoryFormValues) {
         try {
@@ -64,7 +104,19 @@ export default function CreateCategoryDialog({
 
             await onSuccess();
 
-            form.reset();
+            form.reset({
+                name: "",
+                name_ar: "",
+                description: "",
+                description_ar: "",
+                image: "",
+                parent_id: null,
+                active: true,
+                location_statuses: locations.map((location) => ({
+                    location_id: Number(location.id),
+                    active: true,
+                })),
+            });
 
             setOpen(false);
         } catch (error) {
@@ -90,7 +142,7 @@ export default function CreateCategoryDialog({
                 />
             </PermissionGuard>
           
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>
                         Create Category
@@ -188,6 +240,52 @@ export default function CreateCategoryDialog({
 
                             )}
 
+                        </div>
+
+                        <div className="space-y-3 rounded-md border p-3">
+                            <div className="flex items-center justify-between">
+                                <Label className="text-sm font-medium">Location Availability</Label>
+                                <span className="text-xs text-muted-foreground">
+                                    {locations.length} locations
+                                </span>
+                            </div>
+
+                            <div className="space-y-2">
+                                {locations.map((location) => {
+                                    const status = (form.watch("location_statuses") ?? []).find(
+                                        (item) => item.location_id === Number(location.id)
+                                    );
+
+                                    const checked = status?.active ?? true;
+
+                                    return (
+                                        <div
+                                            key={location.id}
+                                            className="flex items-center justify-between rounded-md border px-3 py-2"
+                                        >
+                                            <span className="text-sm text-muted-foreground">
+                                                {location.name}
+                                            </span>
+
+                                            <Checkbox
+                                                checked={checked}
+                                                onCheckedChange={(value) => {
+                                                    const nextStatuses = (form.getValues("location_statuses") ?? []).map((item) =>
+                                                        item.location_id === Number(location.id)
+                                                            ? { ...item, active: value === true }
+                                                            : item
+                                                    );
+
+                                                    form.setValue("location_statuses", nextStatuses, {
+                                                        shouldDirty: true,
+                                                        shouldValidate: true,
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">

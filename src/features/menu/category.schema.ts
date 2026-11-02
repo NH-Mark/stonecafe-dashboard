@@ -39,6 +39,15 @@ export const categorySchema = z.object({
 
     active: z.boolean(),
 
+    location_statuses: z
+        .array(
+            z.object({
+                location_id: z.number(),
+                active: z.boolean(),
+            })
+        )
+        .default([]),
+
 });
 
 

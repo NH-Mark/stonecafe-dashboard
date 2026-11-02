@@ -44,7 +44,7 @@ import {
 import {
     Category
 } from "@/types/category";
-
+import { Location } from "@/types/location";
 
 import {
     CategoryFormValues,
@@ -66,6 +66,7 @@ import {
     toast
 } from "sonner";
 import ImageUploader from "@/components/common/ImageUploader";
+import { getLocationSelectors } from "@/features/locations/location.service";
 
 
 
@@ -89,6 +90,8 @@ export default function EditCategoryDialog({
     onSuccess,
 
 }: Props) {
+    const [locations, setLocations] = useState<Location[]>([]);
+
     const form = useForm<CategoryFormValues>({
 
         resolver: zodResolver(categorySchema),
@@ -101,16 +104,38 @@ export default function EditCategoryDialog({
             description_ar: "",
             image: "",
             parent_id: null,
-            active: true
+            active: true,
+            location_statuses: []
 
         }
 
     });
 
+    useEffect(() => {
+        async function loadLocations() {
+            try {
+                const response = await getLocationSelectors();
+                setLocations(response);
+            } catch (error) {
+                console.error("Failed to load locations:", error);
+            }
+        }
+
+        void loadLocations();
+    }, []);
+
 
 
     useEffect(() => {
 
+
+        const nextStatuses =
+            category.location_statuses && category.location_statuses.length > 0
+                ? category.location_statuses
+                : locations.map((location) => ({
+                    location_id: Number(location.id),
+                    active: category.active,
+                }));
 
         form.reset({
 
@@ -124,12 +149,13 @@ export default function EditCategoryDialog({
 
             parent_id: category.parent_id ?? null,
 
-            active: category.active
+            active: category.active,
+            location_statuses: nextStatuses,
 
         });
 
 
-    }, [category, form]);
+    }, [category, form, locations]);
 
     async function submit(
         values: CategoryFormValues
@@ -190,7 +216,7 @@ export default function EditCategoryDialog({
         >
 
 
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
 
 
                 <DialogHeader>
@@ -326,6 +352,52 @@ export default function EditCategoryDialog({
 
                             }
                         </div>
+                        <div className="space-y-3 rounded-md border p-3">
+                            <div className="flex items-center justify-between">
+                                <Label className="text-sm font-medium">Location Availability</Label>
+                                <span className="text-xs text-muted-foreground">
+                                    {locations.length} locations
+                                </span>
+                            </div>
+
+                            <div className="space-y-2">
+                                {locations.map((location) => {
+                                    const status = (form.watch("location_statuses") ?? []).find(
+                                        (item) => item.location_id === Number(location.id)
+                                    );
+
+                                    const checked = status?.active ?? category.active;
+
+                                    return (
+                                        <div
+                                            key={location.id}
+                                            className="flex items-center justify-between rounded-md border px-3 py-2"
+                                        >
+                                            <span className="text-sm text-muted-foreground">
+                                                {location.name}
+                                            </span>
+
+                                            <Checkbox
+                                                checked={checked}
+                                                onCheckedChange={(value) => {
+                                                    const nextStatuses = (form.getValues("location_statuses") ?? []).map((item) =>
+                                                        item.location_id === Number(location.id)
+                                                            ? { ...item, active: value === true }
+                                                            : item
+                                                    );
+
+                                                    form.setValue("location_statuses", nextStatuses, {
+                                                        shouldDirty: true,
+                                                        shouldValidate: true,
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Description</Label>

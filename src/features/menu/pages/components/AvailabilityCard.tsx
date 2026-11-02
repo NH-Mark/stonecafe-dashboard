@@ -16,6 +16,8 @@ import { Label } from "@/components/ui/label";
 
 import { MenuItemFormValues } from "../../menu-item.schema";
 import { getPrinters } from "../../menu.service";
+import { getLocationSelectors } from "@/features/locations/location.service";
+import { Location } from "@/types/location";
 
 interface Printer {
     id: number;
@@ -30,14 +32,17 @@ export default function AvailabilityCard() {
     const {
         watch,
         setValue,
+        getValues,
     } = useFormContext<MenuItemFormValues>();
 
     const [printers, setPrinters] = useState<Printer[]>([]);
     const [loadingPrinters, setLoadingPrinters] = useState(true);
+    const [locations, setLocations] = useState<Location[]>([]);
 
     const printerId = watch("printer_id");
-    console.log("PrintId");
-     console.log(printerId);
+    const active = watch("active");
+    const locationStatuses = watch("location_statuses") ?? [];
+
    useEffect(() => {
 
     async function loadPrinters() {
@@ -73,6 +78,43 @@ export default function AvailabilityCard() {
     loadPrinters();
 
 }, []);
+
+    useEffect(() => {
+        async function loadLocations() {
+            try {
+                const response = await getLocationSelectors();
+                setLocations(response);
+            } catch (error) {
+                console.error("Failed to load locations:", error);
+            }
+        }
+
+        void loadLocations();
+    }, []);
+
+    useEffect(() => {
+        if (locations.length === 0) {
+            return;
+        }
+
+        const hasStatuses = (getValues("location_statuses") ?? []).length > 0;
+
+        if (hasStatuses) {
+            return;
+        }
+
+        setValue(
+            "location_statuses",
+            locations.map((location) => ({
+                location_id: Number(location.id),
+                active: active,
+            })),
+            {
+                shouldDirty: true,
+                shouldValidate: true,
+            }
+        );
+    }, [locations, active, getValues, setValue]);
 
     return (
 
@@ -122,6 +164,52 @@ export default function AvailabilityCard() {
 
                 </div>
 
+
+                <div className="space-y-3 rounded-md border p-3">
+                    <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Location Availability</Label>
+                        <span className="text-xs text-muted-foreground">
+                            {locations.length} locations
+                        </span>
+                    </div>
+
+                    <div className="space-y-2">
+                        {locations.map((location) => {
+                            const status = (locationStatuses ?? []).find(
+                                (item) => item.location_id === Number(location.id)
+                            );
+
+                            const checked = status?.active ?? active;
+
+                            return (
+                                <div
+                                    key={location.id}
+                                    className="flex items-center justify-between rounded-md border px-3 py-2"
+                                >
+                                    <span className="text-sm text-muted-foreground">
+                                        {location.name}
+                                    </span>
+
+                                    <Checkbox
+                                        checked={checked}
+                                        onCheckedChange={(value) => {
+                                            const nextStatuses = (getValues("location_statuses") ?? []).map((item) =>
+                                                item.location_id === Number(location.id)
+                                                    ? { ...item, active: value === true }
+                                                    : item
+                                            );
+
+                                            setValue("location_statuses", nextStatuses, {
+                                                shouldDirty: true,
+                                                shouldValidate: true,
+                                            });
+                                        }}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
 
                 {/* Printer */}
 

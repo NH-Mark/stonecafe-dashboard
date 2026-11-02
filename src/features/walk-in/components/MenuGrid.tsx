@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import { MenuItemCard } from "./MenuItemCard";
 import { getMenuItems, listMenuItems } from "@/features/menu/menu.service";
 import PageLoader from "@/components/common/PageLoader";
@@ -16,12 +17,13 @@ export function MenuGrid({ categoryId }: {
         useMenuSearch(
             state=>state.search
         );
+    const activeLocationId = Number(Cookies.get("active_location_id"));
 
     useEffect(() => {
 
         loadMenuItems();
 
-    }, [categoryId]);
+    }, [categoryId, activeLocationId]);
 
 
     async function loadMenuItems() {
@@ -29,8 +31,8 @@ export function MenuGrid({ categoryId }: {
         try {
             setLoading(true);
             const response = categoryId
-                ? await listMenuItems(categoryId)
-                : await listMenuItems();
+                ? await listMenuItems(categoryId, activeLocationId || undefined)
+                : await listMenuItems(undefined, activeLocationId || undefined);
             setItems(response.data.data);
 
         } catch(error) {

@@ -149,7 +149,6 @@ export function CategorySidebar({
 
                         const active = selectedCategory === item.id;
 
-
                         return (
 
                             <button
@@ -236,27 +235,25 @@ export function CategorySidebar({
                                         </p>
 
 
-                                        {
-                                            item.menu_items_count !== undefined && (
+                                        {item.menu_items_count !== undefined && (
 
-                                                <p
-                                                    className={`
-                                                        text-xs
+                                            <p
+                                                className={`
+                                                    text-xs
 
-                                                        ${
-                                                            active
-                                                            ?
-                                                            "text-white/80"
-                                                            :
-                                                            "text-slate-400"
-                                                        }
-                                                    `}
-                                                >
-                                                    {item.menu_items_count} items
-                                                </p>
+                                                    ${
+                                                        active
+                                                        ?
+                                                        "text-white/80"
+                                                        :
+                                                        "text-slate-400"
+                                                    }
+                                                `}
+                                            >
+                                                {item.menu_items_count} items
+                                            </p>
 
-                                            )
-                                        }
+                                        )}
 
 
                                     </div>

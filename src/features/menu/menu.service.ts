@@ -1,7 +1,12 @@
+import Cookies from "js-cookie";
 import api from "@/lib/axios";
 import { MenuItemFormValues } from "./menu-item.schema";
 import { ColumnFiltersState } from "@tanstack/react-table";
 
+function getSelectedLocationId() {
+    const value = Number(Cookies.get("active_location_id"));
+    return Number.isFinite(value) && value > 0 ? value : undefined;
+}
 
 //
 // Menu Items
@@ -14,33 +19,39 @@ export interface GetMenuItemsParams {
     filters?: ColumnFiltersState;
     category_id?: number | null;
     active?: boolean;
+    location_id?: number;
 }
 
 export function getMenuItems(
     params: GetMenuItemsParams = {}
 ) {
+    const selectedLocationId = params.location_id ?? getSelectedLocationId();
+
     return api.get("/api/menu-items", {
         params: {
             page: params.page,
             per_page: params.per_page,
             search: params.search || undefined,
-            filters:params.filters || undefined,
-            category_id:
-                params.category_id ?? undefined,
-
-            active:
-                params.active ??
-                undefined,
+            filters: params.filters || undefined,
+            category_id: params.category_id ?? undefined,
+            active: params.active ?? undefined,
+            location_id: selectedLocationId ?? undefined,
         },
     });
 }
 
 export function listMenuItems(
-    categoryId?: number
+    categoryId?: number,
+    locationId?: number,
+    activeOnly: boolean = true
 ) {
+    const selectedLocationId = locationId ?? getSelectedLocationId();
+
     return api.get("/api/menu-items-list", {
         params: {
             category_id: categoryId ?? undefined,
+            location_id: selectedLocationId ?? undefined,
+            active: activeOnly ? 1 : undefined,
         },
     });
 }

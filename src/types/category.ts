@@ -12,6 +12,10 @@ export interface Category {
     sort_order: number;
     parent_id: number;
     active: boolean;
+    location_statuses?: {
+        location_id: number;
+        active: boolean;
+    }[];
 
     menu_items_count?: number;
 
