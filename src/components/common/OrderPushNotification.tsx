@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { BellRing, X } from "lucide-react";
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { getEcho } from "@/lib/echo";
+import { getOrder } from "@/features/walk-in/orders.service";
 
 interface OrderAlertItem {
     id: number;
@@ -78,20 +80,36 @@ export function OrderPushNotification() {
 
         const channel = echo.channel("orders");
 
-        const handleOrderCreated = (event: { order_id?: number }) => {
+        const handleOrderCreated = async (event: { order_id?: number }) => {
             if (!event.order_id) {
                 return;
             }
 
-            const newAlert: OrderAlertItem = {
-                id: Date.now() + Math.random(),
-                title: "New customer order",
-                message: `Order #${event.order_id} just came in.`,
-                orderId: event.order_id,
-            };
+            const activeLocationId = Number(Cookies.get("active_location_id"));
 
-            playOrderAlertSound();
-            setAlerts((current) => [newAlert, ...current].slice(0, 3));
+            if (!activeLocationId || !Number.isFinite(activeLocationId)) {
+                return;
+            }
+
+            try {
+                const order = await getOrder(event.order_id);
+
+                if (Number(order.location_id) !== activeLocationId) {
+                    return;
+                }
+
+                const newAlert: OrderAlertItem = {
+                    id: Date.now() + Math.random(),
+                    title: "New customer order",
+                    message: `Order #${order.order_no || order.id} just came in.`,
+                    orderId: order.id,
+                };
+
+                playOrderAlertSound();
+                setAlerts((current) => [newAlert, ...current].slice(0, 3));
+            } catch (error) {
+                console.warn("Unable to validate order location for notification:", error);
+            }
         };
 
         channel.listen(".customer.order.created", handleOrderCreated);
