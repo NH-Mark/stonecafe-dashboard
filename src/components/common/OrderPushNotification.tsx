@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BellRing, X } from "lucide-react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
@@ -15,8 +15,36 @@ interface OrderAlertItem {
     orderId?: number;
 }
 
-const playOrderAlertSound = () => {
+const stopOrderAlertSound = (
+    audioContextRef: React.MutableRefObject<AudioContext | null>,
+    intervalRef: React.MutableRefObject<number | null>,
+    sequenceRef: React.MutableRefObject<number>
+) => {
+    if (intervalRef.current) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
+    }
+
+    sequenceRef.current = 0;
+
+    if (audioContextRef.current) {
+        const context = audioContextRef.current;
+        audioContextRef.current = null;
+
+        void context.close().catch(() => undefined);
+    }
+};
+
+const playOrderAlertSound = (
+    audioContextRef: React.MutableRefObject<AudioContext | null>,
+    intervalRef: React.MutableRefObject<number | null>,
+    sequenceRef: React.MutableRefObject<number>
+) => {
     if (typeof window === "undefined") {
+        return;
+    }
+
+    if (intervalRef.current) {
         return;
     }
 
@@ -32,31 +60,56 @@ const playOrderAlertSound = () => {
 
     try {
         const audioContext = new AudioCtor();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+        const playChime = () => {
+            const now = audioContext.currentTime;
+            const isAltPattern = sequenceRef.current % 2 === 1;
 
-        oscillator.type = "triangle";
-        oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(
-            620,
-            audioContext.currentTime + 0.2
-        );
+            const playTone = (
+                frequency: number,
+                start: number,
+                duration: number,
+                volume: number,
+                type: OscillatorType
+            ) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
 
-        gainNode.gain.setValueAtTime(0.0001, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(
-            0.22,
-            audioContext.currentTime + 0.03
-        );
-        gainNode.gain.exponentialRampToValueAtTime(
-            0.0001,
-            audioContext.currentTime + 0.55
-        );
+                oscillator.type = type;
+                oscillator.frequency.setValueAtTime(frequency, start);
 
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+                gainNode.gain.setValueAtTime(0.0001, start);
+                gainNode.gain.exponentialRampToValueAtTime(
+                    volume,
+                    start + 0.02
+                );
+                gainNode.gain.exponentialRampToValueAtTime(
+                    0.0001,
+                    start + duration
+                );
 
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.6);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.start(start);
+                oscillator.stop(start + duration);
+            };
+
+            if (isAltPattern) {
+                playTone(620, now, 0.26, 0.09, "triangle");
+                playTone(760, now + 0.12, 0.24, 0.08, "sine");
+                playTone(890, now + 0.26, 0.34, 0.07, "triangle");
+            } else {
+                playTone(660, now, 0.28, 0.09, "triangle");
+                playTone(820, now + 0.14, 0.27, 0.08, "sine");
+                playTone(960, now + 0.3, 0.32, 0.07, "triangle");
+            }
+
+            sequenceRef.current += 1;
+        };
+
+        playChime();
+        audioContextRef.current = audioContext;
+        intervalRef.current = window.setInterval(playChime, 1200);
         void audioContext.resume();
     } catch (error) {
         console.warn("Unable to play order alert sound:", error);
@@ -66,10 +119,34 @@ const playOrderAlertSound = () => {
 export function OrderPushNotification() {
     const router = useRouter();
     const [alerts, setAlerts] = useState<OrderAlertItem[]>([]);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const soundIntervalRef = useRef<number | null>(null);
+    const soundSequenceRef = useRef(0);
 
     const dismissAlert = (id: number) => {
-        setAlerts((current) => current.filter((alert) => alert.id !== id));
+        setAlerts((current) => {
+            const nextAlerts = current.filter((alert) => alert.id !== id);
+
+            if (nextAlerts.length === 0) {
+                stopOrderAlertSound(audioContextRef, soundIntervalRef, soundSequenceRef);
+            }
+
+            return nextAlerts;
+        });
     };
+
+    useEffect(() => {
+        if (alerts.length === 0) {
+            stopOrderAlertSound(audioContextRef, soundIntervalRef, soundSequenceRef);
+            return;
+        }
+
+        playOrderAlertSound(audioContextRef, soundIntervalRef, soundSequenceRef);
+
+        return () => {
+            stopOrderAlertSound(audioContextRef, soundIntervalRef, soundSequenceRef);
+        };
+    }, [alerts.length]);
 
     useEffect(() => {
         const echo = getEcho();
@@ -105,7 +182,10 @@ export function OrderPushNotification() {
                     orderId: order.id,
                 };
 
-                playOrderAlertSound();
+                if (alerts.length === 0) {
+                    playOrderAlertSound(audioContextRef, soundIntervalRef, soundSequenceRef);
+                }
+
                 setAlerts((current) => [newAlert, ...current].slice(0, 3));
             } catch (error) {
                 console.warn("Unable to validate order location for notification:", error);
