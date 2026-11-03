@@ -15,10 +15,19 @@ interface OrderAlertItem {
     orderId?: number;
 }
 
+type MutableRef<T> = {
+    current: T;
+};
+
+type CustomerOrderCreatedDetail = {
+    order_id?: number;
+    order_no?: string | number;
+};
+
 const stopOrderAlertSound = (
-    audioContextRef: React.MutableRefObject<AudioContext | null>,
-    intervalRef: React.MutableRefObject<number | null>,
-    sequenceRef: React.MutableRefObject<number>
+    audioContextRef: MutableRef<AudioContext | null>,
+    intervalRef: MutableRef<number | null>,
+    sequenceRef: MutableRef<number>
 ) => {
     if (intervalRef.current) {
         window.clearInterval(intervalRef.current);
@@ -36,9 +45,9 @@ const stopOrderAlertSound = (
 };
 
 const playOrderAlertSound = (
-    audioContextRef: React.MutableRefObject<AudioContext | null>,
-    intervalRef: React.MutableRefObject<number | null>,
-    sequenceRef: React.MutableRefObject<number>
+    audioContextRef: MutableRef<AudioContext | null>,
+    intervalRef: MutableRef<number | null>,
+    sequenceRef: MutableRef<number>
 ) => {
     if (typeof window === "undefined") {
         return;
@@ -123,6 +132,34 @@ export function OrderPushNotification() {
     const soundIntervalRef = useRef<number | null>(null);
     const soundSequenceRef = useRef(0);
 
+    const pushAlert = (
+        orderId: number,
+        orderNo?: string | number
+    ) => {
+        setAlerts((current) => {
+            const hasExisting = current.some(
+                (alert) => alert.orderId === orderId
+            );
+
+            if (hasExisting) {
+                return current;
+            }
+
+            if (current.length === 0) {
+                playOrderAlertSound(audioContextRef, soundIntervalRef, soundSequenceRef);
+            }
+
+            const newAlert: OrderAlertItem = {
+                id: Date.now() + Math.random(),
+                title: "New customer order",
+                message: `Order #${orderNo || orderId} just came in.`,
+                orderId,
+            };
+
+            return [newAlert, ...current].slice(0, 3);
+        });
+    };
+
     const dismissAlert = (id: number) => {
         setAlerts((current) => {
             const nextAlerts = current.filter((alert) => alert.id !== id);
@@ -145,6 +182,34 @@ export function OrderPushNotification() {
 
         return () => {
             stopOrderAlertSound(audioContextRef, soundIntervalRef, soundSequenceRef);
+        };
+    }, []);
+
+    useEffect(() => {
+        const handleCustomerOrderCreated = (
+            event: Event
+        ) => {
+            const detail = (
+                event as CustomEvent<CustomerOrderCreatedDetail>
+            ).detail;
+
+            if (!detail?.order_id) {
+                return;
+            }
+
+            pushAlert(detail.order_id, detail.order_no);
+        };
+
+        window.addEventListener(
+            "customer-order-created",
+            handleCustomerOrderCreated
+        );
+
+        return () => {
+            window.removeEventListener(
+                "customer-order-created",
+                handleCustomerOrderCreated
+            );
         };
     }, [alerts.length]);
 
@@ -175,18 +240,7 @@ export function OrderPushNotification() {
                     return;
                 }
 
-                const newAlert: OrderAlertItem = {
-                    id: Date.now() + Math.random(),
-                    title: "New customer order",
-                    message: `Order #${order.order_no || order.id} just came in.`,
-                    orderId: order.id,
-                };
-
-                if (alerts.length === 0) {
-                    playOrderAlertSound(audioContextRef, soundIntervalRef, soundSequenceRef);
-                }
-
-                setAlerts((current) => [newAlert, ...current].slice(0, 3));
+                pushAlert(order.id, order.order_no);
             } catch (error) {
                 console.warn("Unable to validate order location for notification:", error);
             }
@@ -195,8 +249,10 @@ export function OrderPushNotification() {
         channel.listen(".customer.order.created", handleOrderCreated);
 
         return () => {
-            channel.stopListening(".customer.order.created");
-            echo.leave("orders");
+            channel.stopListening(
+                ".customer.order.created",
+                handleOrderCreated
+            );
         };
     }, []);
 

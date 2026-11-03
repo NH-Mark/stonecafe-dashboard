@@ -150,14 +150,20 @@ export default function OrdersPage() {
 
         const channel = echo.channel("orders");
 
-        channel.listen(
-            ".customer.order.created",
-            async (event: { order_id: number }) => {
+        const handleOrderCreated = async (event: { order_id: number }) => {
                 console.log("CUSTOMER ORDER EVENT RECEIVED:", event);
 
                 if (!event.order_id) {
                     return;
                 }
+
+                window.dispatchEvent(
+                    new CustomEvent("customer-order-created", {
+                        detail: {
+                            order_id: event.order_id,
+                        },
+                    })
+                );
 
                 try {
                     // Fetch the latest list, including the new order.
@@ -209,7 +215,11 @@ export default function OrdersPage() {
                         error
                     );
                 }
-            }
+            };
+
+        channel.listen(
+            ".customer.order.created",
+            handleOrderCreated
         );
 
         channel.subscribed(() => {
@@ -218,8 +228,10 @@ export default function OrdersPage() {
 
         return () => {
             mounted = false;
-            channel.stopListening(".customer.order.created");
-            echo.leave("orders");
+            channel.stopListening(
+                ".customer.order.created",
+                handleOrderCreated
+            );
         };
     }, [activeLocationId]);
 
