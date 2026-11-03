@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 
 import { useAuth } from "./useAuth";
 import PageLoader from "@/components/common/PageLoader";
+import { OrderPushNotification } from "@/components/common/OrderPushNotification";
 
 interface Props {
   children: React.ReactNode;
@@ -74,12 +75,22 @@ export default function ProtectedRoute({ children }: Props) {
   }
 
   if (locations.length === 1) {
-    return <>{children}</>;
+    return (
+      <>
+        <OrderPushNotification />
+        {children}
+      </>
+    );
   }
 
   if (!Cookies.get("active_location_id") && pathname !== "/select-location") {
     return <PageLoader />;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <OrderPushNotification />
+      {children}
+    </>
+  );
 }
