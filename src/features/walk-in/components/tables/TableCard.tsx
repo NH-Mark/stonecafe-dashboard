@@ -80,7 +80,7 @@ export function TableCard({
                 group
                 relative
                 flex
-                min-h-[172px]
+                min-h-43
                 w-full
                 flex-col
                 justify-between
@@ -99,10 +99,11 @@ export function TableCard({
                 focus:outline-none
                 focus:ring-2
                 focus:ring-[#40332a]/20
-                sm:min-h-[185px]
+                sm:min-h-46.25
                 sm:p-5
             `}
             style={{
+                backgroundColor: available ? "#ffffff" : !billing ? "#c5beb8" : undefined,
                 borderColor:
                     billing
                         ? "#40332a"
