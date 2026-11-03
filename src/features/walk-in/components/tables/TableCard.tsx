@@ -103,7 +103,7 @@ export function TableCard({
                 sm:p-5
             `}
             style={{
-                backgroundColor: available ? "#ffffff" : !billing ? "#c5beb8" : undefined,
+                backgroundColor: available ? "#ffffff" : !billing ? "#ded6cf" : undefined,
                 borderColor:
                     billing
                         ? "#40332a"
