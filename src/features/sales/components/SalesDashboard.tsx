@@ -151,7 +151,7 @@ export default function SalesDashboard() {
 
     // 2. Fetch sales only after the active location is initialized.
     useEffect(() => {
-        if (!locationsReady || filters.location_id == null) {
+        if (!locationsReady) {
             return;
         }
 

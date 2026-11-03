@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     CalendarDays,
     ChevronDown,
@@ -65,6 +65,7 @@ export default function SalesFilters({
         useState(false);
 
     const [isSelectingEnd, setIsSelectingEnd] = useState(false);
+    const hasAppliedDefaultLocation = useRef(false);
 
     function handleRangeChange(value: string) {
         if (value === "custom") {
@@ -240,8 +241,13 @@ export default function SalesFilters({
     );
 
     useEffect(() => {
+        if (hasAppliedDefaultLocation.current) {
+            return;
+        }
+
         // Keep the user's existing selection.
         if (filters.location_id !== undefined) {
+            hasAppliedDefaultLocation.current = true;
             return;
         }
 
@@ -255,6 +261,8 @@ export default function SalesFilters({
                 ...filters,
                 location_id: defaultLocation.id,
             });
+
+            hasAppliedDefaultLocation.current = true;
         }
     }, [
         activeLocationId,
@@ -368,21 +376,28 @@ export default function SalesFilters({
                     value={
                         filters.location_id != null
                             ? String(filters.location_id)
-                            : ""
+                            : "all"
                     }
                     onChange={(value) =>
                         onChange({
                             ...filters,
-                            location_id: value
-                                ? Number(value)
-                                : undefined,
+                            location_id:
+                                value === "all"
+                                    ? undefined
+                                    : Number(value),
                         })
                     }
-                    placeholder="Select Location"
-                    options={permittedLocations.map((location) => ({
-                        label: location.name,
-                        value: String(location.id),
-                    }))}
+                    placeholder="All Locations"
+                    options={[
+                        {
+                            label: "All Locations",
+                            value: "all",
+                        },
+                        ...permittedLocations.map((location) => ({
+                            label: location.name,
+                            value: String(location.id),
+                        })),
+                    ]}
                 />
 
                 {/* Order Type */}
