@@ -17,7 +17,7 @@ function formatMoney(value: number) {
     return `QAR ${Number(value).toFixed(2)}`
 }
 
-function formatTime(value: string | null) {
+function formatDateTime(value: string | null) {
 
     if (!value) {
         return ""
@@ -25,9 +25,12 @@ function formatTime(value: string | null) {
 
     return new Date(
         value.replace(" ", "T")
-    ).toLocaleTimeString(
+    ).toLocaleString(
         [],
         {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
             hour: "2-digit",
             minute: "2-digit",
         }
@@ -43,6 +46,48 @@ function formatStatus(status: string | null | undefined) {
     return status
         .replace(/_/g, " ")
         .replace(/\b\w/g, char => char.toUpperCase())
+}
+
+function formatStatusCaps(status: string | null | undefined) {
+    if (!status) {
+        return "-"
+    }
+
+    return status
+        .replace(/_/g, " ")
+        .toUpperCase()
+}
+
+function getOrderStatusClass(status: string | null | undefined) {
+    switch (status?.toLowerCase()) {
+        case "pending":
+            return "border-yellow-300 bg-yellow-50 text-yellow-700"
+        case "confirmed":
+            return "border-blue-300 bg-blue-50 text-blue-700"
+        case "completed":
+            return "border-emerald-300 bg-emerald-50 text-emerald-700"
+        case "cancelled":
+            return "border-rose-300 bg-rose-50 text-rose-700"
+        case "draft":
+            return "border-slate-300 bg-slate-50 text-slate-700"
+        default:
+            return "border-slate-300 bg-slate-50 text-slate-700"
+    }
+}
+
+function getKitchenStatusClass(status: string | null | undefined) {
+    switch (status?.toLowerCase()) {
+        case "pending":
+            return "border-amber-300 bg-amber-50 text-amber-700"
+        case "preparing":
+            return "border-indigo-300 bg-indigo-50 text-indigo-700"
+        case "ready":
+            return "border-green-300 bg-green-50 text-green-700"
+        case "unknown":
+            return "border-slate-300 bg-slate-50 text-slate-700"
+        default:
+            return "border-slate-300 bg-slate-50 text-slate-700"
+    }
 }
 
 function getPaymentVariant(status: string) {
@@ -111,7 +156,7 @@ export default function OrderListItem({
 
                         <Clock className="h-3.5 w-3.5" />
 
-                        {formatTime(order.ordered_at)}
+                        {formatDateTime(order.ordered_at)}
 
                     </div>
 
@@ -189,9 +234,12 @@ export default function OrderListItem({
 
                     <Badge
                         variant="outline"
-                        className="text-[10px]"
+                        className={cn(
+                            "text-[10px] font-semibold tracking-wide",
+                            getOrderStatusClass(order.status)
+                        )}
                     >
-                        {formatStatus(order.status)}
+                        {formatStatusCaps(order.status)}
                     </Badge>
 
                 </div>
@@ -207,9 +255,12 @@ export default function OrderListItem({
 
                     <Badge
                         variant="outline"
-                        className="text-[10px]"
+                        className={cn(
+                            "text-[10px] font-semibold tracking-wide",
+                            getKitchenStatusClass(order.kitchen_status)
+                        )}
                     >
-                        {formatStatus(order.kitchen_status)}
+                        {formatStatusCaps(order.kitchen_status)}
                     </Badge>
 
                 </div>
