@@ -131,11 +131,29 @@ export function OrderPushNotification() {
     const audioContextRef = useRef<AudioContext | null>(null);
     const soundIntervalRef = useRef<number | null>(null);
     const soundSequenceRef = useRef(0);
+    const recentOrderAlertRef = useRef<Map<number, number>>(new Map());
 
     const pushAlert = (
         orderId: number,
         orderNo?: string | number
     ) => {
+        const now = Date.now();
+        const lastSeenAt = recentOrderAlertRef.current.get(orderId);
+
+        // Dedupe bursts from multiple listeners for the same order.
+        if (lastSeenAt && now - lastSeenAt < 5000) {
+            return;
+        }
+
+        recentOrderAlertRef.current.set(orderId, now);
+
+        // Keep only recent entries to avoid unbounded growth.
+        for (const [id, timestamp] of recentOrderAlertRef.current) {
+            if (now - timestamp > 60000) {
+                recentOrderAlertRef.current.delete(id);
+            }
+        }
+
         setAlerts((current) => {
             const hasExisting = current.some(
                 (alert) => alert.orderId === orderId
@@ -143,10 +161,6 @@ export function OrderPushNotification() {
 
             if (hasExisting) {
                 return current;
-            }
-
-            if (current.length === 0) {
-                playOrderAlertSound(audioContextRef, soundIntervalRef, soundSequenceRef);
             }
 
             const newAlert: OrderAlertItem = {
@@ -183,7 +197,7 @@ export function OrderPushNotification() {
         return () => {
             stopOrderAlertSound(audioContextRef, soundIntervalRef, soundSequenceRef);
         };
-    }, []);
+    }, [alerts.length]);
 
     useEffect(() => {
         const handleCustomerOrderCreated = (
@@ -211,7 +225,7 @@ export function OrderPushNotification() {
                 handleCustomerOrderCreated
             );
         };
-    }, [alerts.length]);
+    }, []);
 
     useEffect(() => {
         const echo = getEcho();
@@ -228,21 +242,28 @@ export function OrderPushNotification() {
             }
 
             const activeLocationId = Number(Cookies.get("active_location_id"));
-
-            if (!activeLocationId || !Number.isFinite(activeLocationId)) {
-                return;
-            }
+            const hasActiveLocation =
+                Number.isFinite(activeLocationId) &&
+                activeLocationId > 0;
 
             try {
                 const order = await getOrder(event.order_id);
+                const orderLocationId = Number(order.location_id);
 
-                if (Number(order.location_id) !== activeLocationId) {
+                if (
+                    hasActiveLocation &&
+                    Number.isFinite(orderLocationId) &&
+                    orderLocationId !== activeLocationId
+                ) {
                     return;
                 }
 
                 pushAlert(order.id, order.order_no);
             } catch (error) {
                 console.warn("Unable to validate order location for notification:", error);
+
+                // Fallback to avoid dropping notification on transient order fetch timing.
+                pushAlert(event.order_id, event.order_id);
             }
         };
 
