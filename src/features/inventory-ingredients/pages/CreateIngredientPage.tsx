@@ -103,8 +103,8 @@ export default function CreateIngredientPage() {
 
             toast.success("Ingredient created successfully.");
 
+            router.push("/ingredients");
             router.refresh();
-            form.reset();
         } catch (error) {
             applyApiErrors(form, error);
 

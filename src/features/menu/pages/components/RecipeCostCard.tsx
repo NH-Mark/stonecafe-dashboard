@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 
 import { MenuItemFormValues } from "../../menu-item.schema";
 import { InventoryIngredient } from "@/types/inventory-ingredient";
-import { Trash2 } from "lucide-react";
+import { Info, Trash2 } from "lucide-react";
 
 interface IngredientOption {
     id: number;
@@ -240,6 +240,17 @@ export default function RecipeCostCard({
         }
 
         return `${value.toFixed(3)} QAR`;
+    }
+
+    function formatFullPrecision(value: number) {
+        if (!Number.isFinite(value)) {
+            return "0";
+        }
+
+        return value
+            .toFixed(10)
+            .replace(/\.0+$/, "")
+            .replace(/(\.\d*?)0+$/, "$1");
     }
 
     const foodCostPercentage =
@@ -486,7 +497,15 @@ export default function RecipeCostCard({
                             <div className="h-14 px-3 text-center flex items-center justify-center">Food Cost %</div>
                         </div>
                         <div className="grid grid-cols-3 text-sm">
-                            <div className="h-12 px-3 text-center flex items-center justify-center">{formatCurrency(recipeCostTotal)}</div>
+                            <div className="h-12 px-3 text-center flex items-center justify-center gap-1.5">
+                                <span>{formatCurrency(recipeCostTotal)}</span>
+                                <span
+                                    className="inline-flex items-center text-muted-foreground"
+                                    title={`Full value: ${formatFullPrecision(recipeCostTotal)} QAR`}
+                                >
+                                    <Info className="h-3.5 w-3.5" />
+                                </span>
+                            </div>
                             <div className="h-12 px-3 text-center border-x flex items-center justify-center">{formatCurrency(recipeCostTotal)}</div>
                             <div className="h-12 px-3 text-center flex items-center justify-center">{foodCostPercentage.toFixed(2)}%</div>
                         </div>
@@ -498,7 +517,7 @@ export default function RecipeCostCard({
                             <div className="h-14 px-3 text-center border-l flex items-center justify-center">Actual</div>
                         </div>
                         <div className="grid grid-cols-2 text-sm">
-                            <div className="h-12 px-3 text-center flex items-center justify-center">{formatCurrency(recipeCostTotal)}</div>
+                            <div className="h-12 px-3 text-center flex items-center justify-center">{formatCurrency(0)}</div>
                             <div className="h-12 px-3 text-center border-l flex items-center justify-center">{formatCurrency(sellingPrice)}</div>
                         </div>
                     </div>

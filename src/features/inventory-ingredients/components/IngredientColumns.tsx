@@ -73,6 +73,16 @@ export function ingredientColumns({
         {
             accessorKey: "name",
             header: "Name",
+            cell: ({ row }) => {
+                const item = row.original;
+                const code = item.sku?.trim();
+
+                if (!code) {
+                    return item.name;
+                }
+
+                return `${item.name} (${code})`;
+            },
         },
         {
             id: "unit_name",
