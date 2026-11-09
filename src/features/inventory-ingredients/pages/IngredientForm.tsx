@@ -1047,7 +1047,7 @@ export default function IngredientForm({
                                     {Number.isFinite(
                                         costPerUnitValue
                                     )
-                                        ? `${formatCost(costPerUnitValue)} ${selectedMeasurementUnitName}`
+                                        ? `${formatCost(costPerUnitValue)} QAR`
                                         : "-"}
                                 </div>
 

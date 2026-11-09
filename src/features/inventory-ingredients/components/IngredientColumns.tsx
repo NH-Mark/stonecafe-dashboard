@@ -44,9 +44,9 @@ function resolveSupplierName(item: InventoryIngredient): string {
 
 function resolveCostPerUnit(item: InventoryIngredient): string {
     if (item.cost_per_unit != null) {
-        return formatCost(
+        return `${formatCost(
             Number(item.cost_per_unit)
-        );
+        )} QAR`;
     }
 
     const supplier = resolveDefaultSupplier(item);
@@ -59,7 +59,7 @@ function resolveCostPerUnit(item: InventoryIngredient): string {
         return "-";
     }
 
-    return formatCost(Number(price));
+    return `${formatCost(Number(price))} QAR`;
 }
 
 interface IngredientColumnsProps {
