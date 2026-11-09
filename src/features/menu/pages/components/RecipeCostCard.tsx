@@ -146,6 +146,14 @@ export default function RecipeCostCard({
         [recipeRows]
     );
 
+    const roundedRecipeCostTotal = useMemo(
+        () =>
+            Number(
+                recipeCostTotal.toFixed(3)
+            ),
+        [recipeCostTotal]
+    );
+
     useEffect(() => {
         const nextRows = recipeRows.map(
             (row, index) => {
@@ -197,8 +205,8 @@ export default function RecipeCostCard({
             getValues("cost_price") ?? 0
         );
 
-        if (currentCostPrice !== recipeCostTotal) {
-            setValue("cost_price", recipeCostTotal, {
+        if (currentCostPrice !== roundedRecipeCostTotal) {
+            setValue("cost_price", roundedRecipeCostTotal, {
                 shouldDirty: true,
                 shouldValidate: true,
             });
@@ -206,6 +214,7 @@ export default function RecipeCostCard({
     }, [
         recipeRows,
         recipeCostTotal,
+        roundedRecipeCostTotal,
         getValues,
         setValue,
     ]);
