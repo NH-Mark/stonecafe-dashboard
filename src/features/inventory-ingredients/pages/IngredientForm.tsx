@@ -1127,13 +1127,16 @@ export default function IngredientForm({
                                     </div>
 
                                     <div className="space-y-2 md:col-span-3">
-                                        <Label>Price</Label>
+                                        <Label>Price (QAR)</Label>
                                         <Input
                                             type="number"
                                             min="0"
                                             step="0.0001"
                                             {...register(`suppliers.${index}.price`)}
                                         />
+                                        <p className="text-xs text-muted-foreground">
+                                            QAR
+                                        </p>
                                         <p className="text-sm text-destructive">
                                             {errors.suppliers?.[index]?.price?.message}
                                         </p>
@@ -1207,7 +1210,9 @@ export default function IngredientForm({
                                     </div>
 
                                     <div className="space-y-2 md:col-span-3">
-                                        <Label>Opening Balance</Label>
+                                        <Label>
+                                            Opening Balance ({selectedMeasurementUnitName})
+                                        </Label>
                                         <Input
                                             type="number"
                                             step="0.0001"
@@ -1219,7 +1224,9 @@ export default function IngredientForm({
                                     </div>
 
                                     <div className="space-y-2 md:col-span-3">
-                                        <Label>Reorder Level</Label>
+                                        <Label>
+                                            Reorder Level ({selectedMeasurementUnitName})
+                                        </Label>
                                         <Input
                                             type="number"
                                             min="0"
