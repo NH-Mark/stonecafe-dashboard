@@ -241,14 +241,14 @@ export default function TopSellingItemsDialog({ data }: Props) {
                                     </p>
                                 </div>
 
-                                <div className="rounded-lg bg-[#f8f8f7] p-3">
+                                {/* <div className="rounded-lg bg-[#f8f8f7] p-3">
                                     <p className="text-xs text-muted-foreground">
                                         Total Profitability
                                     </p>
                                     <p className="text-base font-semibold text-[#40332a]">
                                         {formatWithoutRounding(totals.totalProfitability, 2)}%
                                     </p>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>

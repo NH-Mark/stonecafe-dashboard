@@ -53,7 +53,7 @@ const orderedKeys = [
     "refund",
     "modifiers",
     "total cogs",
-    "profit %",
+    "profit",
 ];
 
 function resolveOrderKey(item: SalesStat) {
