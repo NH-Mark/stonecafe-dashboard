@@ -26,6 +26,19 @@ type Props = {
     data: TopItem[];
 };
 
+function formatWithoutRounding(
+    value: number,
+    decimals = 2
+) {
+    const factor = 10 ** decimals;
+    const scaled =
+        value >= 0
+            ? Math.floor(value * factor)
+            : Math.ceil(value * factor);
+
+    return (scaled / factor).toFixed(decimals);
+}
+
 export default function TopSellingItemsDialog({ data }: Props) {
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [categories, setCategories] = useState<Category[]>([]);
@@ -82,6 +95,25 @@ export default function TopSellingItemsDialog({ data }: Props) {
             (item) => String(item.category_id) === selectedCategory
         );
     }, [safeData, selectedCategory]);
+
+    const totals = useMemo(() => {
+        return filteredData.reduce(
+            (acc, item) => {
+                acc.totalAmount += Number(item.sales ?? 0);
+                acc.totalCogs += Number(item.cogs ?? 0);
+                acc.totalProfitability += Number(
+                    item.profitability?.percentage ?? 0
+                );
+
+                return acc;
+            },
+            {
+                totalAmount: 0,
+                totalCogs: 0,
+                totalProfitability: 0,
+            }
+        );
+    }, [filteredData]);
 
     return (
         <Dialog>
@@ -188,6 +220,37 @@ export default function TopSellingItemsDialog({ data }: Props) {
                             searchKey="name"
                             placeholder="Search items..."
                         />
+
+                        <div className="mt-4 rounded-xl border border-[#d9d9d8] bg-white p-4">
+                            <div className="grid gap-3 sm:grid-cols-3">
+                                <div className="rounded-lg bg-[#f8f8f7] p-3">
+                                    <p className="text-xs text-muted-foreground">
+                                        Total Amount
+                                    </p>
+                                    <p className="text-base font-semibold text-[#40332a]">
+                                        QAR {formatWithoutRounding(totals.totalAmount, 2)}
+                                    </p>
+                                </div>
+
+                                <div className="rounded-lg bg-[#f8f8f7] p-3">
+                                    <p className="text-xs text-muted-foreground">
+                                        Total COGS
+                                    </p>
+                                    <p className="text-base font-semibold text-[#40332a]">
+                                        QAR {formatWithoutRounding(totals.totalCogs, 2)}
+                                    </p>
+                                </div>
+
+                                <div className="rounded-lg bg-[#f8f8f7] p-3">
+                                    <p className="text-xs text-muted-foreground">
+                                        Total Profitability
+                                    </p>
+                                    <p className="text-base font-semibold text-[#40332a]">
+                                        {formatWithoutRounding(totals.totalProfitability, 2)}%
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </DialogContent>
