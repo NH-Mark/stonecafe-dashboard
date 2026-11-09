@@ -35,39 +35,78 @@ const icons: any = {
     profit: TrendingUp,
 
 };
-
-
-
 type Props = {
     data: SalesStat[];
 };
 
 const orderedKeys = [
     "total sales",
-    "orders",
+    "discounts",
     "gross sales",
-    "net sales",
+    "total cogs",
+    "total profit",
+    "orders",
+    "paid modifiers",
     "average order",
     "customers",
-    "discount",
-    "refund",
-    "modifiers",
-    "total cogs",
-    "profit",
+    "refunds",
 ];
 
+const iconOrderMap: Record<string, string> = {
+    sales: "total sales",
+    discount: "discounts",
+    gross: "gross sales",
+    cogs: "total cogs",
+    profit: "total profit",
+    orders: "orders",
+    modifiers: "paid modifiers",
+    average: "average order",
+    customers: "customers",
+    refund: "refunds",
+};
+
+function normalizeTitle(title: string) {
+    const value = title.toLowerCase().trim();
+
+    if (value === "discount") {
+        return "discounts";
+    }
+
+    if (value === "refund") {
+        return "refunds";
+    }
+
+    if (value === "profit") {
+        return "total profit";
+    }
+
+    if (value === "modifiers") {
+        return "paid modifiers";
+    }
+
+    return value;
+}
+
 function resolveOrderKey(item: SalesStat) {
-    const title = String(item.title || "")
+    const iconKey = String(item.icon || "")
         .toLowerCase()
         .trim();
+
+    const iconOrder = iconOrderMap[iconKey];
+
+    if (iconOrder) {
+        return iconOrder;
+    }
+
+    const title = normalizeTitle(
+        String(item.title || "")
+    );
 
     if (title) {
         return title;
     }
 
-    return String(item.icon || "")
-        .toLowerCase()
-        .trim();
+    return iconKey;
 }
 
 function getOrderIndex(item: SalesStat) {
