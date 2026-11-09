@@ -6,6 +6,20 @@ import { Modifier } from "./modifier";
 import { ModifierGroup } from "./modifier-group";
 import { Printer } from "./printer";
 
+export interface MenuItemIngredient {
+    id?: number;
+    ingredient_id: number;
+    unit_name?: string | null;
+    cost_per_unit: number;
+    quantity: number;
+    subtotal: number;
+    sort_order?: number;
+    ingredient?: {
+        id: number;
+        name: string;
+    };
+}
+
 export interface MenuItem {
 
     id: number;
@@ -73,4 +87,6 @@ export interface MenuItem {
     printer_id:number;
 
     printer:Printer;
+
+    menu_item_ingredients?: MenuItemIngredient[];
 }

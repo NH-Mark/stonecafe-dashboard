@@ -13,6 +13,7 @@ import { getModifierGroups } from "@/features/modifiers/modifier.service";
 import { getMenuItemTags } from "@/features/menu-item-tag/menu-item-tag.service";
 import { getFoodSymbols } from "@/features/food-symbol/food-symbol.service";
 import { applyApiErrors } from "@/lib/form-errors";
+import { getIngredients } from "@/features/inventory-ingredients/ingredient.service";
 
 export default function NewMenuItemPage() {
 
@@ -24,6 +25,7 @@ export default function NewMenuItemPage() {
     const [modifierGroups, setModifierGroups] = useState([]);
     const [tags, setTags] = useState([]);
     const [foodSymbols, setFoodSymbols] = useState([]);
+    const [ingredients, setIngredients] = useState([]);
 
     async function load() {
         try {
@@ -34,18 +36,21 @@ export default function NewMenuItemPage() {
                 categoryRes,
                 groupRes,
                 tagRes,
-                foodRes
+                foodRes,
+                ingredientRes,
             ] = await Promise.all([
                 getCategories(),
                 getModifierGroups(),
                 getMenuItemTags(),
                 getFoodSymbols(),
+                getIngredients({ per_page: 1000 }),
             ]);
 
             setCategories(categoryRes.data.data);
             setModifierGroups(groupRes.data.data);
             setTags(tagRes.data.data);
             setFoodSymbols(foodRes.data.data);
+            setIngredients(ingredientRes.data.data ?? []);
 
         } finally {
             setLoading(false);
@@ -91,6 +96,7 @@ return (
         allModifierGroups={modifierGroups}
         allTags={tags}
         foodSymbols={foodSymbols}
+        allIngredients={ingredients}
         onSubmit={handleSubmit}
     />
 );

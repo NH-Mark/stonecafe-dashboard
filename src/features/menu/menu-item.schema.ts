@@ -54,6 +54,36 @@ export const menuItemSchema = z.object({
         .number()
         .min(0),
 
+    menu_item_ingredients: z
+        .array(
+            z.object({
+                ingredient_id: z
+                    .coerce
+                    .number()
+                    .int()
+                    .positive(),
+                unit_name: z
+                    .string()
+                    .nullable()
+                    .optional(),
+                cost_per_unit: z.coerce
+                    .number()
+                    .min(0),
+                quantity: z.coerce
+                    .number()
+                    .min(0),
+                subtotal: z.coerce
+                    .number()
+                    .min(0),
+                sort_order: z.coerce
+                    .number()
+                    .int()
+                    .min(0)
+                    .default(0),
+            })
+        )
+        .default([]),
+
 
     image: z
         .string()

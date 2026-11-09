@@ -23,6 +23,10 @@ import {
     Upload,
     Import,
     Clock3,
+    MonitorCog,
+    Receipt,
+    ConciergeBell,
+    Salad,
 } from "lucide-react";
 
 export const adminMenu: AdminMenuItem[] = [
@@ -143,10 +147,11 @@ export const adminMenu: AdminMenuItem[] = [
         icon: ChefHat,
         permission: "menu.view",
     },
+    
     {
-        title: "Setup",
+        title: "POS Setup",
         href: "/",
-        icon: Settings,
+        icon: MonitorCog,
         children: [
             {
                 title: "Payment Methods",
@@ -166,6 +171,58 @@ export const adminMenu: AdminMenuItem[] = [
                 icon: BadgePercent,
                 permission: "discounts.view",
             },
+        ],
+    },
+    {
+        title: "Inventory Setup",
+        href: "/",
+        icon: Warehouse,
+        children: [
+            {
+                title: "Ingredients & Sub Recipes",
+                href: "/ingredients",
+                icon: Salad,
+                permission: "inventory.view",
+            },
+            {
+                title: "Ingredient Categories",
+                href: "/ingredient-categories",
+                icon: Shapes,
+                permission: "inventory.view",
+            },
+            {
+                title: "Measurement Units",
+                href: "/measurement-units",
+                icon: SlidersHorizontal,
+                permission: "inventory.view",
+            },
+            {
+                title: "Suppliers",
+                href: "/suppliers",
+                icon: Users,
+                permission: "inventory.view",
+            },
+        ],
+    },
+
+    {
+        title: "Events",
+        href: "/events",
+        icon: CalendarDays,
+        children: [
+            {
+                title: "Registered List",
+                href: "/events/registered",
+                icon: Users,
+                permission: "event-registrations.view",
+            },
+        ],
+    },
+    {
+        title: "Settings",
+        href: "/",
+        icon: Settings,
+        children: [
             {
                 title: "Staff",
                 href: "/staff",
@@ -189,20 +246,6 @@ export const adminMenu: AdminMenuItem[] = [
                 href: "/employee-logs",
                 icon: Clock3,
                 permission: "users.view",
-            },
-        ],
-    },
-
-    {
-        title: "Events",
-        href: "/events",
-        icon: CalendarDays,
-        children: [
-            {
-                title: "Registered List",
-                href: "/events/registered",
-                icon: Users,
-                permission: "event-registrations.view",
             },
         ],
     },

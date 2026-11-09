@@ -61,7 +61,7 @@ export default function PricingCard() {
 
                     <Input
                         type="number"
-                        step="0.01"
+                        step="0.001"
                         {...register("cost_price", {
                             valueAsNumber: true,
                         })}

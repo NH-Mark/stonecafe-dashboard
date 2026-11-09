@@ -18,6 +18,7 @@ import FoodSymbolsCard from "./components/FoodSymbolsCard";
 import TagsCard from "./components/TagsCard";
 import ImageCard from "./components/ImageCard";
 import AvailabilityCard from "./components/AvailabilityCard";
+import RecipeCostCard from "./components/RecipeCostCard";
 
 import { MenuItem } from "@/types/menu-item";
 import { Category } from "@/types/category";
@@ -26,6 +27,7 @@ import EditMenuItemModifierGroupDialog from "../components/menu-item/EditMenuIte
 import { updateMenuItemModifierGroup } from "../menu.service";
 import { MenuItemTag } from "@/types/menu-item-tag";
 import { FoodSymbol } from "@/types/food-symbol";
+import { InventoryIngredient } from "@/types/inventory-ingredient";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -39,6 +41,7 @@ interface Props {
     allModifierGroups: ModifierGroup[];
     allTags: MenuItemTag[];
     foodSymbols: FoodSymbol[];
+    allIngredients: InventoryIngredient[];
     onSubmit: (
         values: MenuItemFormValues,
         form: UseFormReturn<
@@ -57,6 +60,7 @@ export default function MenuItemForm({
     allModifierGroups,
     allTags,
     foodSymbols,
+    allIngredients,
     onSubmit,
 }: Props) {
 
@@ -97,6 +101,16 @@ export default function MenuItemForm({
 
             cost_price:
                 menuItem?.cost_price ?? 0,
+
+            menu_item_ingredients:
+                menuItem?.menu_item_ingredients?.map((row, index) => ({
+                    ingredient_id: Number(row.ingredient_id),
+                    unit_name: row.unit_name ?? null,
+                    cost_per_unit: Number(row.cost_per_unit ?? 0),
+                    quantity: Number(row.quantity ?? 0),
+                    subtotal: Number(row.subtotal ?? 0),
+                    sort_order: Number(row.sort_order ?? index),
+                })) ?? [],
 
 
             image:
@@ -187,6 +201,16 @@ export default function MenuItemForm({
 
             cost_price:
                 menuItem.cost_price ?? 0,
+
+            menu_item_ingredients:
+                menuItem.menu_item_ingredients?.map((row, index) => ({
+                    ingredient_id: Number(row.ingredient_id),
+                    unit_name: row.unit_name ?? null,
+                    cost_per_unit: Number(row.cost_per_unit ?? 0),
+                    quantity: Number(row.quantity ?? 0),
+                    subtotal: Number(row.subtotal ?? 0),
+                    sort_order: Number(row.sort_order ?? index),
+                })) ?? [],
 
 
             image:
@@ -383,6 +407,12 @@ export default function MenuItemForm({
 
                             <PricingCard />
 
+                            <RecipeCostCard
+                                ingredients={allIngredients}
+                            />
+
+                            <ImageCard />
+
 
 
                             <ModifierGroupsCard
@@ -496,26 +526,6 @@ export default function MenuItemForm({
                             )}
 
 
-                            <FoodSymbolsCard
-
-                                symbols={foodSymbols}
-
-                                selectedSymbols={form.watch("food_symbols") ?? []}
-
-                                onChange={(ids) => {
-
-                                    form.setValue(
-                                        "food_symbols",
-                                        ids,
-                                        {
-                                            shouldDirty: true
-                                        }
-                                    );
-
-                                }}
-
-                            />
-
                             <TagsCard
 
                                 tags={allTags}
@@ -545,7 +555,25 @@ export default function MenuItemForm({
 
                         <div className="space-y-6">
 
-                            <ImageCard />
+                            <FoodSymbolsCard
+
+                                symbols={foodSymbols}
+
+                                selectedSymbols={form.watch("food_symbols") ?? []}
+
+                                onChange={(ids) => {
+
+                                    form.setValue(
+                                        "food_symbols",
+                                        ids,
+                                        {
+                                            shouldDirty: true
+                                        }
+                                    );
+
+                                }}
+
+                            />
 
                             <AvailabilityCard />
 
