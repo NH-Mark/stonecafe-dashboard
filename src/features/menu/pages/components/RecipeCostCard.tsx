@@ -506,13 +506,18 @@ export default function RecipeCostCard({
                             <div className="h-14 px-3 text-center flex items-center justify-center">Food Cost %</div>
                         </div>
                         <div className="grid grid-cols-3 text-sm">
-                            <div className="h-12 px-3 text-center flex items-center justify-center gap-1.5">
-                                <span>{formatCurrency(recipeCostTotal)}</span>
-                                <span
-                                    className="inline-flex items-center text-muted-foreground"
-                                    title={`Full value: ${formatFullPrecision(recipeCostTotal)} QAR`}
-                                >
-                                    <Info className="h-3.5 w-3.5" />
+                            <div className="h-12 px-3 text-center flex flex-col items-center justify-center leading-tight">
+                                <div className="inline-flex items-center gap-1.5">
+                                    <span>{formatCurrency(recipeCostTotal)}</span>
+                                    <span
+                                        className="inline-flex items-center text-muted-foreground"
+                                        title={`Full value: ${formatFullPrecision(recipeCostTotal)} QAR`}
+                                    >
+                                        <Info className="h-3.5 w-3.5" />
+                                    </span>
+                                </div>
+                                <span className="text-[11px] text-muted-foreground">
+                                    Full: {formatFullPrecision(recipeCostTotal)} QAR
                                 </span>
                             </div>
                             <div className="h-12 px-3 text-center border-x flex items-center justify-center">{formatCurrency(recipeCostTotal)}</div>
