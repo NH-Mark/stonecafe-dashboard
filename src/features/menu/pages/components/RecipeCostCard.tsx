@@ -516,9 +516,9 @@ export default function RecipeCostCard({
                                         <Info className="h-3.5 w-3.5" />
                                     </span>
                                 </div>
-                                <span className="text-[11px] text-muted-foreground">
+                                {/* <span className="text-[11px] text-muted-foreground">
                                     Full: {formatFullPrecision(recipeCostTotal)} QAR
-                                </span>
+                                </span> */}
                             </div>
                             <div className="h-12 px-3 text-center border-x flex items-center justify-center">{formatCurrency(recipeCostTotal)}</div>
                             <div className="h-12 px-3 text-center flex items-center justify-center">{foodCostPercentage.toFixed(2)}%</div>

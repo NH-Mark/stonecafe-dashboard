@@ -31,6 +31,8 @@ const icons: any = {
     discount: BadgePercent,
     refund: RotateCcw,
     modifiers: Sparkles,
+    cogs: Wallet,
+    profit: TrendingUp,
 
 };
 
@@ -40,10 +42,51 @@ type Props = {
     data: SalesStat[];
 };
 
+const orderedKeys = [
+    "total sales",
+    "orders",
+    "gross sales",
+    "net sales",
+    "average order",
+    "customers",
+    "discount",
+    "refund",
+    "modifiers",
+    "total cogs",
+    "profit %",
+];
+
+function resolveOrderKey(item: SalesStat) {
+    const title = String(item.title || "")
+        .toLowerCase()
+        .trim();
+
+    if (title) {
+        return title;
+    }
+
+    return String(item.icon || "")
+        .toLowerCase()
+        .trim();
+}
+
+function getOrderIndex(item: SalesStat) {
+    const key = resolveOrderKey(item);
+    const found = orderedKeys.indexOf(key);
+
+    return found === -1
+        ? Number.MAX_SAFE_INTEGER
+        : found;
+}
+
 
 export default function SalesStats({
     data
 }: Props) {
+
+    const orderedData = [...data].sort((a, b) => {
+        return getOrderIndex(a) - getOrderIndex(b);
+    });
 
 
     return (
@@ -53,13 +96,13 @@ export default function SalesStats({
 grid
 gap-3
 sm:grid-cols-2
-xl:grid-cols-4
+xl:grid-cols-5
 "
         >
 
 
             {
-                data.map((item) => (
+                orderedData.map((item) => (
 
 
                     <Card

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 import {
+    Link2,
     MoreHorizontal,
     Pencil,
     Trash2,
@@ -19,6 +20,7 @@ import { InventorySupplier } from "@/types/inventory-supplier";
 import EditSupplierDialog from "./EditSupplierDialog";
 import DeleteSupplierDialog from "./DeleteSupplierDialog";
 import PermissionGuard from "@/components/guards/PermissionGuard";
+import ManageSupplierIngredientsDialog from "./ManageSupplierIngredientsDialog";
 
 interface Props {
     supplier: InventorySupplier;
@@ -31,6 +33,7 @@ export default function SupplierActions({
 }: Props) {
     const [editOpen, setEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
+    const [manageOpen, setManageOpen] = useState(false);
 
     return (
         <>
@@ -47,6 +50,15 @@ export default function SupplierActions({
                 />
 
                 <DropdownMenuContent align="end">
+                    <PermissionGuard permission="inventory.view">
+                        <DropdownMenuItem
+                            onClick={() => setManageOpen(true)}
+                        >
+                            <Link2 className="mr-2 h-4 w-4" />
+                            Manage Ingredients
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+
                     <PermissionGuard permission="inventory.view">
                         <DropdownMenuItem
                             onClick={() => setEditOpen(true)}
@@ -72,6 +84,12 @@ export default function SupplierActions({
                 onOpenChange={setEditOpen}
                 supplier={supplier}
                 onSuccess={onSuccess}
+            />
+
+            <ManageSupplierIngredientsDialog
+                open={manageOpen}
+                onOpenChange={setManageOpen}
+                supplier={supplier}
             />
 
             <DeleteSupplierDialog

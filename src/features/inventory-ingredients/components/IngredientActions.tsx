@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import PermissionGuard from "@/components/guards/PermissionGuard";
 
 import {
+    ListTree,
     MoreHorizontal,
     Pencil,
     Trash2,
@@ -20,6 +21,7 @@ import {
 
 import { InventoryIngredient } from "@/types/inventory-ingredient";
 import DeleteIngredientDialog from "./DeleteIngredientDialog";
+import IngredientUsageDialog from "./IngredientUsageDialog";
 
 interface Props {
     ingredient: InventoryIngredient;
@@ -33,6 +35,8 @@ export default function IngredientActions({
     const router = useRouter();
 
     const [deleteOpen, setDeleteOpen] =
+        useState(false);
+    const [usageOpen, setUsageOpen] =
         useState(false);
 
     return (
@@ -50,6 +54,17 @@ export default function IngredientActions({
                 />
 
                 <DropdownMenuContent align="end">
+                    <PermissionGuard permission="inventory.view">
+                        <DropdownMenuItem
+                            onClick={() =>
+                                setUsageOpen(true)
+                            }
+                        >
+                            <ListTree className="mr-2 h-4 w-4" />
+                            Usage
+                        </DropdownMenuItem>
+                    </PermissionGuard>
+
                     <PermissionGuard permission="inventory.view">
                         <DropdownMenuItem
                             onClick={() =>
@@ -81,6 +96,12 @@ export default function IngredientActions({
                 onOpenChange={setDeleteOpen}
                 ingredient={ingredient}
                 onSuccess={onSuccess}
+            />
+
+            <IngredientUsageDialog
+                open={usageOpen}
+                onOpenChange={setUsageOpen}
+                ingredient={ingredient}
             />
         </>
     );

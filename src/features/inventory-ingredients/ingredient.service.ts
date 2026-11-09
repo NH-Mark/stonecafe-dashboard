@@ -61,3 +61,11 @@ export async function deleteIngredient(
         `/api/inventory-ingredients/${id}`
     );
 }
+
+export function getIngredientUsage(
+    id: number
+) {
+    return api.get(
+        `/api/inventory-ingredients/${id}/usage`
+    );
+}

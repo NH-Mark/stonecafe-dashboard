@@ -411,8 +411,6 @@ export default function MenuItemForm({
                                 ingredients={allIngredients}
                             />
 
-                            <ImageCard />
-
 
 
                             <ModifierGroupsCard
@@ -554,6 +552,8 @@ export default function MenuItemForm({
 
 
                         <div className="space-y-6">
+
+                            <ImageCard />
 
                             <FoodSymbolsCard
 
