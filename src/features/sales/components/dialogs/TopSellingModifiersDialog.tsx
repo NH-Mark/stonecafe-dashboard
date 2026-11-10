@@ -47,9 +47,6 @@ function buildExportRows(items: TopModifier[]) {
         "Total Amount": normalizeNumber(
             item.sales ?? item.total_amount
         ),
-        "Total COGS": normalizeNumber(
-            item.cogs ?? item.total_cogs
-        ),
     }));
 }
 
@@ -122,7 +119,6 @@ export default function TopSellingModifiersDialog({ data }: Props) {
                     "Total Sold",
                     "Unit Price",
                     "Total Amount",
-                    "Total COGS",
                 ],
             }
         );

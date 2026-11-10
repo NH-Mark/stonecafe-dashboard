@@ -80,6 +80,9 @@ export function OrderCart({
         "takeaway" | "delivery"
     >("takeaway");
 
+    const [compactDetailsOpen, setCompactDetailsOpen] =
+        useState(false);
+
     /*
     |--------------------------------------------------------------------------
     | Track lines saved during this component lifecycle
@@ -1054,6 +1057,7 @@ export function OrderCart({
                     shrink-0
                     border-b
                     p-5
+                    [@media(max-height:820px)]:p-3
                 "
             >
                 <div
@@ -1066,7 +1070,7 @@ export function OrderCart({
                     <div>
                         <h2
                             className="
-                                text-xl
+                                text-lg
                                 font-bold
                             "
                         >
@@ -1117,6 +1121,8 @@ export function OrderCart({
                     space-y-3
                     overflow-y-auto
                     p-5
+                    [@media(max-height:820px)]:space-y-2
+                    [@media(max-height:820px)]:p-3
                 "
             >
                 {cart.length === 0 ? (
@@ -1191,11 +1197,31 @@ export function OrderCart({
         border-t
         bg-white
         p-5
+        [@media(max-height:820px)]:space-y-2
+        [@media(max-height:820px)]:p-3
     "
             >
+                <div className="hidden [@media(max-height:820px)]:block">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                            setCompactDetailsOpen(
+                                previous =>
+                                    !previous
+                            )
+                        }
+                        className="h-9 w-full rounded-lg text-sm"
+                    >
+                        {compactDetailsOpen
+                            ? "Hide Details"
+                            : "Show Details"}
+                    </Button>
+                </div>
+
                 {/* ORDER TYPE */}
                 {mode === "takeaway" && (
-                    <div className="space-y-2.5">
+                    <div className="space-y-2.5 [@media(max-height:820px)]:hidden">
                         {/* <div className="flex items-center justify-between">
                             <p className="text-sm font-semibold">
                                 Order Type
@@ -1258,9 +1284,87 @@ export function OrderCart({
                     </div>
                 )}
 
+                {compactDetailsOpen && (
+                    <div className="hidden space-y-3 [@media(max-height:820px)]:block">
+                        {mode === "takeaway" && (
+                            <div className="space-y-2">
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Button
+                                        type="button"
+                                        variant={
+                                            orderType === "takeaway"
+                                                ? "default"
+                                                : "outline"
+                                        }
+                                        onClick={() =>
+                                            setOrderType("takeaway")
+                                        }
+                                        className="h-9 rounded-lg"
+                                    >
+                                        {orderType === "takeaway" && (
+                                            <span className="mr-1.5">
+                                                ✓
+                                            </span>
+                                        )}
+
+                                        Takeaway
+                                    </Button>
+
+                                    <Button
+                                        type="button"
+                                        variant={
+                                            orderType === "delivery"
+                                                ? "default"
+                                                : "outline"
+                                        }
+                                        onClick={() =>
+                                            setOrderType("delivery")
+                                        }
+                                        className="h-9 rounded-lg"
+                                    >
+                                        {orderType === "delivery" && (
+                                            <span className="mr-1.5">
+                                                ✓
+                                            </span>
+                                        )}
+
+                                        Delivery
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">
+                                    Subtotal
+                                </span>
+
+                                <span className="font-medium">
+                                    {subtotal.toFixed(2)} QAR
+                                </span>
+                            </div>
+
+                            {discountAmount > 0 && (
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-muted-foreground">
+                                        Discount
+                                    </span>
+
+                                    <span className="font-medium text-green-600">
+                                        -{discountAmount.toFixed(2)} QAR
+                                    </span>
+                                </div>
+                            )}
+
+                            <Separator />
+                        </div>
+                    </div>
+                )}
+
                 {/* TOTALS */}
                 <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-sm [@media(max-height:820px)]:hidden">
                         <span className="text-muted-foreground">
                             Subtotal
                         </span>
@@ -1271,7 +1375,7 @@ export function OrderCart({
                     </div>
 
                     {discountAmount > 0 && (
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between text-sm [@media(max-height:820px)]:hidden">
                             <span className="text-muted-foreground">
                                 Discount
                             </span>
@@ -1282,14 +1386,16 @@ export function OrderCart({
                         </div>
                     )}
 
-                    <Separator />
+                    <div className="[@media(max-height:820px)]:hidden">
+                        <Separator />
+                    </div>
 
-                    <div className="flex items-end justify-between">
+                    <div className="flex items-end justify-between [@media(max-height:820px)]:items-center">
                         <span className="text-base font-semibold">
                             Total
                         </span>
 
-                        <span className="text-2xl font-bold tracking-tight">
+                        <span className="text-2xl font-bold tracking-tight [@media(max-height:820px)]:text-xl">
                             {total.toFixed(2)} QAR
                         </span>
                     </div>
@@ -1361,6 +1467,7 @@ export function OrderCart({
             w-full
             rounded-xl
             text-base
+            [@media(max-height:820px)]:h-10
         "
                         >
                             Add Items to Order
@@ -1374,6 +1481,7 @@ export function OrderCart({
             w-full
             rounded-xl
             text-base
+            [@media(max-height:820px)]:h-10
         "
                         >
                             {saving
@@ -1389,6 +1497,7 @@ export function OrderCart({
             w-full
             rounded-xl
             text-base
+            [@media(max-height:820px)]:h-10
         "
                         >
                             {saving
@@ -1404,6 +1513,7 @@ export function OrderCart({
             w-full
             rounded-xl
             text-base
+            [@media(max-height:820px)]:h-10
         "
                         >
                             {saving || updating
@@ -1427,6 +1537,7 @@ export function OrderCart({
                                 bg-green-900
                                 text-base
                                 hover:bg-green-800
+                                [@media(max-height:820px)]:h-10
                             "
                         >
                             {status === "completed"

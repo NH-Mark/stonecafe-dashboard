@@ -1077,29 +1077,32 @@ export const useOrderStore = create<OrderStore>(
                 let nextCart: CartItem[];
 
                 if (existingItem) {
-                    nextCart = activeOrder.cart.map(
-                        item =>
-                            item.lineId ===
+                    const updatedExistingItem = {
+                        ...existingItem,
+
+                        quantity:
+                            existingItem.quantity +
+                            newItem.quantity,
+
+                        // Keep the backend ID if
+                        // this item already exists.
+                        orderItemId:
+                            existingItem.orderItemId ??
+                            newItem.orderItemId,
+                    };
+
+                    nextCart = [
+                        updatedExistingItem,
+                        ...activeOrder.cart.filter(
+                            item =>
+                                item.lineId !==
                                 existingItem.lineId
-                                ? {
-                                    ...item,
-
-                                    quantity:
-                                        item.quantity +
-                                        newItem.quantity,
-
-                                    // Keep the backend ID if
-                                    // this item already exists.
-                                    orderItemId:
-                                        item.orderItemId ??
-                                        newItem.orderItemId,
-                                }
-                                : item
-                    );
+                        ),
+                    ];
                 } else {
                     nextCart = [
-                        ...activeOrder.cart,
                         newItem,
+                        ...activeOrder.cart,
                     ];
                 }
 

@@ -23,6 +23,16 @@ import { useEffect } from "react";
 
 export function ModifierDialog() {
 
+    function focusMenuSearch() {
+        // Wait until dialog closes and focus trap is released.
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                const searchInput = document.getElementById("walkin-menu-search") as HTMLInputElement | null;
+                searchInput?.focus();
+            }, 0);
+        });
+    }
+
     const {
         open,
         item,
@@ -207,6 +217,7 @@ export function ModifierDialog() {
 
 
         closeDialog();
+        focusMenuSearch();
 
     }
 

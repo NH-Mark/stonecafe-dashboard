@@ -34,17 +34,5 @@ export function TopGrossingModifiersColumns(): ColumnDef<TopModifier>[] {
             cell: ({ row }) =>
                 `QAR ${Number(row.getValue("sales") ?? 0).toFixed(2)}`,
         },
-        {
-            id: "cogs",
-            accessorFn: (row) =>
-                Number(
-                    row.cogs ??
-                    row.total_cogs ??
-                    0
-                ),
-            header: "Total COGS",
-            cell: ({ row }) =>
-                `QAR ${Number(row.getValue("cogs") ?? 0).toFixed(2)}`,
-        },
     ];
 }

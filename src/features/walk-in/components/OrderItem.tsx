@@ -197,11 +197,11 @@ export function OrderItem({
 
         <div
             className="
-                space-y-4
+                space-y-3
                 rounded-3xl
                 border
                 bg-white
-                p-4
+                p-3
                 shadow-sm
             "
         >
@@ -235,7 +235,7 @@ export function OrderItem({
                 className="
                     flex
                     justify-between
-                    gap-4
+                    gap-3
                 "
             >
 
@@ -255,7 +255,7 @@ export function OrderItem({
 
                         <h3
                             className="
-                                text-base
+                                text-sm
                                 font-bold
                             "
                         >
@@ -302,7 +302,7 @@ export function OrderItem({
 
                         <div
                             className="
-                                mt-2
+                                mt-1
                                 space-y-1
                                 text-xs
                                 text-muted-foreground
@@ -439,7 +439,7 @@ export function OrderItem({
 
                     <p
                         className="
-                            text-lg
+                            text-base
                             font-bold
                         "
                     >

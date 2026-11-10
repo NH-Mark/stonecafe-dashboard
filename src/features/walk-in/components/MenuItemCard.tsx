@@ -17,6 +17,13 @@ export function MenuItemCard({
 }: {
     item: MenuItem;
 }) {
+    const focusMenuSearch = () => {
+        requestAnimationFrame(() => {
+            const searchInput = document.getElementById("walkin-menu-search") as HTMLInputElement | null;
+            searchInput?.focus();
+        });
+    };
+
     const [adding, setAdding] = useState(false);
 
     const addItem = useOrderStore(
@@ -63,6 +70,7 @@ export function MenuItemCard({
             });
 
             setSearch("");
+            focusMenuSearch();
 
             // Keep loader visible briefly so the user
             // gets visual feedback.

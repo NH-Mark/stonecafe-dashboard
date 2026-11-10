@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import {
     useEffect,
     useMemo,
+    useRef,
     useState,
 } from "react";
 import Cookies from "js-cookie";
@@ -888,6 +889,7 @@ export function Header({
                         />
 
                         <Input
+                            id="walkin-menu-search"
                             value={search}
                             onChange={event =>
                                 setSearch(event.target.value)
