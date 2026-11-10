@@ -56,6 +56,7 @@ export type OrderTypeSales = {
 export interface TopItem {
   menu_item_id: number;
   name: string;
+  sku?: string | null;
   category_id: number | null;
   category_name: string | null;
   qty: number;

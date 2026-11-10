@@ -9,8 +9,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-import { ArrowRight, Filter } from "lucide-react";
+import { ArrowRight, Download, Filter } from "lucide-react";
 
 import { TopItem } from "../../sales.types";
 import { DataTable } from "@/components/data-table/data-table";
@@ -37,6 +38,31 @@ function formatWithoutRounding(
             : Math.ceil(value * factor);
 
     return (scaled / factor).toFixed(decimals);
+}
+
+function toNumber(value: unknown) {
+    const parsed = Number(value ?? 0);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function normalizeNumber(value: unknown) {
+    const parsed = toNumber(value);
+    return `${parsed}`;
+}
+
+function getItemCode(item: TopItem) {
+    return (
+        item.sku ??
+        ""
+    );
+}
+
+function escapeCsvValue(value: string) {
+    if (/[",\n]/.test(value)) {
+        return `"${value.replace(/"/g, '""')}"`;
+    }
+
+    return value;
 }
 
 export default function TopSellingItemsDialog({ data }: Props) {
@@ -115,6 +141,48 @@ export default function TopSellingItemsDialog({ data }: Props) {
         );
     }, [filteredData]);
 
+    function handleExportCsv() {
+        const headers = [
+            "Category",
+            "Item Name",
+            "Item Code",
+            "Total Sold",
+            "Total Amount",
+            "Total COGS",
+        ];
+
+        const lines = [headers.join(",")];
+
+        filteredData.forEach((item) => {
+            const row = [
+                item.category_name ?? "",
+                item.name ?? "",
+                getItemCode(item),
+                normalizeNumber(item.qty),
+                normalizeNumber(item.sales),
+                normalizeNumber(item.cogs),
+            ].map((value) =>
+                escapeCsvValue(String(value ?? ""))
+            );
+
+            lines.push(row.join(","));
+        });
+
+        const csv = lines.join("\n");
+        const blob = new Blob([csv], {
+            type: "text/csv;charset=utf-8;",
+        });
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "top-selling-items.csv";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
     return (
         <Dialog>
             <DialogTrigger
@@ -183,35 +251,47 @@ export default function TopSellingItemsDialog({ data }: Props) {
                                 Filter by category
                             </div>
 
-                            <select
-                                value={selectedCategory}
-                                onChange={(event) =>
-                                    setSelectedCategory(event.target.value)
-                                }
-                                disabled={loadingCategories}
-                                className="
+                            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                                <select
+                                    value={selectedCategory}
+                                    onChange={(event) =>
+                                        setSelectedCategory(event.target.value)
+                                    }
+                                    disabled={loadingCategories}
+                                    className="
                                     w-full rounded-lg border border-[#d9d9d8]
                                     bg-white px-3 py-2 text-sm outline-none
                                     focus:ring-2 focus:ring-[#a5765a]
                                     disabled:opacity-60 sm:w-64
                                 "
-                                aria-label="Filter items by category"
-                            >
-                                <option value="all">
-                                    {loadingCategories
-                                        ? "Loading categories..."
-                                        : "All categories"}
-                                </option>
-
-                                {categories.map((category) => (
-                                    <option
-                                        key={category.id}
-                                        value={String(category.id)}
-                                    >
-                                        {category.name}
+                                    aria-label="Filter items by category"
+                                >
+                                    <option value="all">
+                                        {loadingCategories
+                                            ? "Loading categories..."
+                                            : "All categories"}
                                     </option>
-                                ))}
-                            </select>
+
+                                    {categories.map((category) => (
+                                        <option
+                                            key={category.id}
+                                            value={String(category.id)}
+                                        >
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleExportCsv}
+                                    className="gap-2"
+                                >
+                                    <Download className="h-4 w-4" />
+                                    Export CSV
+                                </Button>
+                            </div>
                         </div>
 
                         <DataTable
