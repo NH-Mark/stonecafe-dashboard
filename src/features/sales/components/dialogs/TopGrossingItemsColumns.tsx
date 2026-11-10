@@ -18,20 +18,20 @@ export function TopGrossingItemsColumns(): ColumnDef<TopItem>[] {
             accessorKey: "qty",
             header: "Total Sold",
         },
-        // {
-        //     accessorKey: "cogs",
-        //     header: "Total COGS",
-        //     cell: ({ row }) =>
-        //         `QAR ${Number(row.original.cogs ?? 0).toFixed(2)}`,
-        // },
-        // {
-        //     id: "profitability",
-        //     accessorFn: (row) => row.profitability?.percentage ?? 0,
-        //     header: "Profitability",
-        //     cell: ({ row }) =>
-        //         `${Number(
-        //             row.original.profitability?.percentage ?? 0
-        //         ).toFixed(2)}%`,
-        // },
+        {
+            accessorKey: "cogs",
+            header: "Total COGS",
+            cell: ({ row }) =>
+                `QAR ${Number(row.original.cogs ?? 0).toFixed(2)}`,
+        },
+        {
+            id: "profitability",
+            accessorFn: (row) => row.profitability?.percentage ?? 0,
+            header: "Profitability",
+            cell: ({ row }) =>
+                `${Number(
+                    row.original.profitability?.percentage ?? 0
+                ).toFixed(2)}%`,
+        },
     ];
 }

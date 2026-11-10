@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { TopItem, TopModifier } from "../../sales.types";
+import { TopModifier } from "../../sales.types";
 
 
 interface Props {
@@ -7,9 +7,7 @@ interface Props {
 }
 
 export function TopSellingModifiersColumns(): ColumnDef<TopModifier>[] {
-
     return [
-
         {
             accessorKey: "name",
             header: "Name"
@@ -22,16 +20,29 @@ export function TopSellingModifiersColumns(): ColumnDef<TopModifier>[] {
             accessorKey: "qty",
             header: "Total Sold"
         },
-        // {
-        //     accessorKey: "total_cogs",
-        //     header: "Total Cogs"
-        // },
         {
-            accessorKey: "sales",
-            header: "Total Amount"
+            id: "cogs",
+            accessorFn: (row) =>
+                Number(
+                    row.cogs ??
+                    row.total_cogs ??
+                    0
+                ),
+            header: "Total Cogs",
+            cell: ({ row }) =>
+                `QAR ${Number(row.getValue("cogs") ?? 0).toFixed(2)}`,
         },
-
+        {
+            id: "sales",
+            accessorFn: (row) =>
+                Number(
+                    row.sales ??
+                    row.total_amount ??
+                    0
+                ),
+            header: "Total Amount",
+            cell: ({ row }) =>
+                `QAR ${Number(row.getValue("sales") ?? 0).toFixed(2)}`,
+        },
     ];
-
-
 }

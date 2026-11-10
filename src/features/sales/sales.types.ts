@@ -73,6 +73,9 @@ export type TopModifier = {
     name: string;
     qty: number;
     sales: number;
+    total_amount?: number;
+    cogs?: number;
+    total_cogs?: number;
     menu_item:string;
     price:number;
     category_id: number | null;

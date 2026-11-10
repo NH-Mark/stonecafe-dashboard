@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import * as XLSX from "xlsx";
 
 import {
     Dialog,
@@ -50,6 +51,11 @@ function normalizeNumber(value: unknown) {
     return `${parsed}`;
 }
 
+function normalizeProfitability(value: unknown) {
+    const parsed = toNumber(value);
+    return `${parsed}`;
+}
+
 function getItemCode(item: TopItem) {
     return (
         item.sku ??
@@ -57,12 +63,18 @@ function getItemCode(item: TopItem) {
     );
 }
 
-function escapeCsvValue(value: string) {
-    if (/[",\n]/.test(value)) {
-        return `"${value.replace(/"/g, '""')}"`;
-    }
-
-    return value;
+function buildExportRows(items: TopItem[]) {
+    return items.map((item) => ({
+        Category: item.category_name ?? "",
+        "Item Name": item.name ?? "",
+        "Item Code": getItemCode(item),
+        "Total Sold": normalizeNumber(item.qty),
+        "Total Amount": normalizeNumber(item.sales),
+        "Total COGS": normalizeNumber(item.cogs),
+        "profit%": normalizeProfitability(
+            item.profitability?.percentage
+        ),
+    }));
 }
 
 export default function TopSellingItemsDialog({ data }: Props) {
@@ -141,46 +153,34 @@ export default function TopSellingItemsDialog({ data }: Props) {
         );
     }, [filteredData]);
 
-    function handleExportCsv() {
-        const headers = [
-            "Category",
-            "Item Name",
-            "Item Code",
-            "Total Sold",
-            "Total Amount",
-            "Total COGS",
-        ];
+    function handleExportExcel() {
+        const rows = buildExportRows(filteredData);
 
-        const lines = [headers.join(",")];
+        const worksheet = XLSX.utils.json_to_sheet(
+            rows,
+            {
+                header: [
+                    "Category",
+                    "Item Name",
+                    "Item Code",
+                    "Total Sold",
+                    "Total Amount",
+                    "Total COGS",
+                    "profit%",
+                ],
+            }
+        );
 
-        filteredData.forEach((item) => {
-            const row = [
-                item.category_name ?? "",
-                item.name ?? "",
-                getItemCode(item),
-                normalizeNumber(item.qty),
-                normalizeNumber(item.sales),
-                normalizeNumber(item.cogs),
-            ].map((value) =>
-                escapeCsvValue(String(value ?? ""))
-            );
-
-            lines.push(row.join(","));
-        });
-
-        const csv = lines.join("\n");
-        const blob = new Blob([csv], {
-            type: "text/csv;charset=utf-8;",
-        });
-
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "top-selling-items.csv";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Top Selling Items"
+        );
+        XLSX.writeFile(
+            workbook,
+            "top-selling-items.xlsx"
+        );
     }
 
     return (
@@ -285,11 +285,11 @@ export default function TopSellingItemsDialog({ data }: Props) {
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    onClick={handleExportCsv}
+                                    onClick={handleExportExcel}
                                     className="gap-2"
                                 >
                                     <Download className="h-4 w-4" />
-                                    Export CSV
+                                    Export Excel
                                 </Button>
                             </div>
                         </div>

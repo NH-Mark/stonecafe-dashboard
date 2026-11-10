@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import * as XLSX from "xlsx";
 
 import {
     Dialog,
@@ -9,8 +10,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Download } from "lucide-react";
 import { TopModifier } from "../../sales.types";
 import { DataTable } from "@/components/data-table/data-table";
 import { TopGrossingModifiersColumns } from "./TopGrossingModifiersColumns";
@@ -23,6 +25,31 @@ type Category = {
 type Props = {
     data: TopModifier[];
 };
+
+function toNumber(value: unknown) {
+    const parsed = Number(value ?? 0);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function normalizeNumber(value: unknown) {
+    return `${toNumber(value)}`;
+}
+
+function buildExportRows(items: TopModifier[]) {
+    return items.map((item) => ({
+        Category: item.category_name ?? "",
+        "Modifier Name": item.name ?? "",
+        "Menu Item": item.menu_item ?? "",
+        "Total Sold": normalizeNumber(item.qty),
+        "Unit Price": normalizeNumber(item.price),
+        "Total Amount": normalizeNumber(
+            item.sales ?? item.total_amount
+        ),
+        "Total COGS": normalizeNumber(
+            item.cogs ?? item.total_cogs
+        ),
+    }));
+}
 
 export default function TopGrossingModifiersDialog({
     data,
@@ -62,6 +89,36 @@ export default function TopGrossingModifiersDialog({
                 String(item.category_id) === selectedCategory
         );
     }, [data, selectedCategory]);
+
+    function handleExportExcel() {
+        const rows = buildExportRows(filteredData);
+
+        const worksheet = XLSX.utils.json_to_sheet(
+            rows,
+            {
+                header: [
+                    "Category",
+                    "Modifier Name",
+                    "Menu Item",
+                    "Total Sold",
+                    "Unit Price",
+                    "Total Amount",
+                    "Total COGS",
+                ],
+            }
+        );
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Top Grossing Modifiers"
+        );
+        XLSX.writeFile(
+            workbook,
+            "top-grossing-modifiers.xlsx"
+        );
+    }
 
     return (
         <Dialog>
@@ -129,13 +186,14 @@ export default function TopGrossingModifiersDialog({
                                 Filter by category
                             </label>
 
-                            <select
-                                id="modifier-category-filter"
-                                value={selectedCategory}
-                                onChange={(event) =>
-                                    setSelectedCategory(event.target.value)
-                                }
-                                className="
+                            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                                <select
+                                    id="modifier-category-filter"
+                                    value={selectedCategory}
+                                    onChange={(event) =>
+                                        setSelectedCategory(event.target.value)
+                                    }
+                                    className="
                                     h-10 min-w-[220px] rounded-xl
                                     border border-[#d9d9d8] bg-white
                                     px-4 text-sm text-[#40332a]
@@ -143,18 +201,29 @@ export default function TopGrossingModifiersDialog({
                                     focus:border-[#a5765a]
                                     focus:ring-2 focus:ring-[#a5765a]/20
                                 "
-                            >
-                                <option value="all">All Categories</option>
+                                >
+                                    <option value="all">All Categories</option>
 
-                                {categories.map((category) => (
-                                    <option
-                                        key={category.id}
-                                        value={String(category.id)}
-                                    >
-                                        {category.name}
-                                    </option>
-                                ))}
-                            </select>
+                                    {categories.map((category) => (
+                                        <option
+                                            key={category.id}
+                                            value={String(category.id)}
+                                        >
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleExportExcel}
+                                    className="gap-2"
+                                >
+                                    <Download className="h-4 w-4" />
+                                    Export Excel
+                                </Button>
+                            </div>
                         </div>
 
                         <DataTable

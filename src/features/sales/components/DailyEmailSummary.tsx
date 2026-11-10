@@ -851,7 +851,7 @@ export default function SalesEmailSettings() {
                                     : "Save"}
 
                             </button>
-                            <button
+                            {/* <button
                                 type="button"
                                 disabled={sending}
                                 onClick={handleSendNow}
@@ -879,7 +879,7 @@ export default function SalesEmailSettings() {
                                 <Send className="h-3.5 w-3.5 shrink-0" />
 
                                 {sending ? "Sending..." : "Send Test"}
-                            </button>
+                            </button> */}
 
                         </div>
 

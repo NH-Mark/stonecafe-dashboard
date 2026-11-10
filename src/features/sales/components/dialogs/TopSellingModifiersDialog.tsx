@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import * as XLSX from "xlsx";
 
 import {
     Dialog,
@@ -9,8 +10,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-import { ArrowRight, Filter } from "lucide-react";
+import { ArrowRight, Download, Filter } from "lucide-react";
 
 import { TopModifier } from "../../sales.types";
 import { DataTable } from "@/components/data-table/data-table";
@@ -25,6 +27,31 @@ type Category = {
 type Props = {
     data: TopModifier[];
 };
+
+function toNumber(value: unknown) {
+    const parsed = Number(value ?? 0);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function normalizeNumber(value: unknown) {
+    return `${toNumber(value)}`;
+}
+
+function buildExportRows(items: TopModifier[]) {
+    return items.map((item) => ({
+        Category: item.category_name ?? "",
+        "Modifier Name": item.name ?? "",
+        "Menu Item": item.menu_item ?? "",
+        "Total Sold": normalizeNumber(item.qty),
+        "Unit Price": normalizeNumber(item.price),
+        "Total Amount": normalizeNumber(
+            item.sales ?? item.total_amount
+        ),
+        "Total COGS": normalizeNumber(
+            item.cogs ?? item.total_cogs
+        ),
+    }));
+}
 
 export default function TopSellingModifiersDialog({ data }: Props) {
     const [selectedCategory, setSelectedCategory] = useState("all");
@@ -81,6 +108,36 @@ export default function TopSellingModifiersDialog({ data }: Props) {
             (item) => String(item.category_id) === selectedCategory
         );
     }, [safeData, selectedCategory]);
+
+    function handleExportExcel() {
+        const rows = buildExportRows(filteredData);
+
+        const worksheet = XLSX.utils.json_to_sheet(
+            rows,
+            {
+                header: [
+                    "Category",
+                    "Modifier Name",
+                    "Menu Item",
+                    "Total Sold",
+                    "Unit Price",
+                    "Total Amount",
+                    "Total COGS",
+                ],
+            }
+        );
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Top Selling Modifiers"
+        );
+        XLSX.writeFile(
+            workbook,
+            "top-selling-modifiers.xlsx"
+        );
+    }
 
     return (
         <Dialog>
@@ -151,35 +208,47 @@ export default function TopSellingModifiersDialog({ data }: Props) {
                                 Filter by category
                             </div>
 
-                            <select
-                                value={selectedCategory}
-                                onChange={(event) =>
-                                    setSelectedCategory(event.target.value)
-                                }
-                                disabled={loadingCategories}
-                                aria-label="Filter modifiers by category"
-                                className="
+                            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                                <select
+                                    value={selectedCategory}
+                                    onChange={(event) =>
+                                        setSelectedCategory(event.target.value)
+                                    }
+                                    disabled={loadingCategories}
+                                    aria-label="Filter modifiers by category"
+                                    className="
                                     w-full rounded-lg border border-[#d9d9d8]
                                     bg-white px-3 py-2 text-sm outline-none
                                     focus:ring-2 focus:ring-[#a5765a]
                                     disabled:opacity-60 sm:w-64
                                 "
-                            >
-                                <option value="all">
-                                    {loadingCategories
-                                        ? "Loading categories..."
-                                        : "All categories"}
-                                </option>
-
-                                {categories.map((category) => (
-                                    <option
-                                        key={category.id}
-                                        value={String(category.id)}
-                                    >
-                                        {category.name}
+                                >
+                                    <option value="all">
+                                        {loadingCategories
+                                            ? "Loading categories..."
+                                            : "All categories"}
                                     </option>
-                                ))}
-                            </select>
+
+                                    {categories.map((category) => (
+                                        <option
+                                            key={category.id}
+                                            value={String(category.id)}
+                                        >
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleExportExcel}
+                                    className="gap-2"
+                                >
+                                    <Download className="h-4 w-4" />
+                                    Export Excel
+                                </Button>
+                            </div>
                         </div>
 
                         <DataTable
