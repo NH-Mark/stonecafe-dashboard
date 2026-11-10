@@ -61,6 +61,7 @@ export default function RecipeCostCard({
         watch,
         setValue,
         register,
+        formState: { dirtyFields },
     } = useFormContext<MenuItemFormValues>();
 
     const {
@@ -205,7 +206,25 @@ export default function RecipeCostCard({
             getValues("cost_price") ?? 0
         );
 
-        if (currentCostPrice !== roundedRecipeCostTotal) {
+        const hasRecipeRows =
+            recipeRows.length > 0;
+
+        const isIngredientsDirty =
+            Boolean(
+                dirtyFields.menu_item_ingredients
+            );
+
+        const shouldSyncCostPrice =
+            hasRecipeRows &&
+            (
+                isIngredientsDirty ||
+                currentCostPrice === 0
+            );
+
+        if (
+            shouldSyncCostPrice &&
+            currentCostPrice !== roundedRecipeCostTotal
+        ) {
             setValue("cost_price", roundedRecipeCostTotal, {
                 shouldDirty: true,
                 shouldValidate: true,
@@ -215,6 +234,7 @@ export default function RecipeCostCard({
         recipeRows,
         recipeCostTotal,
         roundedRecipeCostTotal,
+        dirtyFields.menu_item_ingredients,
         getValues,
         setValue,
     ]);

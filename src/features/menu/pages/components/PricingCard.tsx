@@ -62,14 +62,13 @@ export default function PricingCard() {
                     <Input
                         type="number"
                         step="0.001"
-                        disabled
                         {...register("cost_price", {
                             valueAsNumber: true,
                         })}
                     />
-                    <p className="text-xs text-muted-foreground">
+                    {/* <p className="text-xs text-muted-foreground">
                         Auto-calculated from recipe cost.
-                    </p>
+                    </p> */}
                     <p className="text-sm text-destructive">
                         {errors.cost_price?.message}
                     </p>
